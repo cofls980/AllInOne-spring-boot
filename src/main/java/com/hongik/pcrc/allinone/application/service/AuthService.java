@@ -29,7 +29,9 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
                 .build();
 
         var authEntity = new AuthEntity(auth);
+        System.out.println(authEntity.getBirth());
         var result = authRepository.save(authEntity);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!");
 
         return FindAuthResult.findByAuth(result.toAuth());
     }

@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.infrastructure.persistance.mysql.entity;
 
 import com.hongik.pcrc.allinone.application.domain.Auth;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -11,10 +12,11 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Entity
+@NoArgsConstructor
 @Table(name = "auth")
 public class AuthEntity {
 
-    @Id @GeneratedValue
+    @Id //@GeneratedValue
     private String id;
     @Column(nullable = false)
     private String password;
