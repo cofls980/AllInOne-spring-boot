@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 @Service
@@ -48,6 +50,7 @@ public class EmailService {
         var result = Email.builder()
                 .id(email)
                 .code(code)
+                .createdDate(LocalDateTime.now())
                 .build();
         var emailEntity = new EmailEntity(result);
         emailRepository.save(emailEntity);
@@ -62,8 +65,11 @@ public class EmailService {
         var emailEntity = emailRepository.findById(email);
 
         if (emailEntity.isPresent()) {
-            if (emailEntity.get().getCode().equals(inputCode))
-                return "true";
+            if (emailEntity.get().getCode().equals(inputCode)) {
+                Duration duration = Duration.between(emailEntity.get().getCreatedDate(), LocalDateTime.now());
+                if (duration.getSeconds() <= 180)
+                    return "true";
+            }
         }
         return "false";
     }
