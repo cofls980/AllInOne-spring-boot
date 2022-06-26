@@ -7,6 +7,7 @@ import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthCreateRequest;
 import com.hongik.pcrc.allinone.ui.view.ApiResponseView;
 import com.hongik.pcrc.allinone.ui.view.Auth.AuthView;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ public class AuthController {
     private final AuthOperationUseCase authOperationUseCase;
     private final AuthReadUseCase authReadUseCase;
 
+    @Autowired
     public AuthController(AuthOperationUseCase authOperationUseCase, AuthReadUseCase authReadUseCase) {
         this.authOperationUseCase = authOperationUseCase;
         this.authReadUseCase = authReadUseCase;
@@ -43,6 +45,10 @@ public class AuthController {
                 .build();
 
         var result = authOperationUseCase.createAuth(command);
+
+        if (result.getId().equals("conflict")) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        }
 
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
     }
