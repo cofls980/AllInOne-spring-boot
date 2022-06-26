@@ -1,5 +1,8 @@
 package com.hongik.pcrc.allinone.application.service;
 
+import com.hongik.pcrc.allinone.application.domain.Email;
+import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.entity.EmailEntity;
+import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.repository.EmailEntityRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -12,35 +15,56 @@ import java.util.Random;
 public class EmailService {
 
     private final JavaMailSender emailSender;
-    public static final String eCode = createKey();
+    private final EmailEntityRepository emailRepository;
 
-    public EmailService(JavaMailSender emailSender) {
+    public EmailService(JavaMailSender emailSender, EmailEntityRepository emailRepository) {
         this.emailSender = emailSender;
+        this.emailRepository = emailRepository;
     }
 
+    /**인증 코드 생성*/
+    public String createEmailCode() {
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0;i < 6;i++) {
+            code.append(random.nextInt(10));
+        }
+        return code.toString();
+    }
+
+    /**메일로 보낼 메시지*/
     private MimeMessage createMessage(String email) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(Message.RecipientType.TO, email);
         message.setSubject("All In One 인증 코드");
-        message.setText("인증 코드: " + eCode);
 
         return message;
     }
+    /**메일 보내기*/
+    public void sendMessage(String email) throws MessagingException {
+        String code = createEmailCode();
+        var result = Email.builder()
+                .id(email)
+                .code(code)
+                .build();
+        var emailEntity = new EmailEntity(result);
+        emailRepository.save(emailEntity);
 
-    public static  String createKey() {
-        StringBuilder key = new StringBuilder();
-        Random random = new Random();
+        MimeMessage message = createMessage(email);
+        message.setText("인증 코드: " + code);
 
-        for (int i = 0;i < 6;i++) {
-            key.append(random.nextInt(10));
-        }
-        return key.toString();
+        emailSender.send(message);
     }
 
-    public void sendMessage(String email) throws MessagingException {
-        MimeMessage message = createMessage(email);
-        emailSender.send(message);
+    public String verifyCode(String email, String inputCode) {
+        var emailEntity = emailRepository.findById(email);
 
+        if (emailEntity.isPresent()) {
+            if (emailEntity.get().getCode().equals(inputCode))
+                return "true";
+        }
+        return "false";
     }
 }
