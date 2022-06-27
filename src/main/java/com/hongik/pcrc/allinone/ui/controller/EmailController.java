@@ -1,5 +1,6 @@
 package com.hongik.pcrc.allinone.ui.controller;
 
+import com.hongik.pcrc.allinone.application.service.EmailRedisService;
 import com.hongik.pcrc.allinone.application.service.EmailService;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -21,9 +22,11 @@ import java.util.Map;
 public class EmailController {
 
     private final EmailService emailService;
+    private final EmailRedisService emailRedisService;
 
-    public EmailController(EmailService emailService) {
+    public EmailController(EmailService emailService, EmailRedisService emailRedisService) {
         this.emailService = emailService;
+        this.emailRedisService = emailRedisService;
     }
 
     /** 이메일 인증 코드 보내기*/
@@ -44,6 +47,9 @@ public class EmailController {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
         String result = emailService.verifyCode(request.getId(), request.getCode());
+        if (result.equals("false")) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
         return ResponseEntity.ok(new ApiResponseView<>(new EmailView(result)));
     }
