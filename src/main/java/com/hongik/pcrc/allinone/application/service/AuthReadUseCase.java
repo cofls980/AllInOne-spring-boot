@@ -4,15 +4,20 @@ import com.hongik.pcrc.allinone.application.domain.Auth;
 import lombok.*;
 
 public interface AuthReadUseCase {
+
+    FindAuthResult getAuth(AuthFindQuery query);
+
     @NoArgsConstructor
     @EqualsAndHashCode(callSuper = false)
     @Getter
     @ToString
     class AuthFindQuery {
         private String authId;
+        private String password;
 
-        public AuthFindQuery(String authId) {
+        public AuthFindQuery(String authId, String password) {
             this.authId = authId;
+            this.password = password;
         }
     }
 

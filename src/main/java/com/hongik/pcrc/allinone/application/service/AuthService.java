@@ -46,4 +46,17 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         return FindAuthResult.findByAuth(result.toAuth());
     }
 
+
+    @Override
+    public FindAuthResult getAuth(AuthFindQuery query) {
+
+        var authEntity = authRepository.findById(query.getAuthId());
+
+        if (authEntity.isPresent()) {
+            boolean result = passwordEncoder.matches(query.getPassword(), authEntity.get().getPassword());
+            if (result)
+                return FindAuthResult.findByAuth(authEntity.get().toAuth());
+        }
+        return null;
+    }
 }

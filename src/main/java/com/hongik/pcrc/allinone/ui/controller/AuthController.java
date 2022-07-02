@@ -5,15 +5,13 @@ import com.hongik.pcrc.allinone.application.service.AuthReadUseCase;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthCreateRequest;
+import com.hongik.pcrc.allinone.ui.requestBody.AuthSignInRequest;
 import com.hongik.pcrc.allinone.ui.view.ApiResponseView;
 import com.hongik.pcrc.allinone.ui.view.Auth.AuthView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/v1/auth")
@@ -50,6 +48,21 @@ public class AuthController {
             throw new AllInOneException(MessageType.CONFLICT);
         }
 
+        return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request) {
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getId(), request.getPassword());
+        AuthReadUseCase.FindAuthResult result = authReadUseCase.getAuth(command);
+        if (result == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
     }
 }
