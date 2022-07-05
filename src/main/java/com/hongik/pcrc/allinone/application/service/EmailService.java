@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.application.service;
 
 import com.hongik.pcrc.allinone.application.domain.Email;
 import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.entity.EmailEntity;
+import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.repository.EmailEntityRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ public class EmailService {
 
     private final JavaMailSender emailSender;
     private final EmailEntityRepository emailRepository;
+    private final AuthEntityRepository authRepository;
 
-    public EmailService(JavaMailSender emailSender, EmailEntityRepository emailRepository) {
+    public EmailService(JavaMailSender emailSender, EmailEntityRepository emailRepository, AuthEntityRepository authRepository) {
         this.emailSender = emailSender;
         this.emailRepository = emailRepository;
+        this.authRepository = authRepository;
     }
 
     /**인증 코드 생성*/
@@ -72,5 +75,14 @@ public class EmailService {
             }
         }
         return "false";
+    }
+
+    public String sendMessageExist(String email) throws MessagingException {
+        var query = authRepository.existsById(email);
+        if (!query) {
+            return "not_found";
+        }
+        sendMessage(email);
+        return "true";
     }
 }

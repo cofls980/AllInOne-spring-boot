@@ -7,7 +7,9 @@ import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthCreateRequest;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthSignInRequest;
 import com.hongik.pcrc.allinone.ui.view.ApiResponseView;
+import com.hongik.pcrc.allinone.ui.view.Auth.AuthUpdateView;
 import com.hongik.pcrc.allinone.ui.view.Auth.AuthView;
+import com.hongik.pcrc.allinone.ui.view.Auth.EmailView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -51,7 +53,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/signin")
     public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -65,4 +67,27 @@ public class AuthController {
         }
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
     }
+
+    @PostMapping("/pwd")
+    public ResponseEntity<ApiResponseView<AuthUpdateView>> resetPassword(@RequestBody AuthSignInRequest request) {
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        var command = AuthOperationUseCase.AuthUpdateCommand.builder()
+                .id(request.getId())
+                .password(request.getPassword())
+                .build();
+
+        var result = authOperationUseCase.updateAuth(command);
+        if (result.equals("conflict")) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        } else if (result.equals("not_found")) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(new ApiResponseView<>(new AuthUpdateView("true")));
+    }
+
 }
