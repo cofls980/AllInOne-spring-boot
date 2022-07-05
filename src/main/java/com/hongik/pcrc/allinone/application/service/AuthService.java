@@ -46,6 +46,29 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         return FindAuthResult.findByAuth(result.toAuth());
     }
 
+    @Override
+    public String updateAuth(AuthUpdateCommand command) {
+        var authEntity = authRepository.findById(command.getId());
+
+        if (authEntity.isPresent()) {
+            boolean isSame = passwordEncoder.matches(command.getPassword(), authEntity.get().getPassword());
+            if (isSame)
+                return "conflict";
+            String encodePassword = passwordEncoder.encode(command.getPassword());
+            var auth = Auth.builder()
+                    .id(command.getId())
+                    .password(encodePassword)
+                    .name(authEntity.get().getName())
+                    .birth(authEntity.get().getBirth())
+                    .gender(authEntity.get().getGender())
+                    .phoneNumber(authEntity.get().getPhoneNumber())
+                    .build();
+            var entity = new AuthEntity(auth);
+            var result = authRepository.save(entity);
+            return "true";
+        }
+        return "not_found";
+    }
 
     @Override
     public FindAuthResult getAuth(AuthFindQuery query) {
