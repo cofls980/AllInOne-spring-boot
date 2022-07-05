@@ -1,6 +1,6 @@
 package com.hongik.pcrc.allinone.ui.controller;
 
-import com.hongik.pcrc.allinone.application.service.EmailRedisService;
+//import com.hongik.pcrc.allinone.application.service.EmailRedisService;
 import com.hongik.pcrc.allinone.application.service.EmailService;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -18,15 +18,14 @@ import javax.mail.MessagingException;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/v1/auth/email")
+@RequestMapping(value = "/v1/email")
 public class EmailController {
 
     private final EmailService emailService;
-    private final EmailRedisService emailRedisService;
+    //private final EmailRedisService emailRedisService;
 
-    public EmailController(EmailService emailService, EmailRedisService emailRedisService) {
+    public EmailController(EmailService emailService) {
         this.emailService = emailService;
-        this.emailRedisService = emailRedisService;
     }
 
     /** 이메일 인증 코드 보내기*/
@@ -35,13 +34,13 @@ public class EmailController {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        emailService.sendMessage(email.get("email"));
+        emailService.sendMessage(email.get("id"));
 
         return ResponseEntity.ok(new ApiResponseView<>(new EmailView("true")));
     }
 
     /** 이메일 인증 코드 검증*/
-    @PostMapping("/verifyCode")
+    @PostMapping("/confirm")
     public ResponseEntity<ApiResponseView<EmailView>> verifyCode(@RequestBody EmailVerifyRequest request) {
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
@@ -54,4 +53,16 @@ public class EmailController {
         return ResponseEntity.ok(new ApiResponseView<>(new EmailView(result)));
     }
 
+    @PostMapping("/pwd")
+    public ResponseEntity<ApiResponseView<EmailView>> emailPasswordAuth(@RequestBody Map<String, String> email) throws MessagingException {
+        if (ObjectUtils.isEmpty(email)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+        var result = emailService.sendMessageExist(email.get("id"));
+        if (result.equals("not_found")) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(new ApiResponseView<>(new EmailView(result)));
+    }
 }

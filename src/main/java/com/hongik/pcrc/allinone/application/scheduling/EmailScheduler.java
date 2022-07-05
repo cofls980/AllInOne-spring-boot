@@ -16,7 +16,7 @@ public class EmailScheduler {
         this.emailRepository = emailRepository;
     }
 
-    @Scheduled(fixedDelay = 1000 * 60 * 1)
+    @Scheduled(fixedDelay = 1000 * 60 * 60)
     public void scheduleEmailCodeDeleteTask() {
         System.out.println("Delete Complete");
 
