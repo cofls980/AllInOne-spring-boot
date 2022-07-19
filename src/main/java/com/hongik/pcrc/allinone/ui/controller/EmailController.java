@@ -6,7 +6,7 @@ import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.ui.requestBody.EmailVerifyRequest;
 import com.hongik.pcrc.allinone.ui.view.ApiResponseView;
-import com.hongik.pcrc.allinone.ui.view.Auth.EmailView;
+import com.hongik.pcrc.allinone.ui.view.Auth.SuccessView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,18 +30,18 @@ public class EmailController {
 
     /** 이메일 인증 코드 보내기*/
     @PostMapping("")
-    public ResponseEntity<ApiResponseView<EmailView>> emailAuth(@RequestBody Map<String, String> email) throws MessagingException {
+    public ResponseEntity<ApiResponseView<SuccessView>> emailAuth(@RequestBody Map<String, String> email) throws MessagingException {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
         emailService.sendMessage(email.get("id"));
 
-        return ResponseEntity.ok(new ApiResponseView<>(new EmailView("true")));
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
     /** 이메일 인증 코드 검증*/
     @PostMapping("/confirm")
-    public ResponseEntity<ApiResponseView<EmailView>> verifyCode(@RequestBody EmailVerifyRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> verifyCode(@RequestBody EmailVerifyRequest request) {
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -50,11 +50,11 @@ public class EmailController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return ResponseEntity.ok(new ApiResponseView<>(new EmailView(result)));
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView(result)));
     }
 
     @PostMapping("/pwd")
-    public ResponseEntity<ApiResponseView<EmailView>> emailPasswordAuth(@RequestBody Map<String, String> email) throws MessagingException {
+    public ResponseEntity<ApiResponseView<SuccessView>> emailPasswordAuth(@RequestBody Map<String, String> email) throws MessagingException {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -63,6 +63,6 @@ public class EmailController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return ResponseEntity.ok(new ApiResponseView<>(new EmailView(result)));
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView(result)));
     }
 }

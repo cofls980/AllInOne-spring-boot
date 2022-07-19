@@ -2,18 +2,21 @@ package com.hongik.pcrc.allinone.ui.controller;
 
 import com.hongik.pcrc.allinone.application.service.AuthOperationUseCase;
 import com.hongik.pcrc.allinone.application.service.AuthReadUseCase;
+import com.hongik.pcrc.allinone.application.service.JwtTokenProvider;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthCreateRequest;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthSignInRequest;
 import com.hongik.pcrc.allinone.ui.view.ApiResponseView;
-import com.hongik.pcrc.allinone.ui.view.Auth.AuthUpdateView;
 import com.hongik.pcrc.allinone.ui.view.Auth.AuthView;
-import com.hongik.pcrc.allinone.ui.view.Auth.EmailView;
+import com.hongik.pcrc.allinone.ui.view.Auth.SuccessView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/v1/auth")
@@ -21,15 +24,18 @@ public class AuthController {
 
     private final AuthOperationUseCase authOperationUseCase;
     private final AuthReadUseCase authReadUseCase;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AuthController(AuthOperationUseCase authOperationUseCase, AuthReadUseCase authReadUseCase) {
+    public AuthController(AuthOperationUseCase authOperationUseCase, AuthReadUseCase authReadUseCase, JwtTokenProvider jwtTokenProvider) {
         this.authOperationUseCase = authOperationUseCase;
         this.authReadUseCase = authReadUseCase;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    //sign up
     @PostMapping("")
-    public ResponseEntity<ApiResponseView<AuthView>> createAuth(@RequestBody AuthCreateRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@RequestBody AuthCreateRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
@@ -50,9 +56,10 @@ public class AuthController {
             throw new AllInOneException(MessageType.CONFLICT);
         }
 
-        return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
+    //sign in
     @PostMapping("/signin")
     public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request) {
 
@@ -65,11 +72,14 @@ public class AuthController {
         if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
-        return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result)));
+        //jwt 토큰 생성 필요
+        String token = jwtTokenProvider.generateToken(result.getId());
+        return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, token)));
     }
 
+    //reset pasword
     @PostMapping("/pwd")
-    public ResponseEntity<ApiResponseView<AuthUpdateView>> resetPassword(@RequestBody AuthSignInRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@RequestBody AuthSignInRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
@@ -87,7 +97,9 @@ public class AuthController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return ResponseEntity.ok(new ApiResponseView<>(new AuthUpdateView("true")));
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
+    //회원 정보 수정 -> jwt 토큰 인증
+        //response 헤더의 Bear Token 해석 필요
 }

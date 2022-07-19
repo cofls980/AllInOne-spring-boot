@@ -9,12 +9,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EmailView {
+public class SuccessView {
 
     private final String success;
 
 
-    public EmailView(String success) {
+    public SuccessView(String success) {
         this.success = success;
     }
 }

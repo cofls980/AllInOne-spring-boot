@@ -17,12 +17,14 @@ public class AuthView {
     private final String birth;
     private final String gender;
     private final String phoneNumber;
+    private final String token;
 
-    public AuthView(AuthReadUseCase.FindAuthResult result) {
+    public AuthView(AuthReadUseCase.FindAuthResult result, String token) {
         this.id = result.getId();
         this.name = result.getName();
         this.birth = result.getBirth();
         this.gender = result.getGender();
         this.phoneNumber = result.getPhoneNumber();
+        this.token = token;
     }
 }
