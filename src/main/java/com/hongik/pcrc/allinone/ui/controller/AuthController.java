@@ -1,8 +1,8 @@
 package com.hongik.pcrc.allinone.ui.controller;
 
+import com.hongik.pcrc.allinone.application.Authentication.JwtTokenProvider;
 import com.hongik.pcrc.allinone.application.service.AuthOperationUseCase;
 import com.hongik.pcrc.allinone.application.service.AuthReadUseCase;
-import com.hongik.pcrc.allinone.application.service.JwtTokenProvider;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.ui.requestBody.AuthCreateRequest;
@@ -15,8 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(value = "/v1/auth")
@@ -61,7 +60,7 @@ public class AuthController {
 
     //sign in
     @PostMapping("/signin")
-    public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request) {
+    public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request, HttpServletRequest httpServletRequest) throws Exception {
 
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
@@ -74,6 +73,7 @@ public class AuthController {
         }
         //jwt 토큰 생성 필요
         String token = jwtTokenProvider.generateToken(result.getId());
+
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, token)));
     }
 
@@ -100,6 +100,4 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    //회원 정보 수정 -> jwt 토큰 인증
-        //response 헤더의 Bear Token 해석 필요
 }

@@ -1,21 +1,16 @@
-package com.hongik.pcrc.allinone.application.service;
+package com.hongik.pcrc.allinone.application.Authentication;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.*;
 
 @RequiredArgsConstructor
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider_old {
     private String secretKey = "";
 
     //secretKey를 Base64로 인코딩

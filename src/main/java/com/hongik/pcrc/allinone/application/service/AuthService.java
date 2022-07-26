@@ -1,9 +1,11 @@
 package com.hongik.pcrc.allinone.application.service;
 
+import com.hongik.pcrc.allinone.application.Authentication.AuthDetailsService;
 import com.hongik.pcrc.allinone.application.domain.Auth;
 import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.entity.AuthEntity;
 import com.hongik.pcrc.allinone.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,10 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
 
     private final AuthEntityRepository authRepository;
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthDetailsService service;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder) {
@@ -78,7 +84,9 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         if (authEntity.isPresent()) {
             boolean result = passwordEncoder.matches(query.getPassword(), authEntity.get().getPassword());
             if (result)
+            {
                 return FindAuthResult.findByAuth(authEntity.get().toAuth());
+            }
         }
         return null;
     }
