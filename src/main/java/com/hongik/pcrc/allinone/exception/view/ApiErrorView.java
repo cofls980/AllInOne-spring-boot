@@ -1,4 +1,4 @@
-package com.hongik.pcrc.allinone.auth.ui.view;
+package com.hongik.pcrc.allinone.exception.view;
 
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;

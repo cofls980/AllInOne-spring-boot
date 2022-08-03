@@ -1,4 +1,4 @@
-package com.hongik.pcrc.allinone.auth.ui.view;
+package com.hongik.pcrc.allinone.exception.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
