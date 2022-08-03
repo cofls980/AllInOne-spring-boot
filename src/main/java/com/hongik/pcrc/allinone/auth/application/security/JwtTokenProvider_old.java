@@ -1,4 +1,4 @@
-package com.hongik.pcrc.allinone.application.Authentication;
+package com.hongik.pcrc.allinone.auth.application.security;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
