@@ -1,8 +1,8 @@
-package com.hongik.pcrc.allinone.auth.ui.advice;
+package com.hongik.pcrc.allinone.exception.advice;
 
-import com.hongik.pcrc.allinone.auth.ui.view.ApiErrorView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
+import com.hongik.pcrc.allinone.exception.view.ApiErrorView;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.beans.TypeMismatchException;

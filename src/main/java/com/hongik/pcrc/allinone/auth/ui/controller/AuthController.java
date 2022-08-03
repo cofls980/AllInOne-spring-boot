@@ -10,7 +10,7 @@ import com.hongik.pcrc.allinone.auth.ui.view.Auth.AuthView;
 import com.hongik.pcrc.allinone.auth.ui.view.Auth.SuccessView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
-import com.hongik.pcrc.allinone.auth.ui.view.ApiResponseView;
+import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
