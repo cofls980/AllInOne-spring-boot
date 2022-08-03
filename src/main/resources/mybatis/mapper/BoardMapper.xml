@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository">
+
+    <select id="getPost" parameterType="Integer" resultType="board">
+        select id, title, contents, writer, writer_email, date from board where id = #{id}
+    </select>
+
+    <insert id="post" parameterType="board">
+            insert into board(title, contents, writer, writer_email, date) value (#{title}, #{contents}, #{writer}, #{writer_email}, #{date})
+    </insert>
+
+    <update id="update" parameterType="board">
+            update board set title = #{title}, contents = #{contents}, date = #{date} where id = #{id}
+    </update>
+    
+    <delete id="delete" parameterType="Integer">
+        delete from board where id = #{id}
+    </delete>
+</mapper>
