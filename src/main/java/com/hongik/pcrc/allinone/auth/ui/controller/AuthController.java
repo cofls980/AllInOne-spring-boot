@@ -60,8 +60,6 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request) throws Exception {
 
-        System.out.println("id = " + request.getId());
-        System.out.println("password = " + request.getPassword());
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
