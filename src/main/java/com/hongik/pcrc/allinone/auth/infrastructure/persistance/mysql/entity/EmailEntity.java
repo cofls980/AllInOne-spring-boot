@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Table(name = "email")
 public class EmailEntity {
 
-    @Id //@GeneratedValue
+    @Id
     private String id;
     @Column(nullable = false)
     private String code;
