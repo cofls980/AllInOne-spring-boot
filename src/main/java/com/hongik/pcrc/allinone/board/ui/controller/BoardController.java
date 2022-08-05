@@ -9,6 +9,8 @@ import com.hongik.pcrc.allinone.board.ui.view.Board.BoardListView;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,10 +60,18 @@ public class BoardController {
     }
 
     @PostMapping("/{board_id}/edit")
-    public ResponseEntity<ApiResponseView<SuccessView>> editPost(@RequestBody BoardRequest request, @PathVariable int board_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> editPost(@RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
 
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String id = userDetails.getUsername();
+
+        if (!id.equals(request.getWriterEmail())) {
+            throw new AllInOneException(MessageType.FORBIDDEN);
         }
 
         var command = BoardOperationUseCase.BoardUpdateCommand.builder()
@@ -78,9 +88,13 @@ public class BoardController {
     }
 
     @PostMapping("/{board_id}/delete")
-    public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
 
-        boardOperationUseCase.deleteBoard(board_id);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String id = userDetails.getUsername();
+
+        boardOperationUseCase.deleteBoard(board_id, id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }

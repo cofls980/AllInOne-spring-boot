@@ -13,6 +13,6 @@ public class BoardRequest {
 
     private String title;
     private String contents;
-    private String writer;
-    private String writerEmail;
+    private String writer; // post: 필요없음, edit: 필요없음
+    private String writerEmail; // post: 필요없음, edit: 필요없음
 }

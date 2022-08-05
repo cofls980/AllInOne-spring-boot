@@ -5,13 +5,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
-
 public interface BoardOperationUseCase {
 
     void createBoard(BoardCreatedCommand command);
     void updateBoard(BoardUpdateCommand command);
-    void deleteBoard(int id);
+    void deleteBoard(int id, String userId);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder
