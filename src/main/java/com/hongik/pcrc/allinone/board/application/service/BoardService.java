@@ -46,6 +46,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
+        if (!command.getWriter_email().equals(boardEntity.getWriter_email())) {
+            throw new AllInOneException(MessageType.FORBIDDEN);
+        }
+
         var board = Board.builder()
                 .id(command.getId())
                 .title(command.getTitle())
@@ -57,11 +61,17 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public void deleteBoard(int id) { // 존재하면 삭제
+    public void deleteBoard(int id, String userId) { // 존재하면 삭제
         var board = boardMapperRepository.getPost(id);
+
         if (board == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
+
+        if (!userId.equals(board.getWriter_email())) {
+            throw new AllInOneException(MessageType.FORBIDDEN);
+        }
+
         boardMapperRepository.delete(id);
     }
 
