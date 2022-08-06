@@ -13,7 +13,7 @@ public class Board {
 
     private final int id;
     private final String title;
-    private final String contents;
+    private final String content;
     private final String writer;
     private final String writer_email;
     private final LocalDateTime date;

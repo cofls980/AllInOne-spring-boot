@@ -19,10 +19,10 @@ public class BoardEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String title;
-    @Column(nullable = false)
-    private String contents;
+    @Column(nullable = false, length = 2000)
+    private String content;
     @Column(nullable = false)
     private String writer;
     @Column(nullable = false)
@@ -34,7 +34,7 @@ public class BoardEntity {
         return Board.builder()
                 .id(this.id)
                 .title(this.title)
-                .contents(this.contents)
+                .content(this.content)
                 .writer(this.writer)
                 .writer_email(this.writer_email)
                 .date(this.date)
@@ -44,7 +44,7 @@ public class BoardEntity {
     public BoardEntity(Board board) {
         this.id = board.getId();
         this.title = board.getTitle();
-        this.contents = board.getContents();
+        this.content = board.getContent();
         this.writer = board.getWriter();
         this.writer_email = board.getWriter_email();
         this.date = board.getDate();

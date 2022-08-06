@@ -49,9 +49,7 @@ public class BoardController {
 
         var command = BoardOperationUseCase.BoardCreatedCommand.builder()
                 .title(request.getTitle())
-                .contents(request.getContents())
-                .writer(request.getWriter())
-                .writer_email(request.getWriterEmail())
+                .content(request.getContent())
                 .build();
 
         boardOperationUseCase.createBoard(command);
@@ -66,20 +64,10 @@ public class BoardController {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetails userDetails = (UserDetails) principal;
-        String id = userDetails.getUsername();
-
-        if (!id.equals(request.getWriterEmail())) {
-            throw new AllInOneException(MessageType.FORBIDDEN);
-        }
-
         var command = BoardOperationUseCase.BoardUpdateCommand.builder()
                 .id(board_id)
                 .title(request.getTitle())
-                .contents(request.getContents())
-                .writer(request.getWriter())
-                .writer_email(request.getWriterEmail())
+                .content(request.getContent())
                 .build();
 
         boardOperationUseCase.updateBoard(command);
@@ -90,11 +78,7 @@ public class BoardController {
     @PostMapping("/{board_id}/delete")
     public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetails userDetails = (UserDetails) principal;
-        String id = userDetails.getUsername();
-
-        boardOperationUseCase.deleteBoard(board_id, id);
+        boardOperationUseCase.deleteBoard(board_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }

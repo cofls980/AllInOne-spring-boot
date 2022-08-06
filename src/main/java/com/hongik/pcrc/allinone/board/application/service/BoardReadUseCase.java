@@ -16,13 +16,13 @@ public interface BoardReadUseCase {
     @ToString
     class BoardFindQuery {
         private String title;
-        private String contents;
+        private String content;
         private String writer;
         private String writerEmail;
 
-        public BoardFindQuery(String title, String contents, String writer, String writerEmail) {
+        public BoardFindQuery(String title, String content, String writer, String writerEmail) {
             this.title = title;
-            this.contents = contents;
+            this.content = content;
             this.writer = writer;
             this.writerEmail = writerEmail;
         }
@@ -35,7 +35,7 @@ public interface BoardReadUseCase {
         // Board Info
         private final int id;
         private final String title;
-        private final String contents;
+        private final String content;
         private final String writer;
         private final String writerEmail;
         private final LocalDateTime date;
@@ -44,8 +44,8 @@ public interface BoardReadUseCase {
             return FindBoardResult.builder()
                     .id(board.getId())
                     .title(board.getTitle())
-                    .contents(board.getContents())
-                    .writer(board.getContents())
+                    .content(board.getContent())
+                    .writer(board.getContent())
                     .writerEmail(board.getWriter_email())
                     .date(board.getDate())
                     .build();

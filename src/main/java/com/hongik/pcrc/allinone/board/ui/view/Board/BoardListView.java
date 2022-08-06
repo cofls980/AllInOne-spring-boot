@@ -16,7 +16,7 @@ public class BoardListView {
 
     private final int id;
     private final String title;
-    private final String contents;
+    private final String content;
     private final String writer;
     private final String writerEmail;
     private final LocalDateTime date;
@@ -24,7 +24,7 @@ public class BoardListView {
     public BoardListView(BoardReadUseCase.FindBoardResult result) {
         this.id = result.getId();
         this.title = result.getTitle();
-        this.contents = result.getContents();
+        this.content = result.getContent();
         this.writer = result.getWriter();
         this.writerEmail = result.getWriterEmail();
         this.date = result.getDate();

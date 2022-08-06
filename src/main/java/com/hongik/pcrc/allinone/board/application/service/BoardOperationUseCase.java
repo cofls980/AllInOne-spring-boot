@@ -9,7 +9,7 @@ public interface BoardOperationUseCase {
 
     void createBoard(BoardCreatedCommand command);
     void updateBoard(BoardUpdateCommand command);
-    void deleteBoard(int id, String userId);
+    void deleteBoard(int id);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder
@@ -17,9 +17,7 @@ public interface BoardOperationUseCase {
     @ToString
     class BoardCreatedCommand {
         private final String title;
-        private final String contents;
-        private final String writer;
-        private final String writer_email;
+        private final String content;
     }
 
     @EqualsAndHashCode(callSuper = false)
@@ -29,8 +27,6 @@ public interface BoardOperationUseCase {
     class BoardUpdateCommand {
         private final int id;
         private final String title;
-        private final String contents;
-        private final String writer;
-        private final String writer_email;
+        private final String content;
     }
 }
