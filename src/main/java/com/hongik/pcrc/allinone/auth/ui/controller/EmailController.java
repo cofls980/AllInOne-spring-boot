@@ -1,9 +1,8 @@
 package com.hongik.pcrc.allinone.auth.ui.controller;
 
-//import com.hongik.pcrc.allinone.application.service.EmailRedisService;
 import com.hongik.pcrc.allinone.auth.application.service.EmailService;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.EmailVerifyRequest;
-import com.hongik.pcrc.allinone.auth.ui.view.Auth.SuccessView;
+import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
@@ -22,7 +21,6 @@ import java.util.Map;
 public class EmailController {
 
     private final EmailService emailService;
-    //private final EmailRedisService emailRedisService;
 
     public EmailController(EmailService emailService) {
         this.emailService = emailService;

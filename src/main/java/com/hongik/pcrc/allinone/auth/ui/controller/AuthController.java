@@ -1,16 +1,15 @@
 package com.hongik.pcrc.allinone.auth.ui.controller;
 
-import com.hongik.pcrc.allinone.auth.application.security.AuthDetailsService;
-import com.hongik.pcrc.allinone.auth.application.security.JwtTokenProvider;
 import com.hongik.pcrc.allinone.auth.application.service.AuthOperationUseCase;
 import com.hongik.pcrc.allinone.auth.application.service.AuthReadUseCase;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.AuthCreateRequest;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.AuthSignInRequest;
 import com.hongik.pcrc.allinone.auth.ui.view.Auth.AuthView;
-import com.hongik.pcrc.allinone.auth.ui.view.Auth.SuccessView;
+import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
+import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -22,15 +21,13 @@ public class AuthController {
 
     private final AuthOperationUseCase authOperationUseCase;
     private final AuthReadUseCase authReadUseCase;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthDetailsService authDetailsService;
+    private final JwtProvider jwtProvider;
 
     @Autowired
-    public AuthController(AuthOperationUseCase authOperationUseCase, AuthReadUseCase authReadUseCase, JwtTokenProvider jwtTokenProvider, AuthDetailsService authDetailsService) {
+    public AuthController(AuthOperationUseCase authOperationUseCase, AuthReadUseCase authReadUseCase, JwtProvider jwtProvider) {
         this.authOperationUseCase = authOperationUseCase;
         this.authReadUseCase = authReadUseCase;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.authDetailsService = authDetailsService;
+        this.jwtProvider = jwtProvider;
     }
 
     //sign up
@@ -72,13 +69,10 @@ public class AuthController {
         if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
-        //jwt 토큰 생성 필요
-        /*UserDetails userDetails = authDetailsService.loadUserByUsername(result.getId());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                result.getId(), request.getPassword(), userDetails.getAuthorities());*/
 
-        String accessToken = jwtTokenProvider.createAccessToken(result.getId());
-        String refreshToken = jwtTokenProvider.issueRefreshToken(result.getId());
+        //jwt 토큰 생성 필요
+        String accessToken = jwtProvider.createAccessToken(result.getId());
+        String refreshToken = jwtProvider.createRefreshToken(result.getId()).get("refreshToken");
 
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, accessToken, refreshToken)));
     }

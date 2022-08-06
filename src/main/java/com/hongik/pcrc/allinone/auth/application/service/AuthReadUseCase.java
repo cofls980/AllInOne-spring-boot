@@ -3,9 +3,11 @@ package com.hongik.pcrc.allinone.auth.application.service;
 import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import lombok.*;
 
+import javax.naming.AuthenticationException;
+
 public interface AuthReadUseCase {
 
-    FindAuthResult getAuth(AuthFindQuery query);
+    FindAuthResult getAuth(AuthFindQuery query) throws AuthenticationException;
 
     @NoArgsConstructor
     @EqualsAndHashCode(callSuper = false)
