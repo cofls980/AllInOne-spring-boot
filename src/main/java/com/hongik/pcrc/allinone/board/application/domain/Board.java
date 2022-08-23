@@ -11,10 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 public class Board {
 
-    private final int id;
+    private final int board_id;
     private final String title;
     private final String content;
-    private final String writer;
+    private final String b_writer;
     private final String writer_email;
-    private final LocalDateTime date;
+    private final LocalDateTime b_date;
+    private final int thumbs_up;
 }
