@@ -10,6 +10,8 @@ public interface BoardOperationUseCase {
     void createBoard(BoardCreatedCommand command);
     void updateBoard(BoardUpdateCommand command);
     void deleteBoard(int id);
+    void increaseThumbs(int id);
+
 
     @EqualsAndHashCode(callSuper = false)
     @Builder

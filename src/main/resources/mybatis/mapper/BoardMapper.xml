@@ -6,18 +6,30 @@
 <mapper namespace="com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository">
 
     <select id="getPost" parameterType="Integer" resultType="board">
-        select id, title, content, writer, writer_email, date from board where id = #{id}
+        select board_id, title, content, b_writer, writer_email, b_date, thumbs_up from board where board_id = #{board_id}
+    </select>
+
+    <select id="searchWriter" parameterType="String" resultType="map">
+        select board_id, title, b_writer, b_date, thumbs_up from board where b_writer = #{b_writer}
+    </select>
+
+    <select id="searchTitle" parameterType="String" resultType="map">
+        select board_id, title, b_writer, b_date, thumbs_up from board where board.title like CONCAT('%',#{title},'%')
     </select>
 
     <insert id="post" parameterType="board">
-            insert into board(title, content, writer, writer_email, date) value (#{title}, #{content}, #{writer}, #{writer_email}, #{date})
+            insert into board(title, content, b_writer, writer_email, b_date) value (#{title}, #{content}, #{b_writer}, #{writer_email}, #{b_date})
     </insert>
 
     <update id="update" parameterType="board">
-            update board set title = #{title}, content = #{content}, date = #{date} where id = #{id}
+            update board set title = #{title}, content = #{content}, b_date = #{b_date} where board_id = #{board_id}
+    </update>
+
+    <update id="updateThumbs" parameterType="board">
+        update board set thumbs_up = #{thumbs_up} where board_id = #{board_id}
     </update>
     
     <delete id="delete" parameterType="Integer">
-        delete from board where id = #{id}
+        delete from board where board_id = #{board_id}
     </delete>
 </mapper>

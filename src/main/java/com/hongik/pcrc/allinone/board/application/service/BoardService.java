@@ -5,6 +5,8 @@ import com.hongik.pcrc.allinone.board.application.domain.Board;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.BoardEntity;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardEntityRepository;
+import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
+import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,11 +24,16 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     private final BoardEntityRepository boardRepository;
     private final BoardMapperRepository boardMapperRepository;
     private final AuthEntityRepository authEntityRepository;
+    private final CommentsMapperRepository commentsMapperRepository;
+    private final CommentsReadUseCase commentsReadUseCase;
 
-    public BoardService(BoardEntityRepository boardRepository, BoardMapperRepository boardMapperRepository, AuthEntityRepository authEntityRepository) {
+    public BoardService(BoardEntityRepository boardRepository, BoardMapperRepository boardMapperRepository,
+                        AuthEntityRepository authEntityRepository, CommentsMapperRepository commentsMapperRepository, CommentsReadUseCase commentsReadUseCase) {
         this.boardRepository = boardRepository;
         this.boardMapperRepository = boardMapperRepository;
         this.authEntityRepository = authEntityRepository;
+        this.commentsMapperRepository = commentsMapperRepository;
+        this.commentsReadUseCase = commentsReadUseCase;
     }
 
     @Override
@@ -39,9 +46,9 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         var board = Board.builder()
                 .title(command.getTitle())
                 .content(command.getContent())
-                .writer(auth.get().getName())
+                .b_writer(auth.get().getName())
                 .writer_email(userId)
-                .date(LocalDateTime.now())
+                .b_date(LocalDateTime.now())
                 .build();
 
         boardMapperRepository.post(board);
@@ -61,10 +68,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         }
 
         var board = Board.builder()
-                .id(command.getId())
+                .board_id(command.getId())
                 .title(command.getTitle())
                 .content(command.getContent())
-                .date(LocalDateTime.now())
+                .b_date(LocalDateTime.now())
                 .build();
 
         boardMapperRepository.update(board);
@@ -87,14 +94,80 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public List<FindBoardResult> getBoardList() {
-        var result = boardRepository.findAll();
+    public void increaseThumbs(int id) { //일단은 사용자 정보 저장되지 않는 좋아요
+
+        var board = boardMapperRepository.getPost(id);
+
+        if (board == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        var result = Board.builder()
+                .board_id(id)
+                .thumbs_up(board.getThumbs_up() + 1)
+                .build();
+
+        boardMapperRepository.updateThumbs(result);
+    }
+
+    @Override
+    public List<FindBoardResult> getBoardList() { //수정
+        var result = boardRepository.findAll();//mapper 사용으로 변경
+
         var boards = StreamSupport.stream(result.spliterator(), false)
                 .map(BoardEntity::toBoard)
                 .collect(Collectors.toList());
         if (boards.isEmpty())
             return null;
         return boards.stream().map(FindBoardResult::findByBoard).collect(Collectors.toList());
+    }
+
+    @Override
+    public FindOneBoardResult getOneBoard(int board_id) {
+
+        var board = boardMapperRepository.getPost(board_id);
+
+        if (board == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        var comments = commentsMapperRepository.getCommentsForBoard(board_id);
+
+        if (comments.isEmpty())
+                return null;
+
+        var result = FindOneBoardResult.builder()
+                .board_id(board_id)
+                .title(board.getTitle())
+                .content(board.getContent())
+                .b_writer(board.getB_writer())
+                .b_date(board.getB_date())
+                .thumbs_up(board.getThumbs_up())
+                .commentList(comments)
+                .build();
+        return result;
+    }
+
+    @Override
+    public List<FindBoardResult> getBoardWriterList(String b_writer) {
+
+        var result = boardMapperRepository.searchWriter(b_writer);
+
+        if (result.isEmpty())
+            return null;
+
+        return result;
+    }
+
+    @Override
+    public List<FindBoardResult> getBoardTitleList(String title) {
+
+        var result = boardMapperRepository.searchTitle(title);
+
+        if (result.isEmpty())
+            return null;
+
+        return result;
     }
 
     public String getUserId() {

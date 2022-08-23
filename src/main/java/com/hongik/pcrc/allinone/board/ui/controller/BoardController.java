@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.board.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.BoardOperationUseCase;
 import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
+import com.hongik.pcrc.allinone.board.ui.view.Board.BoardView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardRequest;
@@ -38,6 +39,46 @@ public class BoardController {
 
         List<BoardListView> boardListViews = result.stream().map(BoardListView::new).collect(Collectors.toList());
         return ResponseEntity.ok(new ApiResponseView<>(boardListViews));
+    }
+
+    @GetMapping("/{board_id}")
+    public ResponseEntity<ApiResponseView<BoardView>> showPost(@PathVariable int board_id) {
+
+        BoardReadUseCase.FindOneBoardResult result = boardReadUseCase.getOneBoard(board_id);
+
+        if (result == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(new ApiResponseView<>(new BoardView(result)));
+    }
+
+    @GetMapping("/search/writer/{writer}")
+    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> searchBoardsWithWriter(@PathVariable String writer) {
+
+        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardWriterList(writer);
+
+        if (result == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        //List<BoardListView> boardListViews = result.stream().map(BoardListView::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponseView<>(result));
+    }
+
+    @GetMapping("/search/title/{title}")
+    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> searchBoardsWithTitle(@PathVariable String title) {
+
+        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardTitleList(title);
+
+        if (result == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        //List<BoardListView> boardListViews = result.stream().map(BoardListView::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
     @PostMapping("/post")
@@ -79,6 +120,14 @@ public class BoardController {
     public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
 
         boardOperationUseCase.deleteBoard(board_id);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @GetMapping("/{board_id}/thumbs_up")
+    public ResponseEntity<ApiResponseView<SuccessView>> increaseThumbs(@PathVariable int board_id) {
+
+        boardOperationUseCase.increaseThumbs(board_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
