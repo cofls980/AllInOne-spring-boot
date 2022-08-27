@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/v1/board")
+@RequestMapping(value = "/v2/boards")
 public class BoardController {
 
     private final BoardReadUseCase boardReadUseCase;
@@ -30,7 +30,7 @@ public class BoardController {
         this.boardOperationUseCase = boardOperationUseCase;
     }
 
-    @GetMapping("/list")
+    @GetMapping("")
     public ResponseEntity<ApiResponseView<List<BoardListView>>> returnBoardList() {
 
         List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList();
@@ -81,7 +81,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
-    @PostMapping("/post")
+    @PostMapping("")
     public ResponseEntity<ApiResponseView<SuccessView>> createPost(@RequestBody BoardRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -98,7 +98,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PostMapping("/{board_id}/edit")
+    @PutMapping("/{board_id}")
     public ResponseEntity<ApiResponseView<SuccessView>> editPost(@RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
 
         if (ObjectUtils.isEmpty(request)) {
@@ -116,7 +116,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PostMapping("/{board_id}/delete")
+    @DeleteMapping("/{board_id}")
     public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
 
         boardOperationUseCase.deleteBoard(board_id);
@@ -124,7 +124,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @GetMapping("/{board_id}/thumbs_up")
+    @PutMapping("/{board_id}/like")
     public ResponseEntity<ApiResponseView<SuccessView>> increaseThumbs(@PathVariable int board_id) {
 
         boardOperationUseCase.increaseThumbs(board_id);

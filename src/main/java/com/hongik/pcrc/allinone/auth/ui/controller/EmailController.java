@@ -17,7 +17,7 @@ import javax.mail.MessagingException;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/v1/email")
+@RequestMapping(value = "/v2/email")
 public class EmailController {
 
     private final EmailService emailService;
@@ -51,7 +51,7 @@ public class EmailController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView(result)));
     }
 
-    @PostMapping("/pwd")
+    @PostMapping("/reset-pwd")
     public ResponseEntity<ApiResponseView<SuccessView>> emailPasswordAuth(@RequestBody Map<String, String> email) throws MessagingException {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);

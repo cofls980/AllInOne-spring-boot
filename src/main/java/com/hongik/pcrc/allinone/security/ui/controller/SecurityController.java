@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping(value = "/v1/security")
+@RequestMapping(value = "/v2/security")
 public class SecurityController {
 
     private final JwtProvider jwtProvider;

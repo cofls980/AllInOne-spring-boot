@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping(value = "/v1/auth")
+@RequestMapping(value = "/v2/users")
 public class AuthController {
 
     private final AuthOperationUseCase authOperationUseCase;
@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     //sign up
-    @PostMapping("")
+    @PostMapping("/signup")
     public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@RequestBody AuthCreateRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -59,8 +59,8 @@ public class AuthController {
     }
 
     //sign in
-    @PostMapping("/signin")
-    public ResponseEntity<ApiResponseView<AuthView>> signInAuth(@RequestBody AuthSignInRequest request) throws Exception {
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@RequestBody AuthSignInRequest request) throws Exception {
 
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
@@ -83,7 +83,7 @@ public class AuthController {
     }
 
     //reset pasword
-    @PostMapping("/pwd")
+    @PutMapping("")
     public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@RequestBody AuthSignInRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -111,7 +111,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }*/
 
-    @PostMapping("/user-delete")
+    @DeleteMapping("")
     public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
         authOperationUseCase.deleteAuth();
 

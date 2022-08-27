@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Signature;
 
 @RestController
-@RequestMapping(value = "/v1/board")
+@RequestMapping(value = "/v2/boards")
 public class CommentsController {
 
     private final CommentsReadUseCase commentsReadUseCase;
@@ -26,7 +26,7 @@ public class CommentsController {
         this.commentsOperationUseCase = commentsOperationUseCase;
     }
 
-    @PostMapping("/{board_id}/comment")
+    @PostMapping("/{board_id}/comments")
     public ResponseEntity<ApiResponseView<SuccessView>> writeComment(@RequestBody CommentsRequest request, @PathVariable int board_id) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -43,7 +43,7 @@ public class CommentsController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PostMapping("/{board_id}/{comment_id}/delete")
+    @DeleteMapping("/{board_id}/comments/{comment_id}")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteComment(@PathVariable int board_id, @PathVariable int comment_id) {
 
         commentsOperationUseCase.deleteComment(board_id, comment_id);
@@ -51,7 +51,7 @@ public class CommentsController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PostMapping("/{board_id}/{comment_id}/edit")
+    @PutMapping("/{board_id}/comments/{comment_id}")
     public ResponseEntity<ApiResponseView<SuccessView>> updateComment(@RequestBody CommentsRequest request, @PathVariable int board_id, @PathVariable int comment_id) {
 
         if (ObjectUtils.isEmpty(request)) {
