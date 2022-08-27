@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository">
+
+    <select id="getComment" parameterType="Integer" resultType="Comments">
+        select comment_id, comment, c_writer, writer_email, c_date, board_id from comments where comment_id = #{comment_id}
+    </select>
+
+    <select id="getCommentsForBoard" parameterType="Integer" resultType="map">
+        select comment_id, comment, c_writer, c_date from comments where board_id = #{board_id}
+    </select>
+
+    <insert id="storeComment" parameterType="comments">
+        insert into comments(comment, c_writer, writer_email, c_date, board_id) value (#{comment}, #{c_writer}, #{writer_email}, #{c_date}, #{board_id})
+    </insert>
+
+    <delete id="deleteComment" parameterType="Integer">
+        delete from comments where comment_id = #{comment_id}
+    </delete>
+
+    <update id="updateComment" parameterType="comments">
+        update comments set comment = #{comment}, c_date = #{c_date} where comment_id = #{comment_id} and board_id = #{board_id}
+    </update>
+
+</mapper>
