@@ -3,8 +3,12 @@ package com.hongik.pcrc.allinone.auth.application.service;
 import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
+import com.hongik.pcrc.allinone.exception.AllInOneException;
+import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +78,20 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     }
 
     @Override
+    public void deleteAuth() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+        String id = userDetails.getUsername();
+
+        var authEntity = authRepository.findById(id);
+
+        if (authEntity.isEmpty())
+            throw new AllInOneException(MessageType.FORBIDDEN);
+
+        authRepository.deleteById(authEntity.get().getId());
+    }
+
+    @Override
     public FindAuthResult getAuth(AuthFindQuery query) {
 
         var authEntity = authRepository.findById(query.getAuthId());
@@ -84,6 +102,27 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
                 return FindAuthResult.findByAuth(authEntity.get().toAuth());
             }
         }
+
         return null;
+    }
+
+    @Override
+    public void updateRefreshToken(String id, String refreshToken) {
+
+        var entity = authRepository.findById(id);
+
+        var auth = Auth.builder()
+                .id(id)
+                .password(entity.get().getPassword())
+                .name(entity.get().getName())
+                .birth(entity.get().getBirth())
+                .gender(entity.get().getGender())
+                .phoneNumber(entity.get().getPhoneNumber())
+                .refreshToken(refreshToken)
+                .build();
+
+        var authEntity = new AuthEntity(auth);
+
+        authRepository.save(authEntity);
     }
 }
