@@ -104,27 +104,31 @@ public class JwtProvider {
         String result = null;
 
         if (header != null && header.length() >= 7) {
-            result = header.substring(7);
+            String is_token = header.substring(0, 7);
+            if (is_token.equals("Bearer "))
+                result = header.substring(7);
         }
 
         return result;
     }
 
-    public boolean validateJwtToken(ServletRequest request, String authToken) {
+    public JWTEnum validateJwtToken(ServletRequest request, String authToken) {
 
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(authToken);
-            return true;
-        } catch (MalformedJwtException exception) {
-            request.setAttribute("exception", "MalformedJwtException"); // 잘못된 토큰
+            return JWTEnum.VALID;
+        } catch (SignatureException exception) {
+            request.setAttribute("exception", "SignatureException"); // JWT의 기존 서명을 확인하지 못했을 경우
+        } catch (SecurityException | MalformedJwtException exception) {
+            request.setAttribute("exception", "MalformedJwtException"); // JWT가 올바르게 구성되지 않았을 때
         } catch (ExpiredJwtException exception) {
             request.setAttribute("exception", "ExpiredJwtException"); // 토큰 만료
         } catch (UnsupportedJwtException exception) {
-            request.setAttribute("exception", "UnsupportedJwtException");
-        } catch (IllegalArgumentException exception) {
+            request.setAttribute("exception", "UnsupportedJwtException"); // 예상하는 형식과 일치하지 않는 특정 형식이나 구성의 JWT일 경우
+        } catch (JwtException | IllegalArgumentException exception) {
             request.setAttribute("exception", "IllegalArgumentException");
         }
 
-        return false;
+        return JWTEnum.INVLID;
     }
 }
