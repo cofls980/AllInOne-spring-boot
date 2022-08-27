@@ -9,6 +9,8 @@ public interface AuthOperationUseCase {
 
     AuthReadUseCase.FindAuthResult createAuth(AuthCreatedCommand command);
     String updateAuth(AuthUpdateCommand command);
+    void deleteAuth();
+    void updateRefreshToken(String id, String refreshToken);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder

@@ -28,6 +28,8 @@ public class AuthEntity {
     private String gender;
     @Column(nullable = false)
     private String phoneNumber;
+    @Column
+    private String refreshToken;
 
     public Auth toAuth() {
         return Auth.builder()
@@ -46,5 +48,6 @@ public class AuthEntity {
         this.birth = auth.getBirth();
         this.gender = auth.getGender();
         this.phoneNumber = auth.getPhoneNumber();
+        this.refreshToken = auth.getRefreshToken();
     }
 }

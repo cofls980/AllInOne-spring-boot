@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping(value = "/v1/auth")
 public class AuthController {
@@ -70,9 +72,12 @@ public class AuthController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        //jwt 토큰 생성 필요
+        //jwt 토큰 생성
         String accessToken = jwtProvider.createAccessToken(result.getId());
+        //디비 저장
         String refreshToken = jwtProvider.createRefreshToken(result.getId()).get("refreshToken");
+        authOperationUseCase.updateRefreshToken(result.getId(), refreshToken);
+        System.out.println("refresh: " + refreshToken);
 
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, accessToken, refreshToken)));
     }
@@ -100,4 +105,16 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
+    /*PostMapping("/logout")
+    public ResponseEntity<ApiResponseView<SuccessView>> logout() {// 토큰을 가지고 있어야함.
+        //change refresh token value to null in db
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }*/
+
+    @PostMapping("/user-delete")
+    public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
+        authOperationUseCase.deleteAuth();
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
 }
