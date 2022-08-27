@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt로 인증하므로 세션 Stateless 처리
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/v1/auth/*", "/v1/email/*", "/v1/board/list").permitAll()
+                    .antMatchers("/v1/auth/*", "/v1/email/*", "/v1/board/list", "/v1/board/{board_id}", "/v1/board/search/**/*", "/v1/security/reissue").permitAll() // logout은 auth에서 빼야함
                     .anyRequest().authenticated()
                 .and()
                     .exceptionHandling()
