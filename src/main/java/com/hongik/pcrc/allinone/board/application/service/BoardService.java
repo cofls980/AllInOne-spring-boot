@@ -104,22 +104,33 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
         var result = Board.builder()
                 .board_id(id)
-                .thumbs_up(board.getThumbs_up() + 1)
+                .likes(board.getLikes() + 1)
                 .build();
 
-        boardMapperRepository.updateThumbs(result);
+        boardMapperRepository.updateLike(result);
     }
 
     @Override
-    public List<FindBoardResult> getBoardList() { //수정
-        var result = boardRepository.findAll();//mapper 사용으로 변경
+    public List<FindBoardResult> getBoardList(String b_writer, String title) { //수정
 
-        var boards = StreamSupport.stream(result.spliterator(), false)
-                .map(BoardEntity::toBoard)
-                .collect(Collectors.toList());
-        if (boards.isEmpty())
+        List<FindBoardResult> result = null;
+
+        if (b_writer == null && title == null) {
+            result = boardMapperRepository.getList();
+        } else if (title == null) {
+            result = boardMapperRepository.searchWriter(b_writer);
+        } else if (b_writer == null) {
+            result = boardMapperRepository.searchTitle(title);
+        } else {
+            if (b_writer.equals(title))
+                result = boardMapperRepository.searchBothWriterTitle(b_writer);
+        }
+
+        if (result == null || result.isEmpty()) {
             return null;
-        return boards.stream().map(FindBoardResult::findByBoard).collect(Collectors.toList());
+        }
+
+        return result;
     }
 
     @Override
@@ -134,7 +145,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         var comments = commentsMapperRepository.getCommentsForBoard(board_id);
 
         if (comments.isEmpty())
-                return null;
+            comments = null;
 
         var result = FindOneBoardResult.builder()
                 .board_id(board_id)
@@ -142,31 +153,9 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
                 .content(board.getContent())
                 .b_writer(board.getB_writer())
                 .b_date(board.getB_date())
-                .thumbs_up(board.getThumbs_up())
+                .likes(board.getLikes())
                 .commentList(comments)
                 .build();
-        return result;
-    }
-
-    @Override
-    public List<FindBoardResult> getBoardWriterList(String b_writer) {
-
-        var result = boardMapperRepository.searchWriter(b_writer);
-
-        if (result.isEmpty())
-            return null;
-
-        return result;
-    }
-
-    @Override
-    public List<FindBoardResult> getBoardTitleList(String title) {
-
-        var result = boardMapperRepository.searchTitle(title);
-
-        if (result.isEmpty())
-            return null;
-
         return result;
     }
 

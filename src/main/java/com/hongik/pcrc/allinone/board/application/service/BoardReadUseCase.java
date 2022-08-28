@@ -9,10 +9,8 @@ import java.util.List;
 
 public interface BoardReadUseCase {
 
-    List<FindBoardResult> getBoardList();
+    List<FindBoardResult> getBoardList(String b_writer, String title);
     FindOneBoardResult getOneBoard(int board_id);
-    List<FindBoardResult> getBoardWriterList(String b_writer);
-    List<FindBoardResult> getBoardTitleList(String title);
 
     @NoArgsConstructor
     @EqualsAndHashCode(callSuper = false)
@@ -41,7 +39,7 @@ public interface BoardReadUseCase {
         private final String title;
         private final String b_writer;
         private final LocalDateTime b_date;
-        private final int thumbs_up;
+        private final int likes;
 
         public static FindBoardResult findByBoard(Board board) {
             return FindBoardResult.builder()
@@ -49,7 +47,7 @@ public interface BoardReadUseCase {
                     .title(board.getTitle())
                     .b_writer(board.getContent())
                     .b_date(board.getB_date())
-                    .thumbs_up(board.getThumbs_up())
+                    .likes(board.getLikes())
                     .build();
         }
     }
@@ -64,7 +62,7 @@ public interface BoardReadUseCase {
         private final String content;
         private final String b_writer;
         private final LocalDateTime b_date;
-        private final int thumbs_up;
+        private final int likes;
         private final List<CommentsReadUseCase.FindCommentResult> commentList;
 
         public static FindBoardResult findByBoard(Board board) {
@@ -73,7 +71,7 @@ public interface BoardReadUseCase {
                     .title(board.getTitle())
                     .b_writer(board.getContent())
                     .b_date(board.getB_date())
-                    .thumbs_up(board.getThumbs_up())
+                    .likes(board.getLikes())
                     .build();
         }
     }

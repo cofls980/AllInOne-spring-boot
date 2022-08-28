@@ -20,7 +20,7 @@ public class BoardView {
     private final String content;
     private final String b_writer;
     private final LocalDateTime b_date;
-    private final int thumbs_up;
+    private final int likes;
     private final List<CommentsReadUseCase.FindCommentResult> commentList;
 
     public BoardView(BoardReadUseCase.FindOneBoardResult result) {
@@ -29,7 +29,7 @@ public class BoardView {
         this.content = result.getContent();
         this.b_writer = result.getB_writer();
         this.b_date = result.getB_date();
-        this.thumbs_up = result.getThumbs_up();
+        this.likes = result.getLikes();
         this.commentList = result.getCommentList();
     }
 }

@@ -9,6 +9,8 @@ import java.util.List;
 @Mapper
 public interface BoardMapperRepository {
 
+    public List<BoardReadUseCase.FindBoardResult> getList();
+
     public Board getPost(int id);
 
     public void post(Board board);
@@ -20,5 +22,8 @@ public interface BoardMapperRepository {
     public List<BoardReadUseCase.FindBoardResult> searchWriter(String b_writer);
 
     public List<BoardReadUseCase.FindBoardResult> searchTitle(String title);
-    public void updateThumbs(Board board);
+
+    public List<BoardReadUseCase.FindBoardResult> searchBothWriterTitle(String keyword);
+
+    public void updateLike(Board board);
 }

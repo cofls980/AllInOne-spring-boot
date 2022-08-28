@@ -17,5 +17,5 @@ public class Board {
     private final String b_writer;
     private final String writer_email;
     private final LocalDateTime b_date;
-    private final int thumbs_up;
+    private final int likes;
 }

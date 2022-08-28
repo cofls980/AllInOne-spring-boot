@@ -18,14 +18,14 @@ public class BoardListView {
     private final String title;
     private final String b_writer;
     private final LocalDateTime b_date;
-    private final int thumbs_up;
+    private final int likes;
 
     public BoardListView(BoardReadUseCase.FindBoardResult result) {
         this.board_id = result.getBoard_id();
         this.title = result.getTitle();
         this.b_writer = result.getB_writer();
         this.b_date = result.getB_date();
-        this.thumbs_up = result.getThumbs_up();
+        this.likes = result.getLikes();
     }
 
 }
