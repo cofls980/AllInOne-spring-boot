@@ -69,7 +69,7 @@ public class EmailService {
 
         if (emailEntity.isPresent()) {
             if (emailEntity.get().getCode().equals(inputCode)) {
-                Duration duration = Duration.between(emailEntity.get().getCreatedDate(), LocalDateTime.now());
+                Duration duration = Duration.between(emailEntity.get().getCreated_date(), LocalDateTime.now());
                 if (duration.getSeconds() <= 180)
                     return "true";
             }

@@ -8,6 +8,7 @@ import com.hongik.pcrc.allinone.security.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -54,12 +55,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String v = "/v2";
+        String[] users = {v + "/users"}; //PUT
+        String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
+        //조회수?
+        String[] uri = {v + "/users/signup", v + "/users/login",
+                v + "/email/*", v + "/security/reissue"};
+
         http.httpBasic().disable()
                 .csrf().disable() // csrf 필요없음
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt로 인증하므로 세션 Stateless 처리
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/v1/auth/*", "/v1/email/*", "/v1/board/list", "/v1/board/{board_id}", "/v1/board/search/**/*", "/v1/security/reissue").permitAll() // logout은 auth에서 빼야함
+                    .antMatchers(HttpMethod.PUT, users).permitAll()
+                    .antMatchers(HttpMethod.GET, boards).permitAll()
+                    .antMatchers(uri).permitAll() // logout은 auth에서 빼야함
                     .anyRequest().authenticated()
                 .and()
                     .exceptionHandling()

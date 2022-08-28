@@ -12,6 +12,6 @@ import lombok.ToString;
 public class AuthSignInRequest {
 
     //Auth Sign In Info
-    private String id;
+    private String user_id;
     private String password;
 }

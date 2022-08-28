@@ -32,7 +32,7 @@ public class EmailController {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        emailService.sendMessage(email.get("id"));
+        emailService.sendMessage(email.get("user_id"));
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
@@ -43,7 +43,7 @@ public class EmailController {
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        String result = emailService.verifyCode(request.getId(), request.getCode());
+        String result = emailService.verifyCode(request.getUser_id(), request.getCode());
         if (result.equals("false")) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
@@ -56,7 +56,7 @@ public class EmailController {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        var result = emailService.sendMessageExist(email.get("id"));
+        var result = emailService.sendMessageExist(email.get("user_id"));
         if (result.equals("not_found")) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }

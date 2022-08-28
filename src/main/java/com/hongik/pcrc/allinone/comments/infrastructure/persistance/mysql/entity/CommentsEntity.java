@@ -23,7 +23,7 @@ public class CommentsEntity {
     private String comment;
     @Column(nullable = false)
     private String c_writer;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String writer_email;
     @Column(nullable = false)
     private LocalDateTime c_date;

@@ -41,7 +41,7 @@ public class AuthController {
         }
 
         var command = AuthOperationUseCase.AuthCreatedCommand.builder()
-                .id(request.getId())
+                .id(request.getUser_id())
                 .password(request.getPassword())
                 .name(request.getName())
                 .birth(request.getBirth())
@@ -66,7 +66,7 @@ public class AuthController {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
 
-        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getId(), request.getPassword());
+        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getUser_id(), request.getPassword());
         AuthReadUseCase.FindAuthResult result = authReadUseCase.getAuth(command);
         if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
@@ -91,7 +91,7 @@ public class AuthController {
         }
 
         var command = AuthOperationUseCase.AuthUpdateCommand.builder()
-                .id(request.getId())
+                .id(request.getUser_id())
                 .password(request.getPassword())
                 .build();
 

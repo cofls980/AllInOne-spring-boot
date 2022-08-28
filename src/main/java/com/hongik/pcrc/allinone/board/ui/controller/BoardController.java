@@ -31,18 +31,20 @@ public class BoardController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponseView<List<BoardListView>>> returnBoardList() {
+    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
+                                                                                              @RequestParam(value = "title", required = false) String title) {
 
-        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList();
-        if (result == null)
+        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(writer, title);
+
+        if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
-        List<BoardListView> boardListViews = result.stream().map(BoardListView::new).collect(Collectors.toList());
-        return ResponseEntity.ok(new ApiResponseView<>(boardListViews));
+        return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
     @GetMapping("/{board_id}")
-    public ResponseEntity<ApiResponseView<BoardView>> showPost(@PathVariable int board_id) {
+    public ResponseEntity<ApiResponseView<BoardView>> selectOne(@PathVariable int board_id) {
 
         BoardReadUseCase.FindOneBoardResult result = boardReadUseCase.getOneBoard(board_id);
 
@@ -51,34 +53,6 @@ public class BoardController {
         }
 
         return ResponseEntity.ok(new ApiResponseView<>(new BoardView(result)));
-    }
-
-    @GetMapping("/search/writer/{writer}")
-    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> searchBoardsWithWriter(@PathVariable String writer) {
-
-        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardWriterList(writer);
-
-        if (result == null) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
-
-        //List<BoardListView> boardListViews = result.stream().map(BoardListView::new).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new ApiResponseView<>(result));
-    }
-
-    @GetMapping("/search/title/{title}")
-    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> searchBoardsWithTitle(@PathVariable String title) {
-
-        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardTitleList(title);
-
-        if (result == null) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
-
-        //List<BoardListView> boardListViews = result.stream().map(BoardListView::new).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
     @PostMapping("")
@@ -124,7 +98,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PutMapping("/{board_id}/like")
+    @PutMapping("/{board_id}/likes")
     public ResponseEntity<ApiResponseView<SuccessView>> increaseThumbs(@PathVariable int board_id) {
 
         boardOperationUseCase.increaseThumbs(board_id);

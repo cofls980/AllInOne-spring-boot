@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "board")
+@Table(name = "boards")
 public class BoardEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +26,13 @@ public class BoardEntity {
     private String content;
     @Column(nullable = false)
     private String b_writer;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String writer_email;
     @Column(nullable = false)
     private LocalDateTime b_date;
     @Column(nullable = false)
     @ColumnDefault("0")
-    private int thumbs_up;
+    private int likes;
 
     public Board toBoard() {
         return Board.builder()
@@ -42,7 +42,7 @@ public class BoardEntity {
                 .b_writer(this.b_writer)
                 .writer_email(this.writer_email)
                 .b_date(this.b_date)
-                .thumbs_up(this.thumbs_up)
+                .likes(this.likes)
                 .build();
     }
 
@@ -53,6 +53,6 @@ public class BoardEntity {
         this.b_writer = board.getB_writer();
         this.writer_email = board.getWriter_email();
         this.b_date = board.getB_date();
-        this.thumbs_up = board.getThumbs_up();
+        this.likes = board.getLikes();
     }
 }

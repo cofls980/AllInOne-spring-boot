@@ -12,7 +12,7 @@ import lombok.ToString;
 public class AuthCreateRequest {
 
     //Auth Info
-    private String id;
+    private String user_id;
     private String password;
     private String name;
     private String birth;
