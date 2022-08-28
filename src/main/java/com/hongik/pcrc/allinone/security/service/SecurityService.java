@@ -28,7 +28,7 @@ public class SecurityService {
             throw new AllInOneException(MessageType.ReLogin);
         }
 
-        if (!auth.get().getRefreshToken().equals(requestToken))
+        if (!auth.get().getRefresh_token().equals(requestToken))
             return false;
         return true;
     }

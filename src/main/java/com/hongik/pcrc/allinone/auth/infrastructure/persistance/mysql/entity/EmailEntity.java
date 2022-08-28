@@ -7,10 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,25 +19,26 @@ import java.time.LocalDateTime;
 public class EmailEntity {
 
     @Id
+    @Column(nullable = false, length = 50)
     private String id;
     @Column(nullable = false)
     private String code;
 
     @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime createdDate;
+    private LocalDateTime created_date;
 
     public Email toEmail() {
         return Email.builder()
                 .id(this.id)
                 .code(this.code)
-                .createdDate(this.createdDate)
+                .createdDate(this.created_date)
                 .build();
     }
 
     public EmailEntity(Email email) {
         this.id = email.getId();
         this.code = email.getCode();
-        this.createdDate = email.getCreatedDate();
+        this.created_date = email.getCreatedDate();
     }
 }

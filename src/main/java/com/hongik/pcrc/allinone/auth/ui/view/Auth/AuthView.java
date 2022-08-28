@@ -12,7 +12,7 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthView {
 
-    private final String id;
+    private final String user_id;
     private final String name;
     private final String birth;
     private final String gender;
@@ -21,7 +21,7 @@ public class AuthView {
     private final String refreshToken;
 
     public AuthView(AuthReadUseCase.FindAuthResult result, String accessToken, String refreshToken) {
-        this.id = result.getId();
+        this.user_id = result.getId();
         this.name = result.getName();
         this.birth = result.getBirth();
         this.gender = result.getGender();

@@ -13,10 +13,11 @@ import javax.persistence.*;
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "auth")
+@Table(name = "users")
 public class AuthEntity {
 
     @Id //@GeneratedValue
+    @Column(nullable = false, length = 50)
     private String id;
     @Column(nullable = false)
     private String password;
@@ -27,9 +28,9 @@ public class AuthEntity {
     @Column(nullable = false)
     private String gender;
     @Column(nullable = false)
-    private String phoneNumber;
+    private String phone_number;
     @Column
-    private String refreshToken;
+    private String refresh_token;
 
     public Auth toAuth() {
         return Auth.builder()
@@ -37,7 +38,7 @@ public class AuthEntity {
                 .name(this.name)
                 .birth(this.birth)
                 .gender(this.gender)
-                .phoneNumber(this.phoneNumber)
+                .phoneNumber(this.phone_number)
                 .build();
     }
 
@@ -47,7 +48,7 @@ public class AuthEntity {
         this.name = auth.getName();
         this.birth = auth.getBirth();
         this.gender = auth.getGender();
-        this.phoneNumber = auth.getPhoneNumber();
-        this.refreshToken = auth.getRefreshToken();
+        this.phone_number = auth.getPhoneNumber();
+        this.refresh_token = auth.getRefreshToken();
     }
 }

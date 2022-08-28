@@ -12,6 +12,6 @@ import lombok.ToString;
 public class EmailVerifyRequest {
 
     //Email Info
-    private String id;
+    private String user_id;
     private String code;
 }

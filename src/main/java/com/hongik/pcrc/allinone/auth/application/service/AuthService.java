@@ -68,7 +68,7 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
                     .name(authEntity.get().getName())
                     .birth(authEntity.get().getBirth())
                     .gender(authEntity.get().getGender())
-                    .phoneNumber(authEntity.get().getPhoneNumber())
+                    .phoneNumber(authEntity.get().getPhone_number())
                     .build();
             var entity = new AuthEntity(auth);
             var result = authRepository.save(entity);
@@ -117,7 +117,7 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
                 .name(entity.get().getName())
                 .birth(entity.get().getBirth())
                 .gender(entity.get().getGender())
-                .phoneNumber(entity.get().getPhoneNumber())
+                .phoneNumber(entity.get().getPhone_number())
                 .refreshToken(refreshToken)
                 .build();
 

@@ -22,7 +22,7 @@ public class EmailScheduler {
 
         var emailEntities = emailRepository.findAll();
         for (var email : emailEntities) {
-            Duration duration = Duration.between(email.getCreatedDate(), LocalDateTime.now());
+            Duration duration = Duration.between(email.getCreated_date(), LocalDateTime.now());
             if (duration.getSeconds() > 180) {
                 emailRepository.delete(email);
             }
