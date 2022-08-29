@@ -47,7 +47,6 @@ public interface BoardReadUseCase {
                     .title(board.getTitle())
                     .b_writer(board.getContent())
                     .b_date(board.getB_date())
-                    .likes(board.getLikes())
                     .build();
         }
     }
@@ -63,6 +62,7 @@ public interface BoardReadUseCase {
         private final String b_writer;
         private final LocalDateTime b_date;
         private final int likes;
+        private final boolean click_likes;
         private final List<CommentsReadUseCase.FindCommentResult> commentList;
 
         public static FindBoardResult findByBoard(Board board) {
@@ -71,8 +71,21 @@ public interface BoardReadUseCase {
                     .title(board.getTitle())
                     .b_writer(board.getContent())
                     .b_date(board.getB_date())
-                    .likes(board.getLikes())
                     .build();
         }
+    }
+
+    @Getter
+    @ToString
+    @Builder
+    class FindMapperOneBoardResult {
+        // Board Info
+        private final int board_id;
+        private final String title;
+        private final String content;
+        private final String b_writer;
+        private final LocalDateTime b_date;
+        private final int likes;
+
     }
 }

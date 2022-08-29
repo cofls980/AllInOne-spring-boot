@@ -9,9 +9,9 @@ public interface BoardOperationUseCase {
 
     void createBoard(BoardCreatedCommand command);
     void updateBoard(BoardUpdateCommand command);
-    void deleteBoard(int id);
-    void increaseThumbs(int id);
-
+    void deleteBoard(int board_id);
+    void increaseLikes(int board_id);
+    void deleteLikes(int board_id);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder

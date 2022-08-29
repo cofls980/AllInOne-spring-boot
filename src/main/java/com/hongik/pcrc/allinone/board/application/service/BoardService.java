@@ -2,10 +2,7 @@ package com.hongik.pcrc.allinone.board.application.service;
 
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.board.application.domain.Board;
-import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.BoardEntity;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
-import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardEntityRepository;
-import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
 import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -14,26 +11,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Map;
 
 @Service
 public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
-    private final BoardEntityRepository boardRepository;
     private final BoardMapperRepository boardMapperRepository;
     private final AuthEntityRepository authEntityRepository;
     private final CommentsMapperRepository commentsMapperRepository;
-    private final CommentsReadUseCase commentsReadUseCase;
 
-    public BoardService(BoardEntityRepository boardRepository, BoardMapperRepository boardMapperRepository,
-                        AuthEntityRepository authEntityRepository, CommentsMapperRepository commentsMapperRepository, CommentsReadUseCase commentsReadUseCase) {
-        this.boardRepository = boardRepository;
+    public BoardService(BoardMapperRepository boardMapperRepository,
+                        AuthEntityRepository authEntityRepository,
+                        CommentsMapperRepository commentsMapperRepository) {
         this.boardMapperRepository = boardMapperRepository;
         this.authEntityRepository = authEntityRepository;
         this.commentsMapperRepository = commentsMapperRepository;
-        this.commentsReadUseCase = commentsReadUseCase;
     }
 
     @Override
@@ -55,9 +49,9 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public void updateBoard(BoardUpdateCommand command) { // 존재하면 수정
+    public void updateBoard(BoardUpdateCommand command) {
 
-        var boardEntity = boardMapperRepository.getPost(command.getId());
+        var boardEntity = boardMapperRepository.havePost(command.getId());
         if (boardEntity == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
@@ -79,7 +73,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
     @Override
     public void deleteBoard(int id) { // 존재하면 삭제
-        var board = boardMapperRepository.getPost(id);
+        var board = boardMapperRepository.havePost(id);
 
         if (board == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
@@ -94,24 +88,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public void increaseThumbs(int id) { //일단은 사용자 정보 저장되지 않는 좋아요
-
-        var board = boardMapperRepository.getPost(id);
-
-        if (board == null) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
-
-        var result = Board.builder()
-                .board_id(id)
-                .likes(board.getLikes() + 1)
-                .build();
-
-        boardMapperRepository.updateLike(result);
-    }
-
-    @Override
-    public List<FindBoardResult> getBoardList(String b_writer, String title) { //수정
+    public List<FindBoardResult> getBoardList(String b_writer, String title) {
 
         List<FindBoardResult> result = null;
 
@@ -142,8 +119,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        var comments = commentsMapperRepository.getCommentsForBoard(board_id);
+        String user_id = getUserId();
+        boolean click = user_id!=null && boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0;
 
+        var comments = commentsMapperRepository.getCommentsForBoard(board_id);
         if (comments.isEmpty())
             comments = null;
 
@@ -155,16 +134,53 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
                 .b_date(board.getB_date())
                 .likes(board.getLikes())
                 .commentList(comments)
+                .click_likes(click)
                 .build();
         return result;
+    }
+
+    @Override
+    public void increaseLikes(int board_id) {
+
+        String user_id = getUserId();
+
+        if (boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        }
+
+        boardMapperRepository.createLikes(getMap(user_id, board_id));
+    }
+
+    @Override
+    public void deleteLikes(int board_id) {
+
+        String user_id = getUserId();
+
+        if (boardMapperRepository.isUserLikes(getMap(user_id, board_id)) == 0) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        boardMapperRepository.deleteLikes(getMap(user_id, board_id));
     }
 
     public String getUserId() {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.equals("anonymousUser"))
+            return null;
+
         UserDetails userDetails = (UserDetails) principal;
         String id = userDetails.getUsername();
 
         return id;
+    }
+
+    public Map<String, Object> getMap(String user_id, int board_id) {
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("user_id", user_id);
+        map.put("board_id", board_id);
+
+        return map;
     }
 }

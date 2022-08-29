@@ -5,25 +5,33 @@ import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BoardMapperRepository {
 
-    public List<BoardReadUseCase.FindBoardResult> getList();
+    List<BoardReadUseCase.FindBoardResult> getList();
 
-    public Board getPost(int id);
+    BoardReadUseCase.FindMapperOneBoardResult getPost(int board_id);
 
-    public void post(Board board);
+    Board havePost(int board_id);
 
-    public void update(Board board);
+    void post(Board board);
 
-    public void delete(int id);
+    void update(Board board);
 
-    public List<BoardReadUseCase.FindBoardResult> searchWriter(String b_writer);
+    void delete(int board_id);
 
-    public List<BoardReadUseCase.FindBoardResult> searchTitle(String title);
+    List<BoardReadUseCase.FindBoardResult> searchWriter(String b_writer);
 
-    public List<BoardReadUseCase.FindBoardResult> searchBothWriterTitle(String keyword);
+    List<BoardReadUseCase.FindBoardResult> searchTitle(String title);
 
-    public void updateLike(Board board);
+    List<BoardReadUseCase.FindBoardResult> searchBothWriterTitle(String keyword);
+
+    int isUserLikes(Map<String, Object> map);
+
+    void createLikes(Map<String, Object> map);
+
+    void deleteLikes(Map<String, Object> map);
+
 }

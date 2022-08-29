@@ -2,21 +2,16 @@ package com.hongik.pcrc.allinone.board.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.BoardOperationUseCase;
 import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
-import com.hongik.pcrc.allinone.board.ui.view.Board.BoardView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardRequest;
-import com.hongik.pcrc.allinone.board.ui.view.Board.BoardListView;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/v2/boards")
@@ -44,7 +39,7 @@ public class BoardController {
     }
 
     @GetMapping("/{board_id}")
-    public ResponseEntity<ApiResponseView<BoardView>> selectOne(@PathVariable int board_id) {
+    public ResponseEntity<ApiResponseView<BoardReadUseCase.FindOneBoardResult>> selectOne(@PathVariable int board_id) {
 
         BoardReadUseCase.FindOneBoardResult result = boardReadUseCase.getOneBoard(board_id);
 
@@ -52,7 +47,7 @@ public class BoardController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return ResponseEntity.ok(new ApiResponseView<>(new BoardView(result)));
+        return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
     @PostMapping("")
@@ -98,10 +93,18 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PutMapping("/{board_id}/likes")
-    public ResponseEntity<ApiResponseView<SuccessView>> increaseThumbs(@PathVariable int board_id) {
+    @PostMapping("/{board_id}/likes")
+    public ResponseEntity<ApiResponseView<SuccessView>> increaseLikes(@PathVariable int board_id) {
 
-        boardOperationUseCase.increaseThumbs(board_id);
+        boardOperationUseCase.increaseLikes(board_id);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @DeleteMapping("/{board_id}/unlikes")
+    public ResponseEntity<ApiResponseView<SuccessView>> deleteLikes(@PathVariable int board_id) {
+
+        boardOperationUseCase.deleteLikes(board_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }

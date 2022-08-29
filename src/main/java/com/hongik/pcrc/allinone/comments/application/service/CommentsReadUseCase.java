@@ -10,14 +10,6 @@ public interface CommentsReadUseCase {
 
     List<FindCommentResult> getCommentList();
 
-    @NoArgsConstructor
-    @EqualsAndHashCode(callSuper = false)
-    @Getter
-    @ToString
-    class CommentRindQuery {
-
-    }
-
     @Getter
     @ToString
     @Builder

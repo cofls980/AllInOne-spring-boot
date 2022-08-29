@@ -16,12 +16,10 @@ import java.util.List;
 @Service
 public class CommentsService implements CommentsOperationUseCase, CommentsReadUseCase {
 
-    private final CommentsEntityRepository commentsEntityRepository;
     private final CommentsMapperRepository commentsMapperRepository;
     private final AuthEntityRepository authEntityRepository;
 
-    public CommentsService(CommentsEntityRepository commentsEntityRepository, CommentsMapperRepository commentsMapperRepository, AuthEntityRepository authEntityRepository) {
-        this.commentsEntityRepository = commentsEntityRepository;
+    public CommentsService(CommentsMapperRepository commentsMapperRepository, AuthEntityRepository authEntityRepository) {
         this.commentsMapperRepository = commentsMapperRepository;
         this.authEntityRepository = authEntityRepository;
     }
