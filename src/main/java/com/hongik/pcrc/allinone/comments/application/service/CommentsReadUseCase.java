@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CommentsReadUseCase {
 
-    List<FindCommentResult> getCommentList();
+    List<FindCommentResult> getCommentList(int board_id);
 
     @Getter
     @ToString

@@ -3,6 +3,7 @@ package com.hongik.pcrc.allinone.board.application.service;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.board.application.domain.Board;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
+import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
 import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -21,13 +22,15 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     private final BoardMapperRepository boardMapperRepository;
     private final AuthEntityRepository authEntityRepository;
     private final CommentsMapperRepository commentsMapperRepository;
+    private final CommentsReadUseCase commentsReadUseCase;
 
     public BoardService(BoardMapperRepository boardMapperRepository,
                         AuthEntityRepository authEntityRepository,
-                        CommentsMapperRepository commentsMapperRepository) {
+                        CommentsMapperRepository commentsMapperRepository, CommentsReadUseCase commentsReadUseCase) {
         this.boardMapperRepository = boardMapperRepository;
         this.authEntityRepository = authEntityRepository;
         this.commentsMapperRepository = commentsMapperRepository;
+        this.commentsReadUseCase = commentsReadUseCase;
     }
 
     @Override
@@ -122,10 +125,6 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         String user_id = getUserId();
         boolean click = user_id!=null && boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0;
 
-        var comments = commentsMapperRepository.getCommentsForBoard(board_id);
-        if (comments.isEmpty())
-            comments = null;
-
         var result = FindOneBoardResult.builder()
                 .board_id(board_id)
                 .title(board.getTitle())
@@ -133,7 +132,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
                 .b_writer(board.getB_writer())
                 .b_date(board.getB_date())
                 .likes(board.getLikes())
-                .commentList(comments)
+                .commentList(commentsReadUseCase.getCommentList(board_id))
                 .click_likes(click)
                 .build();
         return result;

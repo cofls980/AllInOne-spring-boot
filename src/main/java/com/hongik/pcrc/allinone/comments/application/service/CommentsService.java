@@ -93,8 +93,11 @@ public class CommentsService implements CommentsOperationUseCase, CommentsReadUs
     }
 
     @Override
-    public List<FindCommentResult> getCommentList() {
-        return null;
+    public List<FindCommentResult> getCommentList(int board_id) {
+
+        var result = commentsMapperRepository.getCommentsForBoard(board_id);
+
+        return result.isEmpty() ? null : result;
     }
 
     public String getUserId() {
