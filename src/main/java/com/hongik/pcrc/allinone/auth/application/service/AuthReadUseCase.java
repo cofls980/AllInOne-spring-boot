@@ -4,6 +4,7 @@ import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import lombok.*;
 
 import javax.naming.AuthenticationException;
+import java.util.UUID;
 
 public interface AuthReadUseCase {
 
@@ -28,20 +29,24 @@ public interface AuthReadUseCase {
     @Builder
     class FindAuthResult {
         // Auth Info
+        private final UUID id;
         private final String email;
         private final String name;
         private final String birth;
         private final String gender;
-        private final String phoneNumber;
+        private final String phone_number;
 
         public static FindAuthResult findByAuth(Auth auth) {
             return FindAuthResult.builder()
+                    .id(auth.getId())
                     .email(auth.getEmail())
                     .name(auth.getName())
                     .birth(auth.getBirth())
                     .gender(auth.getGender())
-                    .phoneNumber(auth.getPhoneNumber())
+                    .phone_number(auth.getPhone_number())
                     .build();
         }
     }
+
+
 }

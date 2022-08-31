@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -12,15 +14,19 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@Entity
+//@Entity
 @NoArgsConstructor
 @Table(name = "users_test")
+@Entity(name = "users_test")
 public class AuthEntity {
 
     @Id //@GeneratedValue
-    @Column(nullable = false)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(columnDefinition = "char(36)")
+    @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
-    @Column(nullable = false, length = 320)
+    @Column(nullable = false)//, length = 320
     private String email;
     @Column(nullable = false)
     private String password;
@@ -38,10 +44,11 @@ public class AuthEntity {
     public Auth toAuth() {
         return Auth.builder()
                 .id(this.id)
+                .email(this.email)
                 .name(this.name)
                 .birth(this.birth)
                 .gender(this.gender)
-                .phoneNumber(this.phone_number)
+                .phone_number(this.phone_number)
                 .build();
     }
 
@@ -52,7 +59,7 @@ public class AuthEntity {
         this.name = auth.getName();
         this.birth = auth.getBirth();
         this.gender = auth.getGender();
-        this.phone_number = auth.getPhoneNumber();
-        this.refresh_token = auth.getRefreshToken();
+        this.phone_number = auth.getPhone_number();
+        this.refresh_token = auth.getRefresh_token();
     }
 }

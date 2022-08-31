@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository">
+
+    <select id="existsByEmail" parameterType="String" resultType="boolean">
+        select exists (select * from users_test where email = #{email}) as success
+    </select>
+
+    <delete id="deleteByEmail" parameterType="String">
+        delete from users_test where email = #{email}
+    </delete>
+
+    <update id="updatePwd" parameterType="map">
+        update users_test set password = #{password} where id = #{id}
+    </update>
+
+    <update id="updateRefreshToken" parameterType="map">
+        update users_test set refresh_token = #{refresh_token} where id = #{id}
+    </update>
+
+</mapper>

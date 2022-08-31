@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @ToString
@@ -27,7 +25,7 @@ public class AuthView {
         this.name = result.getName();
         this.birth = result.getBirth();
         this.gender = result.getGender();
-        this.phoneNumber = result.getPhoneNumber();
+        this.phoneNumber = result.getPhone_number();
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }

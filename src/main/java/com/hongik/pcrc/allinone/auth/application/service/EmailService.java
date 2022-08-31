@@ -3,6 +3,7 @@ package com.hongik.pcrc.allinone.auth.application.service;
 import com.hongik.pcrc.allinone.auth.application.domain.Email;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.EmailEntity;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.EmailEntityRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,13 @@ public class EmailService {
     private final JavaMailSender emailSender;
     private final EmailEntityRepository emailRepository;
     private final AuthEntityRepository authRepository;
+    private final AuthMapperRepository authMapperRepository;
 
-    public EmailService(JavaMailSender emailSender, EmailEntityRepository emailRepository, AuthEntityRepository authRepository) {
+    public EmailService(JavaMailSender emailSender, EmailEntityRepository emailRepository, AuthEntityRepository authRepository, AuthMapperRepository authMapperRepository) {
         this.emailSender = emailSender;
         this.emailRepository = emailRepository;
         this.authRepository = authRepository;
+        this.authMapperRepository = authMapperRepository;
     }
 
     /**인증 코드 생성*/
@@ -78,7 +81,7 @@ public class EmailService {
     }
 
     public String sendMessageExist(String email) throws MessagingException {
-        var query = authRepository.existsById(email);
+        var query = authMapperRepository.existsByEmail(email);
         if (!query) {
             return "not_found";
         }

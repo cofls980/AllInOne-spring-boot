@@ -22,8 +22,8 @@ public class Auth implements UserDetails {
     private final String name;
     private final String birth;
     private final String gender;
-    private final String phoneNumber;
-    private final String refreshToken;
+    private final String phone_number;
+    private final String refresh_token;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

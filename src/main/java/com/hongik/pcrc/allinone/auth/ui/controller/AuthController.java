@@ -15,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping(value = "/v2/users")
 public class AuthController {
@@ -46,7 +44,7 @@ public class AuthController {
                 .name(request.getName())
                 .birth(request.getBirth())
                 .gender(request.getGender())
-                .phoneNumber(request.getPhoneNumber())
+                .phone_number(request.getPhoneNumber())
                 .build();
 
         authOperationUseCase.createAuth(command);
@@ -69,7 +67,7 @@ public class AuthController {
         String accessToken = jwtProvider.createAccessToken(result.getEmail());
         //디비 저장
         String refreshToken = jwtProvider.createRefreshToken(result.getEmail()).get("refreshToken");
-        authOperationUseCase.updateRefreshToken(result.getEmail(), refreshToken);
+        authOperationUseCase.updateRefreshToken(result.getId(), refreshToken);
 
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, accessToken, refreshToken)));
     }
