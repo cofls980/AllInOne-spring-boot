@@ -7,8 +7,8 @@ import lombok.ToString;
 
 public interface AuthOperationUseCase {
 
-    AuthReadUseCase.FindAuthResult createAuth(AuthCreatedCommand command);
-    String updateAuth(AuthUpdateCommand command);
+    void createAuth(AuthCreatedCommand command);
+    void updateAuth(AuthUpdateCommand command);
     void deleteAuth();
     void updateRefreshToken(String id, String refreshToken);
 
@@ -18,7 +18,7 @@ public interface AuthOperationUseCase {
     @ToString
     class AuthCreatedCommand{
         //Auth Info
-        private final String id;
+        private final String email;
         private final String password;
         private final String name;
         private final String birth;
@@ -30,13 +30,9 @@ public interface AuthOperationUseCase {
     @Builder
     @Getter
     @ToString
-    class AuthUpdateCommand{
+    class AuthUpdateCommand{ //pwd update
         //Auth Info
-        private final String id;
+        private final String email;
         private final String password;
-        private final String name;
-        private final String birth;
-        private final String gender;
-        private final String phoneNumber;
     }
 }

@@ -41,7 +41,7 @@ public class AuthController {
         }
 
         var command = AuthOperationUseCase.AuthCreatedCommand.builder()
-                .id(request.getUser_id())
+                .email(request.getEmail())
                 .password(request.getPassword())
                 .name(request.getName())
                 .birth(request.getBirth())
@@ -49,11 +49,7 @@ public class AuthController {
                 .phoneNumber(request.getPhoneNumber())
                 .build();
 
-        var result = authOperationUseCase.createAuth(command);
-
-        if (result.getId().equals("conflict")) {
-            throw new AllInOneException(MessageType.CONFLICT);
-        }
+        authOperationUseCase.createAuth(command);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
@@ -66,18 +62,14 @@ public class AuthController {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
 
-        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getUser_id(), request.getPassword());
+        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getEmail(), request.getPassword());
         AuthReadUseCase.FindAuthResult result = authReadUseCase.getAuth(command);
-        if (result == null) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
 
         //jwt 토큰 생성
-        String accessToken = jwtProvider.createAccessToken(result.getId());
+        String accessToken = jwtProvider.createAccessToken(result.getEmail());
         //디비 저장
-        String refreshToken = jwtProvider.createRefreshToken(result.getId()).get("refreshToken");
-        authOperationUseCase.updateRefreshToken(result.getId(), refreshToken);
-        System.out.println("refresh: " + refreshToken);
+        String refreshToken = jwtProvider.createRefreshToken(result.getEmail()).get("refreshToken");
+        authOperationUseCase.updateRefreshToken(result.getEmail(), refreshToken);
 
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, accessToken, refreshToken)));
     }
@@ -91,16 +83,11 @@ public class AuthController {
         }
 
         var command = AuthOperationUseCase.AuthUpdateCommand.builder()
-                .id(request.getUser_id())
+                .email(request.getEmail())
                 .password(request.getPassword())
                 .build();
 
-        var result = authOperationUseCase.updateAuth(command);
-        if (result.equals("conflict")) {
-            throw new AllInOneException(MessageType.CONFLICT);
-        } else if (result.equals("not_found")) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
+        authOperationUseCase.updateAuth(command);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
@@ -113,6 +100,7 @@ public class AuthController {
 
     @DeleteMapping("")
     public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
+
         authOperationUseCase.deleteAuth();
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));

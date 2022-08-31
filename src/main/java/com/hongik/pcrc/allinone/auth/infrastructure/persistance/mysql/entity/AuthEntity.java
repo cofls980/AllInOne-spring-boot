@@ -7,18 +7,21 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "users_test")
 public class AuthEntity {
 
     @Id //@GeneratedValue
-    @Column(nullable = false, length = 50)
-    private String id;
+    @Column(nullable = false)
+    private UUID id;
+    @Column(nullable = false, length = 320)
+    private String email;
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
@@ -44,6 +47,7 @@ public class AuthEntity {
 
     public AuthEntity(Auth auth) {
         this.id = auth.getId();
+        this.email = auth.getEmail();
         this.password = auth.getPassword();
         this.name = auth.getName();
         this.birth = auth.getBirth();

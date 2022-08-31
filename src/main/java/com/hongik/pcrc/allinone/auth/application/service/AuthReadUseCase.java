@@ -14,11 +14,11 @@ public interface AuthReadUseCase {
     @Getter
     @ToString
     class AuthFindQuery {
-        private String authId;
+        private String email;
         private String password;
 
-        public AuthFindQuery(String authId, String password) {
-            this.authId = authId;
+        public AuthFindQuery(String email, String password) {
+            this.email = email;
             this.password = password;
         }
     }
@@ -28,7 +28,7 @@ public interface AuthReadUseCase {
     @Builder
     class FindAuthResult {
         // Auth Info
-        private final String id;
+        private final String email;
         private final String name;
         private final String birth;
         private final String gender;
@@ -36,7 +36,7 @@ public interface AuthReadUseCase {
 
         public static FindAuthResult findByAuth(Auth auth) {
             return FindAuthResult.builder()
-                    .id(auth.getId())
+                    .email(auth.getEmail())
                     .name(auth.getName())
                     .birth(auth.getBirth())
                     .gender(auth.getGender())

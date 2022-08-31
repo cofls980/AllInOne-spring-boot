@@ -9,13 +9,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 @Getter
 @ToString
 @Builder
 public class Auth implements UserDetails {
 
-    private final String id;
+    private final UUID id;
+    private final String email;
     private final String password;
     private final String name;
     private final String birth;
@@ -26,7 +28,7 @@ public class Auth implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(new SimpleGrantedAuthority(this.id));
+        collection.add(new SimpleGrantedAuthority(this.email));
         return collection;
     }
 
@@ -37,7 +39,7 @@ public class Auth implements UserDetails {
 
     @Override
     public String getUsername() {
-        return id;
+        return email;
     }
 
     @Override

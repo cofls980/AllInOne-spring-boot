@@ -6,13 +6,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthView {
 
-    private final String user_id;
+    private final String email;
     private final String name;
     private final String birth;
     private final String gender;
@@ -21,7 +23,7 @@ public class AuthView {
     private final String refreshToken;
 
     public AuthView(AuthReadUseCase.FindAuthResult result, String accessToken, String refreshToken) {
-        this.user_id = result.getId();
+        this.email = result.getEmail();
         this.name = result.getName();
         this.birth = result.getBirth();
         this.gender = result.getGender();
