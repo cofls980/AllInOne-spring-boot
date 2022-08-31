@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,6 +31,9 @@ public class BoardEntity {
     private String writer_email;
     @Column(nullable = false)
     private LocalDateTime b_date;
+    @Column(nullable = false)
+    @ColumnDefault(value = "0")
+    private int views;
 
     public Board toBoard() {
         return Board.builder()
@@ -38,6 +43,7 @@ public class BoardEntity {
                 .b_writer(this.b_writer)
                 .writer_email(this.writer_email)
                 .b_date(this.b_date)
+                .views(this.views)
                 .build();
     }
 
@@ -48,5 +54,6 @@ public class BoardEntity {
         this.b_writer = board.getB_writer();
         this.writer_email = board.getWriter_email();
         this.b_date = board.getB_date();
+        //this.views = board.getViews();
     }
 }

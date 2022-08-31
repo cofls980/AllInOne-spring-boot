@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.board.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.BoardOperationUseCase;
 import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
+import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardRequest;
@@ -106,6 +107,20 @@ public class BoardController {
 
         boardOperationUseCase.deleteLikes(board_id);
 
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @PutMapping("/views")
+    public ResponseEntity<ApiResponseView<SuccessView>> updateView(@RequestBody List<BoardViewsRequest> request) {
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        boardOperationUseCase.updateViews(request);
+        for (BoardViewsRequest data : request) {
+            System.out.println("board_id: " + data.getBoard_id());
+        }
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 }

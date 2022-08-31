@@ -1,9 +1,12 @@
 package com.hongik.pcrc.allinone.board.application.service;
 
+import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.List;
 
 public interface BoardOperationUseCase {
 
@@ -12,6 +15,7 @@ public interface BoardOperationUseCase {
     void deleteBoard(int board_id);
     void increaseLikes(int board_id);
     void deleteLikes(int board_id);
+    void updateViews(List<BoardViewsRequest> requestList);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder

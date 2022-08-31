@@ -58,7 +58,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String v = "/v2";
         String[] users = {v + "/users"}; //PUT
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
-        //조회수?
         String[] uri = {v + "/users/signup", v + "/users/login",
                 v + "/email/*", v + "/security/reissue"};
 

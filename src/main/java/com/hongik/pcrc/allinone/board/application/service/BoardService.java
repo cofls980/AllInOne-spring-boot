@@ -2,7 +2,9 @@ package com.hongik.pcrc.allinone.board.application.service;
 
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.board.application.domain.Board;
+import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardEntityRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
+import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
 import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
@@ -23,14 +25,16 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     private final AuthEntityRepository authEntityRepository;
     private final CommentsMapperRepository commentsMapperRepository;
     private final CommentsReadUseCase commentsReadUseCase;
+    private final BoardEntityRepository boardEntityRepository;
 
     public BoardService(BoardMapperRepository boardMapperRepository,
                         AuthEntityRepository authEntityRepository,
-                        CommentsMapperRepository commentsMapperRepository, CommentsReadUseCase commentsReadUseCase) {
+                        CommentsMapperRepository commentsMapperRepository, CommentsReadUseCase commentsReadUseCase, BoardEntityRepository boardEntityRepository) {
         this.boardMapperRepository = boardMapperRepository;
         this.authEntityRepository = authEntityRepository;
         this.commentsMapperRepository = commentsMapperRepository;
         this.commentsReadUseCase = commentsReadUseCase;
+        this.boardEntityRepository = boardEntityRepository;
     }
 
     @Override
@@ -54,13 +58,13 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     @Override
     public void updateBoard(BoardUpdateCommand command) {
 
-        var boardEntity = boardMapperRepository.havePost(command.getId());
-        if (boardEntity == null) {
+        var result = boardEntityRepository.findById(command.getId());
+        if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
         String userId = getUserId();
-        if (!userId.equals(boardEntity.getWriter_email())) {
+        if (!userId.equals(result.get().getWriter_email())) {
             throw new AllInOneException(MessageType.FORBIDDEN);
         }
 
@@ -76,14 +80,14 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
     @Override
     public void deleteBoard(int id) { // 존재하면 삭제
-        var board = boardMapperRepository.havePost(id);
 
-        if (board == null) {
+        var result = boardEntityRepository.findById(id);
+        if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
         String userId = getUserId();
-        if (!userId.equals(board.getWriter_email())) {
+        if (!userId.equals(result.get().getWriter_email())) {
             throw new AllInOneException(MessageType.FORBIDDEN);
         }
 
@@ -125,7 +129,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         String user_id = getUserId();
         boolean click = user_id!=null && boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0;
 
-        var result = FindOneBoardResult.builder()
+        return FindOneBoardResult.builder()
                 .board_id(board_id)
                 .title(board.getTitle())
                 .content(board.getContent())
@@ -134,8 +138,8 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
                 .likes(board.getLikes())
                 .commentList(commentsReadUseCase.getCommentList(board_id))
                 .click_likes(click)
+                .views(board.getViews())
                 .build();
-        return result;
     }
 
     @Override
@@ -143,7 +147,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
         String user_id = getUserId();
 
-        if (boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0) {
+        if (!boardEntityRepository.existsById(board_id) || boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0) {
             throw new AllInOneException(MessageType.CONFLICT);
         }
 
@@ -155,11 +159,26 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
         String user_id = getUserId();
 
-        if (boardMapperRepository.isUserLikes(getMap(user_id, board_id)) == 0) {
+        if (!boardEntityRepository.existsById(board_id) || boardMapperRepository.isUserLikes(getMap(user_id, board_id)) == 0) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
         boardMapperRepository.deleteLikes(getMap(user_id, board_id));
+    }
+
+    @Override
+    public void updateViews(List<BoardViewsRequest> requestList) {
+
+        String user_id = getUserId();
+
+        for (BoardViewsRequest data : requestList) {
+            if (!boardEntityRepository.existsById(data.getBoard_id())) continue;
+            var check = boardMapperRepository.checkView(getMap(user_id, data.getBoard_id()));
+            if (check == null) {
+                boardMapperRepository.createView(getMap(user_id, data.getBoard_id()));
+                boardMapperRepository.updateView(data.getBoard_id());
+            }
+        }
     }
 
     public String getUserId() {
@@ -169,9 +188,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             return null;
 
         UserDetails userDetails = (UserDetails) principal;
-        String id = userDetails.getUsername();
-
-        return id;
+        return userDetails.getUsername();
     }
 
     public Map<String, Object> getMap(String user_id, int board_id) {

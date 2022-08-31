@@ -40,6 +40,7 @@ public interface BoardReadUseCase {
         private final String b_writer;
         private final LocalDateTime b_date;
         private final int likes;
+        private final int views;
 
         public static FindBoardResult findByBoard(Board board) {
             return FindBoardResult.builder()
@@ -63,6 +64,7 @@ public interface BoardReadUseCase {
         private final LocalDateTime b_date;
         private final int likes;
         private final boolean click_likes;
+        private final int views;
         private final List<CommentsReadUseCase.FindCommentResult> commentList;
 
         public static FindBoardResult findByBoard(Board board) {
@@ -86,6 +88,7 @@ public interface BoardReadUseCase {
         private final String b_writer;
         private final LocalDateTime b_date;
         private final int likes;
+        private final int views;
 
     }
 }

@@ -6,41 +6,37 @@
 <mapper namespace="com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository">
 
     <select id="getList" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
         from boards as b left outer join likes on b.board_id = likes.board_id
         group by b.board_id
     </select>
 
     <select id="searchWriter" parameterType="String" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
         from boards as b left outer join likes on b.board_id = likes.board_id
         where b.b_writer = #{b_writer}
         group by b.board_id
     </select>
 
     <select id="searchTitle" parameterType="String" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
         from boards as b left outer join likes on b.board_id = likes.board_id
         where b.title like CONCAT('%',#{title},'%')
         group by b.board_id
     </select>
 
     <select id="searchBothWriterTitle" parameterType="String" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
         from boards as b left outer join likes on b.board_id = likes.board_id
         where b.title like CONCAT('%',#{keyword},'%') or b.b_writer = #{keyword}
         group by b.board_id
     </select>
 
     <select id="getPost" parameterType="Integer" resultType="com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase$FindMapperOneBoardResult">
-        select b.board_id, b.title, b.content, b.b_writer, b.b_date, count(likes.board_id) as likes
+        select b.board_id, b.title, b.content, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
         from boards as b left outer join likes on b.board_id = likes.board_id
         where b.board_id = #{board_id}
         group by b.board_id
-    </select>
-
-    <select id="havePost" parameterType="Integer" resultType="board">
-        select * from boards as b where b.board_id = #{board_id}
     </select>
 
     <insert id="post" parameterType="board">
@@ -66,5 +62,17 @@
     <delete id="deleteLikes" parameterType="map">
         delete from likes where board_id = #{board_id} and user_id = #{user_id}
     </delete>
+
+    <select id="checkView" parameterType="map" resultType="views">
+        select * from views where views.board_id = #{board_id} and views.user_id = #{user_id}
+    </select>
+
+    <insert id="createView" parameterType="map">
+        insert into views(board_id, user_id) value (#{board_id}, #{user_id})
+    </insert>
+
+    <update id="updateView" parameterType="Integer">
+        update boards set boards.views = boards.views + 1 where boards.board_id = #{board_id}
+    </update>
 
 </mapper>
