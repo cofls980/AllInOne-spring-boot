@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @Getter
 @ToString
 @Builder
@@ -11,6 +13,6 @@ public class Views {
 
     private final int view_id;
     private final int board_id;
-    private final String user_id;
+    private final UUID user_id;
 
 }

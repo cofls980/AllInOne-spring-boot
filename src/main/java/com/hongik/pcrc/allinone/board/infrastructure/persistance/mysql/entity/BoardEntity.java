@@ -1,11 +1,9 @@
 package com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity;
 
-import com.hongik.pcrc.allinone.board.application.domain.Board;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -26,22 +24,28 @@ public class BoardEntity {
     @Column(nullable = false, length = 2000)
     private String content;
     @Column(nullable = false)
-    private String b_writer;
-    @Column(nullable = false, length = 50)
-    private String writer_email;
-    @Column(nullable = false)
     private LocalDateTime b_date;
-    @Column(nullable = false)
-    @ColumnDefault(value = "0")
-    private int views;
 
-    public Board toBoard() {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private AuthEntity user_id;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board_id",
+            cascade = CascadeType.REMOVE)
+    private List<LikesEntity> likes;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board_id",
+            cascade = CascadeType.REMOVE)
+    private List<ViewsEntity> views;
+
+    /*public Board toBoard() {
         return Board.builder()
                 .board_id(this.board_id)
                 .title(this.title)
                 .content(this.content)
                 .b_writer(this.b_writer)
-                .writer_email(this.writer_email)
+                .user_id(this.user_id)
                 .b_date(this.b_date)
                 .views(this.views)
                 .build();
@@ -52,8 +56,8 @@ public class BoardEntity {
         this.title = board.getTitle();
         this.content = board.getContent();
         this.b_writer = board.getB_writer();
-        this.writer_email = board.getWriter_email();
+        this.user_id = board.getUser_id();
         this.b_date = board.getB_date();
         //this.views = board.getViews();
-    }
+    }*/
 }

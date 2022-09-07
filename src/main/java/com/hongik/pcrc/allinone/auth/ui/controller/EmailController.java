@@ -6,6 +6,8 @@ import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/v2/email")
+@Api(tags = {"Email API"})
 public class EmailController {
 
     private final EmailService emailService;
@@ -28,22 +31,24 @@ public class EmailController {
 
     /** 이메일 인증 코드 보내기*/
     @PostMapping("")
+    @ApiOperation(value = "[회원가입] 이메일로 인증 코드 전송")
     public ResponseEntity<ApiResponseView<SuccessView>> emailAuth(@RequestBody Map<String, String> email) throws MessagingException {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        emailService.sendMessage(email.get("user_id"));
+        emailService.sendMessage(email.get("email"));
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
     /** 이메일 인증 코드 검증*/
     @PostMapping("/confirm")
+    @ApiOperation(value = "인증 코드 확인")
     public ResponseEntity<ApiResponseView<SuccessView>> verifyCode(@RequestBody EmailVerifyRequest request) {
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        String result = emailService.verifyCode(request.getUser_id(), request.getCode());
+        String result = emailService.verifyCode(request.getEmail(), request.getCode());
         if (result.equals("false")) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
@@ -52,11 +57,12 @@ public class EmailController {
     }
 
     @PostMapping("/reset-pwd")
+    @ApiOperation(value = "[비밀번호 재설정] 이메일로 인증 코드 전송")
     public ResponseEntity<ApiResponseView<SuccessView>> emailPasswordAuth(@RequestBody Map<String, String> email) throws MessagingException {
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
-        var result = emailService.sendMessageExist(email.get("user_id"));
+        var result = emailService.sendMessageExist(email.get("email"));
         if (result.equals("not_found")) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }

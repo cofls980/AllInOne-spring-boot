@@ -2,11 +2,13 @@ package com.hongik.pcrc.allinone.board.application.service;
 
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.board.application.domain.Board;
+import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.BoardEntity;
+import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.LikesEntity;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardEntityRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
+import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.LikesViewsMapperRepository;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
-import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,41 +16,38 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
     private final BoardMapperRepository boardMapperRepository;
     private final AuthEntityRepository authEntityRepository;
-    private final CommentsMapperRepository commentsMapperRepository;
     private final CommentsReadUseCase commentsReadUseCase;
     private final BoardEntityRepository boardEntityRepository;
+    private final LikesViewsMapperRepository likesViewsMapperRepository;
 
     public BoardService(BoardMapperRepository boardMapperRepository,
                         AuthEntityRepository authEntityRepository,
-                        CommentsMapperRepository commentsMapperRepository, CommentsReadUseCase commentsReadUseCase, BoardEntityRepository boardEntityRepository) {
+                        CommentsReadUseCase commentsReadUseCase, BoardEntityRepository boardEntityRepository, LikesViewsMapperRepository likesViewsMapperRepository) {
         this.boardMapperRepository = boardMapperRepository;
         this.authEntityRepository = authEntityRepository;
-        this.commentsMapperRepository = commentsMapperRepository;
         this.commentsReadUseCase = commentsReadUseCase;
         this.boardEntityRepository = boardEntityRepository;
+        this.likesViewsMapperRepository = likesViewsMapperRepository;
     }
 
     @Override
     public void createBoard(BoardCreatedCommand command) {
 
-        String userId = getUserId();
+        String email = getUserEmail();
 
-        var auth = authEntityRepository.findById(userId);
+        var authEntity = authEntityRepository.findByEmail(email);
 
         var board = Board.builder()
                 .title(command.getTitle())
                 .content(command.getContent())
-                .b_writer(auth.get().getName())
-                .writer_email(userId)
+                .user_id(authEntity.get().getId().toString())
                 .b_date(LocalDateTime.now())
                 .build();
 
@@ -63,8 +62,8 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        String userId = getUserId();
-        if (!userId.equals(result.get().getWriter_email())) {
+        String email = getUserEmail();
+        if (!email.equals(result.get().getUser_id().getEmail())) {
             throw new AllInOneException(MessageType.FORBIDDEN);
         }
 
@@ -79,15 +78,15 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public void deleteBoard(int id) { // 존재하면 삭제
+    public void deleteBoard(int id) {
 
         var result = boardEntityRepository.findById(id);
         if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        String userId = getUserId();
-        if (!userId.equals(result.get().getWriter_email())) {
+        String email = getUserEmail();
+        if (!email.equals(result.get().getUser_id().getEmail())) {
             throw new AllInOneException(MessageType.FORBIDDEN);
         }
 
@@ -95,93 +94,105 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public List<FindBoardResult> getBoardList(String b_writer, String title) {
+    public List<FindBoardResult> getBoardList(String b_writer, String title) { //수정
 
-        List<FindBoardResult> result = null;
+        List<FindBoardResult> result = new ArrayList<>();
 
-        if (b_writer == null && title == null) {
-            result = boardMapperRepository.getList();
-        } else if (title == null) {
-            result = boardMapperRepository.searchWriter(b_writer);
-        } else if (b_writer == null) {
-            result = boardMapperRepository.searchTitle(title);
-        } else {
-            if (b_writer.equals(title))
-                result = boardMapperRepository.searchBothWriterTitle(b_writer);
+        var boards = boardEntityRepository.findAll();
+
+        for (BoardEntity b : boards) {
+            result.add(FindBoardResult.builder()
+                    .board_id(b.getBoard_id())
+                    .title(b.getTitle())
+                    .b_writer(b.getUser_id().getName())
+                    .b_date(b.getB_date())
+                    .likes(b.getLikes().size())
+                    .click_likes(isLikeClicked(b.getLikes()))
+                    .views(b.getViews().size())
+                    .build()
+            );
         }
-
-        if (result == null || result.isEmpty()) {
-            return null;
-        }
-
         return result;
     }
 
     @Override
     public FindOneBoardResult getOneBoard(int board_id) {
 
-        var board = boardMapperRepository.getPost(board_id);
-
-        if (board == null) {
+        var result = boardEntityRepository.findById(board_id);
+        if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        String user_id = getUserId();
-        boolean click = user_id!=null && boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0;
-
         return FindOneBoardResult.builder()
                 .board_id(board_id)
-                .title(board.getTitle())
-                .content(board.getContent())
-                .b_writer(board.getB_writer())
-                .b_date(board.getB_date())
-                .likes(board.getLikes())
+                .title(result.get().getTitle())
+                .content(result.get().getContent())
+                .b_writer(result.get().getUser_id().getName())
+                .b_date(result.get().getB_date())
+                .likes(result.get().getLikes().size())
                 .commentList(commentsReadUseCase.getCommentList(board_id))
-                .click_likes(click)
-                .views(board.getViews())
+                .click_likes(isLikeClicked(result.get().getLikes()))
+                .views(result.get().getViews().size())
                 .build();
     }
 
     @Override
     public void increaseLikes(int board_id) {
 
-        String user_id = getUserId();
-
-        if (!boardEntityRepository.existsById(board_id) || boardMapperRepository.isUserLikes(getMap(user_id, board_id)) != 0) {
+        String email = getUserEmail();
+        var authEntity = authEntityRepository.findByEmail(email);
+        if (likesViewsMapperRepository.isUserLikes(authEntity.get().getId().toString(), board_id) != 0) {
             throw new AllInOneException(MessageType.CONFLICT);
         }
 
-        boardMapperRepository.createLikes(getMap(user_id, board_id));
+        likesViewsMapperRepository.createLikes(authEntity.get().getId().toString(), board_id);
     }
 
     @Override
     public void deleteLikes(int board_id) {
 
-        String user_id = getUserId();
-
-        if (!boardEntityRepository.existsById(board_id) || boardMapperRepository.isUserLikes(getMap(user_id, board_id)) == 0) {
+        String email = getUserEmail();
+        var authEntity = authEntityRepository.findByEmail(email);
+        if (likesViewsMapperRepository.isUserLikes(authEntity.get().getId().toString(), board_id) == 0) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        boardMapperRepository.deleteLikes(getMap(user_id, board_id));
+        likesViewsMapperRepository.deleteLikes(authEntity.get().getId().toString(), board_id);
     }
 
     @Override
     public void updateViews(List<BoardViewsRequest> requestList) {
 
-        String user_id = getUserId();
-
+        String email = getUserEmail();
+        var authEntity = authEntityRepository.findByEmail(email);
         for (BoardViewsRequest data : requestList) {
             if (!boardEntityRepository.existsById(data.getBoard_id())) continue;
-            var check = boardMapperRepository.checkView(getMap(user_id, data.getBoard_id()));
-            if (check == null) {
-                boardMapperRepository.createView(getMap(user_id, data.getBoard_id()));
-                boardMapperRepository.updateView(data.getBoard_id());
+            var check = likesViewsMapperRepository.checkView(authEntity.get().getId().toString(), data.getBoard_id());
+            if (!check) {
+                likesViewsMapperRepository.createView(authEntity.get().getId().toString(), data.getBoard_id());
             }
         }
     }
 
-    public String getUserId() {
+    public boolean isLikeClicked(List<LikesEntity> list) {
+
+        boolean click = false;
+
+        String email = getUserEmail();
+
+        if (email != null && !list.isEmpty()) {
+            for (LikesEntity l : list) {
+                if (l.getUser_id().getEmail().equals(email)) {
+                    click = true;
+                    break;
+                }
+            }
+        }
+
+        return click;
+    }
+
+    public String getUserEmail() {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal.equals("anonymousUser"))
@@ -189,14 +200,5 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
         UserDetails userDetails = (UserDetails) principal;
         return userDetails.getUsername();
-    }
-
-    public Map<String, Object> getMap(String user_id, int board_id) {
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("user_id", user_id);
-        map.put("board_id", board_id);
-
-        return map;
     }
 }

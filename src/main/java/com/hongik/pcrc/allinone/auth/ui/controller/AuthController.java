@@ -10,6 +10,8 @@ import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/v2/users")
+@Api(tags = {"User API"})
 public class AuthController {
 
     private final AuthOperationUseCase authOperationUseCase;
@@ -32,6 +35,7 @@ public class AuthController {
 
     //sign up
     @PostMapping("/signup")
+    @ApiOperation(value = "회원가입")
     public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@RequestBody AuthCreateRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -54,6 +58,7 @@ public class AuthController {
 
     //sign in
     @PostMapping("/login")
+    @ApiOperation(value = "로그인")
     public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@RequestBody AuthSignInRequest request) throws Exception {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -74,6 +79,7 @@ public class AuthController {
 
     //reset pasword
     @PutMapping("")
+    @ApiOperation(value = "비밀번호 재설정")
     public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@RequestBody AuthSignInRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -97,6 +103,7 @@ public class AuthController {
     }*/
 
     @DeleteMapping("")
+    @ApiOperation(value = "탈퇴")
     public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
 
         authOperationUseCase.deleteAuth();
