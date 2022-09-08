@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface BoardEntityRepository extends CrudRepository<BoardEntity, Integer> {
 
-    @Query(value = "select * from boards_test", nativeQuery = true)
+    @Query(value = "select * from boards", nativeQuery = true)
     List<BoardEntity> findAll();
 }
