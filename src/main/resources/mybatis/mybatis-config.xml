@@ -3,7 +3,9 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <mappers>
+        <mapper resource="AuthMapper.xml"/>
         <mapper resource="BoardMapper.xml"/>
         <mapper resource="CommentsMapper.xml"/>
+        <mapper resource="LikesViewsMapper.xml"/>
     </mappers>
 </configuration>

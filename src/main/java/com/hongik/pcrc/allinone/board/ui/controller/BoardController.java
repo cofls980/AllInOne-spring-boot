@@ -2,24 +2,23 @@ package com.hongik.pcrc.allinone.board.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.BoardOperationUseCase;
 import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
-import com.hongik.pcrc.allinone.board.ui.view.Board.BoardView;
+import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardRequest;
-import com.hongik.pcrc.allinone.board.ui.view.Board.BoardListView;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/v2/boards")
+@Api(tags = {"Board API"})
 public class BoardController {
 
     private final BoardReadUseCase boardReadUseCase;
@@ -31,6 +30,7 @@ public class BoardController {
     }
 
     @GetMapping("")
+    @ApiOperation(value = "게시판 목록")
     public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
                                                                                               @RequestParam(value = "title", required = false) String title) {
 
@@ -44,7 +44,8 @@ public class BoardController {
     }
 
     @GetMapping("/{board_id}")
-    public ResponseEntity<ApiResponseView<BoardView>> selectOne(@PathVariable int board_id) {
+    @ApiOperation(value = "게시글 선택")
+    public ResponseEntity<ApiResponseView<BoardReadUseCase.FindOneBoardResult>> selectOne(@PathVariable int board_id) {
 
         BoardReadUseCase.FindOneBoardResult result = boardReadUseCase.getOneBoard(board_id);
 
@@ -52,10 +53,11 @@ public class BoardController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return ResponseEntity.ok(new ApiResponseView<>(new BoardView(result)));
+        return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
     @PostMapping("")
+    @ApiOperation(value = "게시글 작성")
     public ResponseEntity<ApiResponseView<SuccessView>> createPost(@RequestBody BoardRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -73,6 +75,7 @@ public class BoardController {
     }
 
     @PutMapping("/{board_id}")
+    @ApiOperation(value = "게시글 수정")
     public ResponseEntity<ApiResponseView<SuccessView>> editPost(@RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
 
         if (ObjectUtils.isEmpty(request)) {
@@ -91,6 +94,7 @@ public class BoardController {
     }
 
     @DeleteMapping("/{board_id}")
+    @ApiOperation(value = "게시글 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
 
         boardOperationUseCase.deleteBoard(board_id);
@@ -98,10 +102,33 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PutMapping("/{board_id}/likes")
-    public ResponseEntity<ApiResponseView<SuccessView>> increaseThumbs(@PathVariable int board_id) {
+    @PostMapping("/{board_id}/likes")
+    @ApiOperation(value = "게시글 좋아요")
+    public ResponseEntity<ApiResponseView<SuccessView>> increaseLikes(@PathVariable int board_id) {
 
-        boardOperationUseCase.increaseThumbs(board_id);
+        boardOperationUseCase.increaseLikes(board_id);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @DeleteMapping("/{board_id}/unlikes")
+    @ApiOperation(value = "게시글 좋아요 취소")
+    public ResponseEntity<ApiResponseView<SuccessView>> deleteLikes(@PathVariable int board_id) {
+
+        boardOperationUseCase.deleteLikes(board_id);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @PutMapping("/views")
+    @ApiOperation(value = "게시글 조회수 업데이트")
+    public ResponseEntity<ApiResponseView<SuccessView>> updateView(@RequestBody List<BoardViewsRequest> request) {
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        boardOperationUseCase.updateViews(request);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }

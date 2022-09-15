@@ -1,10 +1,13 @@
 package com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.entity;
 
-import com.hongik.pcrc.allinone.comments.application.domain.Comments;
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
+import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.BoardEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,19 +26,24 @@ public class CommentsEntity {
     private String comment;
     @Column(nullable = false)
     private String c_writer;
-    @Column(nullable = false, length = 50)
-    private String writer_email;
     @Column(nullable = false)
     private LocalDateTime c_date;
-    @Column(nullable = false)
-    private int board_id;
 
-    public Comments toComments() {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private AuthEntity user_id;
+    @ManyToOne
+    @JoinColumn(name = "board_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private BoardEntity board_id;
+
+    /*public Comments toComments() {
         return Comments.builder()
                 .comment_id(this.comment_id)
                 .comment(this.comment)
                 .c_writer(this.c_writer)
-                .writer_email(this.writer_email)
+                .user_id(this.user_id)
                 .c_date(this.c_date)
                 .board_id(this.board_id)
                 .build();
@@ -45,8 +53,8 @@ public class CommentsEntity {
         this.comment_id = comments.getComment_id();
         this.comment = comments.getComment();
         this.c_writer = comments.getC_writer();
-        this.writer_email = comments.getWriter_email();
+        this.user_id = comments.getUser_id();
         this.c_date = comments.getC_date();
         this.board_id = comments.getBoard_id();
-    }
+    }*/
 }

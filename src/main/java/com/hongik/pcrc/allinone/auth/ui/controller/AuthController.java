@@ -10,15 +10,16 @@ import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping(value = "/v2/users")
+@Api(tags = {"User API"})
 public class AuthController {
 
     private final AuthOperationUseCase authOperationUseCase;
@@ -34,6 +35,7 @@ public class AuthController {
 
     //sign up
     @PostMapping("/signup")
+    @ApiOperation(value = "회원가입")
     public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@RequestBody AuthCreateRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -41,49 +43,43 @@ public class AuthController {
         }
 
         var command = AuthOperationUseCase.AuthCreatedCommand.builder()
-                .id(request.getUser_id())
+                .email(request.getEmail())
                 .password(request.getPassword())
                 .name(request.getName())
                 .birth(request.getBirth())
                 .gender(request.getGender())
-                .phoneNumber(request.getPhoneNumber())
+                .phone_number(request.getPhoneNumber())
                 .build();
 
-        var result = authOperationUseCase.createAuth(command);
-
-        if (result.getId().equals("conflict")) {
-            throw new AllInOneException(MessageType.CONFLICT);
-        }
+        authOperationUseCase.createAuth(command);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
     //sign in
     @PostMapping("/login")
+    @ApiOperation(value = "로그인")
     public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@RequestBody AuthSignInRequest request) throws Exception {
 
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
 
-        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getUser_id(), request.getPassword());
+        AuthReadUseCase.AuthFindQuery command = new AuthReadUseCase.AuthFindQuery(request.getEmail(), request.getPassword());
         AuthReadUseCase.FindAuthResult result = authReadUseCase.getAuth(command);
-        if (result == null) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
 
         //jwt 토큰 생성
-        String accessToken = jwtProvider.createAccessToken(result.getId());
+        String accessToken = jwtProvider.createAccessToken(result.getEmail());
         //디비 저장
-        String refreshToken = jwtProvider.createRefreshToken(result.getId()).get("refreshToken");
+        String refreshToken = jwtProvider.createRefreshToken(result.getEmail()).get("refreshToken");
         authOperationUseCase.updateRefreshToken(result.getId(), refreshToken);
-        System.out.println("refresh: " + refreshToken);
 
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, accessToken, refreshToken)));
     }
 
     //reset pasword
     @PutMapping("")
+    @ApiOperation(value = "비밀번호 재설정")
     public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@RequestBody AuthSignInRequest request) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -91,16 +87,11 @@ public class AuthController {
         }
 
         var command = AuthOperationUseCase.AuthUpdateCommand.builder()
-                .id(request.getUser_id())
+                .email(request.getEmail())
                 .password(request.getPassword())
                 .build();
 
-        var result = authOperationUseCase.updateAuth(command);
-        if (result.equals("conflict")) {
-            throw new AllInOneException(MessageType.CONFLICT);
-        } else if (result.equals("not_found")) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
+        authOperationUseCase.updateAuth(command);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
@@ -112,7 +103,9 @@ public class AuthController {
     }*/
 
     @DeleteMapping("")
+    @ApiOperation(value = "탈퇴")
     public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
+
         authOperationUseCase.deleteAuth();
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));

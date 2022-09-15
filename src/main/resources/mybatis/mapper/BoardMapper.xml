@@ -6,38 +6,51 @@
 <mapper namespace="com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository">
 
     <select id="getList" resultType="map">
-        select board_id, title, b_writer, b_date, likes from boards
+        select *
+        from boards as b
+        /*select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
+        from boards as b left outer join likes on b.board_id = likes.board_id
+        group by b.board_id*/
     </select>
 
     <select id="searchWriter" parameterType="String" resultType="map">
-        select board_id, title, b_writer, b_date, likes from boards where boards.b_writer = #{b_writer}
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
+        from boards as b left outer join likes on b.board_id = likes.board_id
+        where b.b_writer = #{b_writer}
+        group by b.board_id
     </select>
 
     <select id="searchTitle" parameterType="String" resultType="map">
-        select board_id, title, b_writer, b_date, likes from boards where boards.title like CONCAT('%',#{title},'%')
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
+        from boards as b left outer join likes on b.board_id = likes.board_id
+        where b.title like CONCAT('%',#{title},'%')
+        group by b.board_id
     </select>
 
     <select id="searchBothWriterTitle" parameterType="String" resultType="map">
-        select board_id, title, b_writer, b_date, likes from boards where boards.title like CONCAT('%',#{keyword},'%') or boards.b_writer = #{keyword}
+        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
+        from boards as b left outer join likes on b.board_id = likes.board_id
+        where b.title like CONCAT('%',#{keyword},'%') or b.b_writer = #{keyword}
+        group by b.board_id
     </select>
 
-    <select id="getPost" parameterType="Integer" resultType="board">
-        select board_id, title, content, b_writer, writer_email, b_date, likes from boards where boards.board_id = #{board_id}
+    <select id="getPost" parameterType="Integer" resultType="com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase$FindMapperOneBoardResult">
+        select b.board_id, b.title, b.content, b.user_id, b.b_date, count(likes.board_id) as likes, b.views
+        from boards as b left outer join likes on b.board_id = likes.board_id
+        where b.board_id = #{board_id}
+        group by b.board_id
     </select>
 
     <insert id="post" parameterType="board">
-        insert into boards(title, content, b_writer, writer_email, b_date) value (#{title}, #{content}, #{b_writer}, #{writer_email}, #{b_date})
+        insert into boards(title, content, user_id, b_date) value (#{title}, #{content}, #{user_id}, #{b_date})
     </insert>
 
     <update id="update" parameterType="board">
         update boards set title = #{title}, content = #{content}, b_date = #{b_date} where boards.board_id = #{board_id}
     </update>
 
-    <update id="updateLike" parameterType="board">
-        update boards set likes = #{likes} where boards.board_id = #{board_id}
-    </update>
-
     <delete id="delete" parameterType="Integer">
         delete from boards where board_id = #{board_id}
     </delete>
+
 </mapper>

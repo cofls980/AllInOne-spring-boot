@@ -8,15 +8,7 @@ import java.util.List;
 
 public interface CommentsReadUseCase {
 
-    List<FindCommentResult> getCommentList();
-
-    @NoArgsConstructor
-    @EqualsAndHashCode(callSuper = false)
-    @Getter
-    @ToString
-    class CommentRindQuery {
-
-    }
+    List<FindCommentResult> getCommentList(int board_id);
 
     @Getter
     @ToString
