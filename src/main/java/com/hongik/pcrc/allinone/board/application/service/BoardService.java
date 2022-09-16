@@ -98,7 +98,17 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
         List<FindBoardResult> result = new ArrayList<>();
 
-        var boards = boardEntityRepository.findAll();
+        List<BoardEntity> boards;
+
+        if (b_writer == null && title == null) {
+            boards = boardEntityRepository.findAll(); // all
+        } else if (b_writer == null) {
+            boards = boardEntityRepository.findWithTitle(title); // title
+        } else if (title == null) {
+            boards = boardEntityRepository.findWithWriter(b_writer); // b_writer
+        } else {
+            boards = boardEntityRepository.findWithTitleAndWriter(title, b_writer); // title || b_writer
+        }
 
         for (BoardEntity b : boards) {
             result.add(FindBoardResult.builder()
