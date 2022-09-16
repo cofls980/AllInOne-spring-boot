@@ -104,6 +104,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             result.add(FindBoardResult.builder()
                     .board_id(b.getBoard_id())
                     .title(b.getTitle())
+                    .content(b.getContent())
                     .b_writer(b.getUser_id().getName())
                     .b_date(b.getB_date())
                     .likes(b.getLikes().size())

@@ -37,6 +37,7 @@ public interface BoardReadUseCase {
         // Board Info
         private final int board_id;
         private final String title;
+        private final String content;
         private final String b_writer;
         private final LocalDateTime b_date;
         private final int likes;
@@ -47,6 +48,7 @@ public interface BoardReadUseCase {
             return FindBoardResult.builder()
                     .board_id(board.getBoard_id())
                     .title(board.getTitle())
+                    .content(board.getContent())
                     .b_writer(board.getContent())
                     .b_date(board.getB_date())
                     .build();
