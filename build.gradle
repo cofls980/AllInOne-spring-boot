@@ -48,6 +48,10 @@ dependencies {
 
 	// JSONParser, JSONObject설정
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+
+	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
+	implementation "io.springfox:springfox-boot-starter:3.0.0"
+	implementation "io.springfox:springfox-swagger-ui:3.0.0"
 }
 
 tasks.named('test') {

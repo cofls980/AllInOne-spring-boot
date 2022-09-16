@@ -58,8 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String v = "/v2";
         String[] users = {v + "/users"}; //PUT
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
-        String[] uri = {v + "/users/signup", v + "/users/login",
-                v + "/email/*", v + "/security/reissue"};
+        String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
+                v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**"};
 
         http.httpBasic().disable()
                 .csrf().disable() // csrf 필요없음
@@ -68,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers(HttpMethod.PUT, users).permitAll()
                     .antMatchers(HttpMethod.GET, boards).permitAll()
-                    .antMatchers(uri).permitAll() // logout은 auth에서 빼야함
+                    .antMatchers(uri).permitAll()
                     .anyRequest().authenticated()
                 .and()
                     .exceptionHandling()

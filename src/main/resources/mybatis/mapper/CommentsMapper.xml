@@ -6,7 +6,7 @@
 <mapper namespace="com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository">
 
     <select id="getComment" parameterType="Integer" resultType="Comments">
-        select comment_id, comment, c_writer, writer_email, c_date, board_id from comments where comment_id = #{comment_id}
+        select comment_id, comment, c_writer, user_id, c_date, board_id from comments where comment_id = #{comment_id}
     </select>
 
     <select id="getCommentsForBoard" parameterType="Integer" resultType="map">
@@ -14,7 +14,7 @@
     </select>
 
     <insert id="storeComment" parameterType="comments">
-        insert into comments(comment, c_writer, writer_email, c_date, board_id) value (#{comment}, #{c_writer}, #{writer_email}, #{c_date}, #{board_id})
+        insert into comments(comment, c_writer, user_id, c_date, board_id) value (#{comment}, #{c_writer}, #{user_id}, #{c_date}, #{board_id})
     </insert>
 
     <delete id="deleteComment" parameterType="Integer">

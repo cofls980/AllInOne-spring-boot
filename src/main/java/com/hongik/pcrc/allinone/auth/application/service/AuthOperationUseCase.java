@@ -5,12 +5,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 public interface AuthOperationUseCase {
 
-    AuthReadUseCase.FindAuthResult createAuth(AuthCreatedCommand command);
-    String updateAuth(AuthUpdateCommand command);
+    void createAuth(AuthCreatedCommand command);
+    void updateAuth(AuthUpdateCommand command);
     void deleteAuth();
-    void updateRefreshToken(String id, String refreshToken);
+    void updateRefreshToken(UUID id, String refreshToken);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder
@@ -18,25 +20,21 @@ public interface AuthOperationUseCase {
     @ToString
     class AuthCreatedCommand{
         //Auth Info
-        private final String id;
+        private final String email;
         private final String password;
         private final String name;
         private final String birth;
         private final String gender;
-        private final String phoneNumber;
+        private final String phone_number;
     }
 
     @EqualsAndHashCode(callSuper = false)
     @Builder
     @Getter
     @ToString
-    class AuthUpdateCommand{
+    class AuthUpdateCommand{ //pwd update
         //Auth Info
-        private final String id;
+        private final String email;
         private final String password;
-        private final String name;
-        private final String birth;
-        private final String gender;
-        private final String phoneNumber;
     }
 }

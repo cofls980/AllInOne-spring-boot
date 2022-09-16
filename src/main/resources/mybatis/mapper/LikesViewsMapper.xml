@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.LikesViewsMapperRepository">
+
+    <select id="isUserLikes" resultType="Integer">
+        select count(*) from likes where likes.user_id = #{user_id} and likes.board_id = #{board_id}
+    </select>
+
+    <insert id="createLikes">
+        insert into likes(board_id, user_id) value (#{board_id}, #{user_id})
+    </insert>
+
+    <delete id="deleteLikes">
+        delete from likes where board_id = #{board_id} and user_id = #{user_id}
+    </delete>
+
+    <select id="checkView" resultType="boolean">
+        select exists (select * from views where views.board_id = #{board_id} and views.user_id = #{user_id}) as success
+    </select>
+
+    <insert id="createView">
+        insert into views(board_id, user_id) value (#{board_id}, #{user_id})
+    </insert>
+
+    <update id="updateView" parameterType="Integer">
+        update boards set boards.views = boards.views + 1 where boards.board_id = #{board_id}
+    </update>
+
+    <select id="getLikes" parameterType="Integer" resultType="map">
+        select * from likes where likes.board_id = #{board_id}
+    </select>
+
+</mapper>

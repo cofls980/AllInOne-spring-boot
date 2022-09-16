@@ -13,7 +13,7 @@ public class Comments {
 
     private final int comment_id;
     private final String c_writer;
-    private final String writer_email;
+    private final String user_id;
     private final String comment;
     private final LocalDateTime c_date;
     private final int board_id;

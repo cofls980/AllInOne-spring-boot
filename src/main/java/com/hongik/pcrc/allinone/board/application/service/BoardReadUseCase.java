@@ -12,7 +12,7 @@ public interface BoardReadUseCase {
     List<FindBoardResult> getBoardList(String b_writer, String title);
     FindOneBoardResult getOneBoard(int board_id);
 
-    @NoArgsConstructor
+    /*@NoArgsConstructor
     @EqualsAndHashCode(callSuper = false)
     @Getter
     @ToString
@@ -20,15 +20,15 @@ public interface BoardReadUseCase {
         private String title;
         private String content;
         private String writer;
-        private String writerEmail;
+        private String user_id;
 
         public BoardFindQuery(String title, String content, String writer, String writerEmail) {
             this.title = title;
             this.content = content;
             this.writer = writer;
-            this.writerEmail = writerEmail;
+            this.user_id = writerEmail;
         }
-    }
+    }*/
 
     @Getter
     @ToString
@@ -40,6 +40,7 @@ public interface BoardReadUseCase {
         private final String b_writer;
         private final LocalDateTime b_date;
         private final int likes;
+        private final boolean click_likes;
         private final int views;
 
         public static FindBoardResult findByBoard(Board board) {
@@ -85,10 +86,9 @@ public interface BoardReadUseCase {
         private final int board_id;
         private final String title;
         private final String content;
-        private final String b_writer;
+        private final String user_id;
         private final LocalDateTime b_date;
         private final int likes;
-        private final int views;
 
     }
 }

@@ -3,126 +3,108 @@ package com.hongik.pcrc.allinone.auth.application.service;
 import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.naming.AuthenticationException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
 
     private final AuthEntityRepository authRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthMapperRepository authMapperRepository;
 
     @Autowired
-    public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder, AuthMapperRepository authMapperRepository) {
         this.authRepository = authRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authMapperRepository = authMapperRepository;
     }
 
     @Override
-    public FindAuthResult createAuth(AuthCreatedCommand command) {
+    public void createAuth(AuthCreatedCommand command) {
 
-        var query = authRepository.existsById(command.getId());
+        var query = authMapperRepository.existsByEmail(command.getEmail());
         if (query) {
-            return FindAuthResult.findByAuth(Auth.builder()
-                    .id("conflict")
-                    .build());
+            throw new AllInOneException(MessageType.CONFLICT);
         }
 
         String encodePassword = passwordEncoder.encode(command.getPassword());
         var auth = Auth.builder()
-                .id(command.getId())
+                .email(command.getEmail())
                 .password(encodePassword)
                 .name(command.getName())
                 .birth(command.getBirth())
                 .gender(command.getGender())
-                .phoneNumber(command.getPhoneNumber())
+                .phone_number(command.getPhone_number())
                 .build();
 
         var authEntity = new AuthEntity(auth);
 
-        var result = authRepository.save(authEntity);
-
-        return FindAuthResult.findByAuth(result.toAuth());
+        authRepository.save(authEntity);
     }
 
     @Override
-    public String updateAuth(AuthUpdateCommand command) {
-        var authEntity = authRepository.findById(command.getId());
+    public void updateAuth(AuthUpdateCommand command) {
 
-        if (authEntity.isPresent()) {
-            boolean isSame = passwordEncoder.matches(command.getPassword(), authEntity.get().getPassword());
-            if (isSame)
-                return "conflict";
-            String encodePassword = passwordEncoder.encode(command.getPassword());
-            var auth = Auth.builder()
-                    .id(command.getId())
-                    .password(encodePassword)
-                    .name(authEntity.get().getName())
-                    .birth(authEntity.get().getBirth())
-                    .gender(authEntity.get().getGender())
-                    .phoneNumber(authEntity.get().getPhone_number())
-                    .build();
-            var entity = new AuthEntity(auth);
-            var result = authRepository.save(entity);
-            return "true";
+        var auth = authRepository.findByEmail(command.getEmail());
+
+        if (auth.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
         }
-        return "not_found";
+        if (passwordEncoder.matches(command.getPassword(), auth.get().getPassword())) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        }
+
+        String encodePassword = passwordEncoder.encode(command.getPassword());
+        authMapperRepository.updatePwd(makeMap(auth.get().getId(), "password", encodePassword));
     }
 
     @Override
     public void deleteAuth() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserDetails userDetails = (UserDetails) principal;
-        String id = userDetails.getUsername();
+        String email = userDetails.getUsername();
 
-        var authEntity = authRepository.findById(id);
+        if (!authMapperRepository.existsByEmail(email)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
-        if (authEntity.isEmpty())
-            throw new AllInOneException(MessageType.FORBIDDEN);
-
-        authRepository.deleteById(authEntity.get().getId());
+        authMapperRepository.deleteByEmail(email);
     }
 
     @Override
     public FindAuthResult getAuth(AuthFindQuery query) {
 
-        var authEntity = authRepository.findById(query.getAuthId());
+        var auth = authRepository.findByEmail(query.getEmail());
 
-        if (authEntity.isPresent()) {
-            boolean result = passwordEncoder.matches(query.getPassword(), authEntity.get().getPassword());
-            if (result) {
-                return FindAuthResult.findByAuth(authEntity.get().toAuth());
-            }
+        if (auth.isEmpty() || !passwordEncoder.matches(query.getPassword(), auth.get().getPassword())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
         }
-
-        return null;
+        return FindAuthResult.findByAuth(auth.get().toAuth());
     }
 
     @Override
-    public void updateRefreshToken(String id, String refreshToken) {
+    public void updateRefreshToken(UUID id, String refresh_token) {
 
-        var entity = authRepository.findById(id);
+        authMapperRepository.updateRefreshToken(makeMap(id, "refresh_token", refresh_token));
+    }
 
-        var auth = Auth.builder()
-                .id(id)
-                .password(entity.get().getPassword())
-                .name(entity.get().getName())
-                .birth(entity.get().getBirth())
-                .gender(entity.get().getGender())
-                .phoneNumber(entity.get().getPhone_number())
-                .refreshToken(refreshToken)
-                .build();
+    public Map<String, Object> makeMap(UUID id, String key, String value) {
 
-        var authEntity = new AuthEntity(auth);
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id.toString());
+        map.put(key, value);
 
-        authRepository.save(authEntity);
+        return map;
     }
 }

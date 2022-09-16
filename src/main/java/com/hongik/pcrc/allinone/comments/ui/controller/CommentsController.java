@@ -7,6 +7,8 @@ import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.security.Signature;
 
 @RestController
 @RequestMapping(value = "/v2/boards")
+@Api(tags = {"Comment API"})
 public class CommentsController {
 
     private final CommentsReadUseCase commentsReadUseCase;
@@ -27,6 +30,7 @@ public class CommentsController {
     }
 
     @PostMapping("/{board_id}/comments")
+    @ApiOperation(value = "댓글 작성")
     public ResponseEntity<ApiResponseView<SuccessView>> writeComment(@RequestBody CommentsRequest request, @PathVariable int board_id) {
 
         if (ObjectUtils.isEmpty(request)) {
@@ -44,6 +48,7 @@ public class CommentsController {
     }
 
     @DeleteMapping("/{board_id}/comments/{comment_id}")
+    @ApiOperation(value = "댓글 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteComment(@PathVariable int board_id, @PathVariable int comment_id) {
 
         commentsOperationUseCase.deleteComment(board_id, comment_id);
@@ -52,6 +57,7 @@ public class CommentsController {
     }
 
     @PutMapping("/{board_id}/comments/{comment_id}")
+    @ApiOperation(value = "댓글 수정")
     public ResponseEntity<ApiResponseView<SuccessView>> updateComment(@RequestBody CommentsRequest request, @PathVariable int board_id, @PathVariable int comment_id) {
 
         if (ObjectUtils.isEmpty(request)) {

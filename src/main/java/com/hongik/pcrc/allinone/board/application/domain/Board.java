@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @ToString
@@ -15,8 +14,7 @@ public class Board {
     private final int board_id;
     private final String title;
     private final String content;
-    private final String b_writer;
-    private final String writer_email;
+    private final String user_id;
     private final LocalDateTime b_date;
     private final int views;
 }
