@@ -12,6 +12,8 @@ import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = {"User API"})
 public class AuthController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AuthOperationUseCase authOperationUseCase;
     private final AuthReadUseCase authReadUseCase;
     private final JwtProvider jwtProvider;
@@ -38,6 +41,7 @@ public class AuthController {
     @ApiOperation(value = "회원가입")
     public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@RequestBody AuthCreateRequest request) {
 
+        logger.info("회원가입");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -61,6 +65,7 @@ public class AuthController {
     @ApiOperation(value = "로그인")
     public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@RequestBody AuthSignInRequest request) throws Exception {
 
+        logger.info("로그인");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -82,6 +87,7 @@ public class AuthController {
     @ApiOperation(value = "비밀번호 재설정")
     public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@RequestBody AuthSignInRequest request) {
 
+        logger.info("비밀번호 재설정");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -106,6 +112,7 @@ public class AuthController {
     @ApiOperation(value = "탈퇴")
     public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
 
+        logger.info("탈퇴");
         authOperationUseCase.deleteAuth();
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));

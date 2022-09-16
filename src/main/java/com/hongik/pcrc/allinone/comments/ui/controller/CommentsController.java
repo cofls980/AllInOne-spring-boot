@@ -9,6 +9,8 @@ import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.security.Signature;
 @Api(tags = {"Comment API"})
 public class CommentsController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CommentsReadUseCase commentsReadUseCase;
     private final CommentsOperationUseCase commentsOperationUseCase;
 
@@ -33,6 +36,7 @@ public class CommentsController {
     @ApiOperation(value = "댓글 작성")
     public ResponseEntity<ApiResponseView<SuccessView>> writeComment(@RequestBody CommentsRequest request, @PathVariable int board_id) {
 
+        logger.info("댓글 작성");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -51,6 +55,7 @@ public class CommentsController {
     @ApiOperation(value = "댓글 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteComment(@PathVariable int board_id, @PathVariable int comment_id) {
 
+        logger.info("댓글 삭제");
         commentsOperationUseCase.deleteComment(board_id, comment_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
@@ -60,6 +65,7 @@ public class CommentsController {
     @ApiOperation(value = "댓글 수정")
     public ResponseEntity<ApiResponseView<SuccessView>> updateComment(@RequestBody CommentsRequest request, @PathVariable int board_id, @PathVariable int comment_id) {
 
+        logger.info("댓글 수정");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }

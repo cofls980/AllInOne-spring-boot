@@ -10,6 +10,8 @@ import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import java.util.List;
 @Api(tags = {"Board API"})
 public class BoardController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final BoardReadUseCase boardReadUseCase;
     private final BoardOperationUseCase boardOperationUseCase;
 
@@ -33,7 +36,7 @@ public class BoardController {
     @ApiOperation(value = "게시판 목록")
     public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
                                                                                               @RequestParam(value = "title", required = false) String title) {
-
+        logger.info("게시판 목록");
         List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(writer, title);
 
         if (result == null) {
@@ -47,6 +50,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 선택")
     public ResponseEntity<ApiResponseView<BoardReadUseCase.FindOneBoardResult>> selectOne(@PathVariable int board_id) {
 
+        logger.info("게시글 선택");
         BoardReadUseCase.FindOneBoardResult result = boardReadUseCase.getOneBoard(board_id);
 
         if (result == null) {
@@ -60,6 +64,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 작성")
     public ResponseEntity<ApiResponseView<SuccessView>> createPost(@RequestBody BoardRequest request) {
 
+        logger.info("게시글 작성");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -78,6 +83,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 수정")
     public ResponseEntity<ApiResponseView<SuccessView>> editPost(@RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
 
+        logger.info("게시글 수정");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -97,6 +103,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
 
+        logger.info("게시글 삭제");
         boardOperationUseCase.deleteBoard(board_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
@@ -106,6 +113,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 좋아요")
     public ResponseEntity<ApiResponseView<SuccessView>> increaseLikes(@PathVariable int board_id) {
 
+        logger.info("게시글 좋아요");
         boardOperationUseCase.increaseLikes(board_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
@@ -115,6 +123,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 좋아요 취소")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteLikes(@PathVariable int board_id) {
 
+        logger.info("게시글 좋아요 취소");
         boardOperationUseCase.deleteLikes(board_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
@@ -124,6 +133,7 @@ public class BoardController {
     @ApiOperation(value = "게시글 조회수 업데이트")
     public ResponseEntity<ApiResponseView<SuccessView>> updateView(@RequestBody List<BoardViewsRequest> request) {
 
+        logger.info("게시글 조회수 업데이트");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }

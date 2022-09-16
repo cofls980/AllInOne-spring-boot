@@ -8,6 +8,8 @@ import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import java.util.Map;
 @Api(tags = {"Email API"})
 public class EmailController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final EmailService emailService;
 
     public EmailController(EmailService emailService) {
@@ -33,6 +36,8 @@ public class EmailController {
     @PostMapping("")
     @ApiOperation(value = "[회원가입] 이메일로 인증 코드 전송")
     public ResponseEntity<ApiResponseView<SuccessView>> emailAuth(@RequestBody Map<String, String> email) throws MessagingException {
+
+        logger.info("[회원가입] 이메일로 인증 코드 전송");
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -45,6 +50,8 @@ public class EmailController {
     @PostMapping("/confirm")
     @ApiOperation(value = "인증 코드 확인")
     public ResponseEntity<ApiResponseView<SuccessView>> verifyCode(@RequestBody EmailVerifyRequest request) {
+
+        logger.info("인증 코드 확인");
         if (ObjectUtils.isEmpty(request)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
@@ -59,6 +66,8 @@ public class EmailController {
     @PostMapping("/reset-pwd")
     @ApiOperation(value = "[비밀번호 재설정] 이메일로 인증 코드 전송")
     public ResponseEntity<ApiResponseView<SuccessView>> emailPasswordAuth(@RequestBody Map<String, String> email) throws MessagingException {
+
+        logger.info("[비밀번호 재설정] 이메일로 인증 코드 전송");
         if (ObjectUtils.isEmpty(email)) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }

@@ -8,6 +8,8 @@ import com.hongik.pcrc.allinone.security.jwt.JWTEnum;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
 import com.hongik.pcrc.allinone.security.service.SecurityService;
 import com.hongik.pcrc.allinone.security.ui.view.AccessTokenView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/v2/security")
 public class SecurityController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final JwtProvider jwtProvider;
     private final SecurityService securityService;
 
@@ -36,6 +39,7 @@ public class SecurityController {
     @GetMapping("/reissue")
     public ResponseEntity<ApiResponseView<AccessTokenView>> createAuth(HttpServletRequest request) {
 
+        logger.info("토큰 재발급");
         String token = jwtProvider.resolveToken(request);
 
         //refresh token 같은지 확인
