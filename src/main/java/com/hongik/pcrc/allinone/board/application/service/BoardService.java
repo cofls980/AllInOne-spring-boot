@@ -134,6 +134,15 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
+        String email = getUserEmail();
+        if (email != null) {
+            var authEntity = authEntityRepository.findByEmail(email);
+            var check = likesViewsMapperRepository.checkView(authEntity.get().getId().toString(), board_id);
+            if (!check) {
+                likesViewsMapperRepository.createView(authEntity.get().getId().toString(), board_id);
+            }
+        }
+
         return FindOneBoardResult.builder()
                 .board_id(board_id)
                 .title(result.get().getTitle())
@@ -169,20 +178,6 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         }
 
         likesViewsMapperRepository.deleteLikes(authEntity.get().getId().toString(), board_id);
-    }
-
-    @Override
-    public void updateViews(List<BoardViewsRequest> requestList) {
-
-        String email = getUserEmail();
-        var authEntity = authEntityRepository.findByEmail(email);
-        for (BoardViewsRequest data : requestList) {
-            if (!boardEntityRepository.existsById(data.getBoard_id())) continue;
-            var check = likesViewsMapperRepository.checkView(authEntity.get().getId().toString(), data.getBoard_id());
-            if (!check) {
-                likesViewsMapperRepository.createView(authEntity.get().getId().toString(), data.getBoard_id());
-            }
-        }
     }
 
     public boolean isLikeClicked(List<LikesEntity> list) {
