@@ -19,42 +19,20 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final WebAccessDeniedHandler webAccessDeniedHandler;
     private final AuthenticationEntryPointHandler authenticationEntryPointHandler;
-    private final CustomUserDetailService customUserDetailService;
-
-    // AuthenticationManagerBuilder를 통해 PasswordEncoder 구현체 지정
-    @Override
-    protected void configure(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
-    }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-    @Override
-    public void configure(WebSecurity webSecurity) {
-        webSecurity.ignoring().antMatchers();
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String v = "/v2";
         String[] users = {v + "/users"}; //PUT
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
@@ -76,6 +54,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .accessDeniedHandler(webAccessDeniedHandler)
                 .and()
                     .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
-
+        return http.build();
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    /*
+    private final CustomUserDetailService customUserDetailService;
+
+    // AuthenticationManagerBuilder를 통해 PasswordEncoder 구현체 지정
+    @Override
+    protected void configure(AuthenticationManagerBuilder builder) throws Exception {
+        builder.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Override
+    public void configure(WebSecurity webSecurity) {
+        webSecurity.ignoring().antMatchers();
+    }
+    */
 }

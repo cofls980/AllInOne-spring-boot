@@ -5,27 +5,25 @@ import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
+import com.hongik.pcrc.allinone.security.jwt.TokenInfo;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SecurityService {
 
     private final JwtProvider jwtProvider;
-
     private final AuthEntityRepository authEntityRepository;
-    private final AuthMapperRepository authMapperRepository;
 
-    public SecurityService(JwtProvider jwtProvider, AuthEntityRepository authEntityRepository, AuthMapperRepository authMapperRepository) {
+    public SecurityService(JwtProvider jwtProvider, AuthEntityRepository authEntityRepository) {
         this.jwtProvider = jwtProvider;
         this.authEntityRepository = authEntityRepository;
-        this.authMapperRepository = authMapperRepository;
     }
 
     public boolean validateRefreshToken(String requestToken) {
 
-        String authId = jwtProvider.getUserInfo(requestToken);
+        String email = (String) jwtProvider.parseClaims(requestToken).get("email");
 
-        var auth = authEntityRepository.findByEmail(authId);
+        var auth = authEntityRepository.findByEmail(email);
 
         if (auth.isEmpty()) {
             throw new AllInOneException(MessageType.ReLogin);
@@ -34,11 +32,11 @@ public class SecurityService {
         return auth.get().getRefresh_token().equals(requestToken);
     }
 
-    public String createNewAccessToken(String refreshToken) {
+    public TokenInfo createNewAccessToken(String refreshToken) {
 
-        String authId = jwtProvider.getUserInfo(refreshToken);
+        String email = (String) jwtProvider.parseClaims(refreshToken).get("email");
 
-        return jwtProvider.createAccessToken(authId);
+        return jwtProvider.generateToken(email);
     }
 
 }
