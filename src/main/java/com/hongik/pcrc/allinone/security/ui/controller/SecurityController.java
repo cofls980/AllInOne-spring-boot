@@ -6,6 +6,7 @@ import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.security.jwt.JWTEnum;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
+import com.hongik.pcrc.allinone.security.jwt.TokenInfo;
 import com.hongik.pcrc.allinone.security.service.SecurityService;
 import com.hongik.pcrc.allinone.security.ui.view.AccessTokenView;
 import org.slf4j.Logger;
@@ -49,8 +50,8 @@ public class SecurityController {
         }
 
         //같으면 새로 access token 발급
-        String accessToken = securityService.createNewAccessToken(token);
+        TokenInfo tokenInfo = securityService.createNewAccessToken(token);
 
-        return ResponseEntity.ok(new ApiResponseView<>(new AccessTokenView(accessToken)));
+        return ResponseEntity.ok(new ApiResponseView<>(new AccessTokenView(tokenInfo.getAccessToken())));
     }
 }

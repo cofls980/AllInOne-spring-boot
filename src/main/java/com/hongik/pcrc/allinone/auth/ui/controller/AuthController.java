@@ -10,6 +10,7 @@ import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
+import com.hongik.pcrc.allinone.security.jwt.TokenInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ public class AuthController {
     }
 
     //sign in
+    //권한(role) 구분 없음
     @PostMapping("/login")
     @ApiOperation(value = "로그인")
     public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@RequestBody AuthSignInRequest request) throws Exception {
@@ -74,12 +76,10 @@ public class AuthController {
         AuthReadUseCase.FindAuthResult result = authReadUseCase.getAuth(command);
 
         //jwt 토큰 생성
-        String accessToken = jwtProvider.createAccessToken(result.getEmail());
-        //디비 저장
-        String refreshToken = jwtProvider.createRefreshToken(result.getEmail()).get("refreshToken");
-        authOperationUseCase.updateRefreshToken(result.getId(), refreshToken);
+        TokenInfo tokenInfo = jwtProvider.generateToken(request.getEmail());
+        authOperationUseCase.updateRefreshToken(result.getId(), tokenInfo.getRefreshToken());
 
-        return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, accessToken, refreshToken)));
+        return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken())));
     }
 
     //reset pasword
