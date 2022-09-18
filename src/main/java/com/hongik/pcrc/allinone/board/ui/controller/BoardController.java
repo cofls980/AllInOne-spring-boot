@@ -129,17 +129,4 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PutMapping("/views")
-    @ApiOperation(value = "게시글 조회수 업데이트")
-    public ResponseEntity<ApiResponseView<SuccessView>> updateView(@RequestBody List<BoardViewsRequest> request) {
-
-        logger.info("게시글 조회수 업데이트");
-        if (ObjectUtils.isEmpty(request)) {
-            throw new AllInOneException(MessageType.BAD_REQUEST);
-        }
-
-        boardOperationUseCase.updateViews(request);
-
-        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
-    }
 }

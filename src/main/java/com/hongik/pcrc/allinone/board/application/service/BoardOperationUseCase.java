@@ -15,7 +15,6 @@ public interface BoardOperationUseCase {
     void deleteBoard(int board_id);
     void increaseLikes(int board_id);
     void deleteLikes(int board_id);
-    void updateViews(List<BoardViewsRequest> requestList);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder
