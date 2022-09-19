@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -35,13 +36,16 @@ public class BoardController {
     @GetMapping("")
     @ApiOperation(value = "게시판 목록")
     public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
-                                                                                              @RequestParam(value = "title", required = false) String title) {
+                                                                                              @RequestParam(value = "title", required = false) String title,
+                                                                                              HttpServletResponse response) {
         logger.info("게시판 목록");
         List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(writer, title);
 
         if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
+
+        response.setHeader("Count-Posts", String.valueOf(result.size()));
 
         return ResponseEntity.ok(new ApiResponseView<>(result));
     }

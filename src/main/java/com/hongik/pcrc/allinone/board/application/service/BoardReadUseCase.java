@@ -63,6 +63,7 @@ public interface BoardReadUseCase {
         private final int board_id;
         private final String title;
         private final String content;
+        private final String email;
         private final String b_writer;
         private final LocalDateTime b_date;
         private final int likes;

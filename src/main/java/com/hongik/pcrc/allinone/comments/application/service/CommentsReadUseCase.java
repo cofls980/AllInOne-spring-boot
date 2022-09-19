@@ -17,6 +17,7 @@ public interface CommentsReadUseCase {
 
         private final int comment_id;
         private final String comment;
+        private final String email;
         private final String c_writer;
         private final LocalDateTime c_date;
     }
