@@ -2,6 +2,8 @@ package com.hongik.pcrc.allinone.comments.application.service;
 
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.comments.application.domain.Comments;
+import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.entity.CommentsEntity;
+import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsEntityRepository;
 import com.hongik.pcrc.allinone.comments.infrastructure.persistance.mysql.repository.CommentsMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -10,16 +12,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class CommentsService implements CommentsOperationUseCase, CommentsReadUseCase {
 
     private final CommentsMapperRepository commentsMapperRepository;
+    private final CommentsEntityRepository commentsEntityRepository;
     private final AuthEntityRepository authEntityRepository;
 
-    public CommentsService(CommentsMapperRepository commentsMapperRepository, AuthEntityRepository authEntityRepository) {
+    public CommentsService(CommentsMapperRepository commentsMapperRepository, CommentsEntityRepository commentsEntityRepository, AuthEntityRepository authEntityRepository) {
         this.commentsMapperRepository = commentsMapperRepository;
+        this.commentsEntityRepository = commentsEntityRepository;
         this.authEntityRepository = authEntityRepository;
     }
 
@@ -95,9 +100,25 @@ public class CommentsService implements CommentsOperationUseCase, CommentsReadUs
     @Override
     public List<FindCommentResult> getCommentList(int board_id) {
 
-        var result = commentsMapperRepository.getCommentsForBoard(board_id);
+        List<FindCommentResult> result = new ArrayList<>();
 
-        return result.isEmpty() ? null : result;
+        List<CommentsEntity> comments = commentsEntityRepository.findByBoard_id(board_id);
+
+        for (CommentsEntity c : comments) {
+            result.add(FindCommentResult.builder()
+                    .comment_id(c.getComment_id())
+                    .comment(c.getComment())
+                    .email(c.getUser_id().getEmail())
+                    .c_writer(c.getUser_id().getName())
+                    .c_date(c.getC_date())
+                    .build()
+            );
+        }
+
+        return result;
+        /*var result = commentsMapperRepository.getCommentsForBoard(board_id);
+
+        return result.isEmpty() ? null : result;*/
     }
 
     public String getUserId() {
