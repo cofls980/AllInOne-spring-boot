@@ -4,18 +4,12 @@ import com.hongik.pcrc.allinone.security.handler.AuthenticationEntryPointHandler
 import com.hongik.pcrc.allinone.security.handler.WebAccessDeniedHandler;
 import com.hongik.pcrc.allinone.security.jwt.JwtAuthenticationFilter;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
-import com.hongik.pcrc.allinone.security.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +32,7 @@ public class SecurityConfig {
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
-                v + "/chat/**/*", v + "/chat", v + "/chat/*", "/**/*"
+                "/chat"
         };
 
         http.httpBasic().disable()

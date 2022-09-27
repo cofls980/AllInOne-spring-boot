@@ -24,13 +24,13 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/v2/chat")
 @Api(tags = {"Chat API"})
-public class KafkaController {
+public class ChatController {
 
     private final KafkaProducer producer;
     private final ChatService chatService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public KafkaController(KafkaProducer producer, ChatService chatService) {
+    public ChatController(KafkaProducer producer, ChatService chatService) {
         this.producer = producer;
         this.chatService = chatService;
     }

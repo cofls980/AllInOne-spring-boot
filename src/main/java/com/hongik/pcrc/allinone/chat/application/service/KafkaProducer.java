@@ -28,8 +28,8 @@ public class KafkaProducer {
     public void sendMessage(String content) {
 
         int ch = 0;//PathVariable
-        String email = "na@naver.com";//getUserEmail();
-        String name = "nana";//authEntityRepository.findByEmailResultName(email);
+        String email = getUserEmail();
+        String name = authEntityRepository.findByEmailResultName(email);
         String type = "TEXT";//RequestBody
 
         var chat = Chat.builder()
