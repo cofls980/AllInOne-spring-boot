@@ -37,7 +37,9 @@ public class SecurityConfig {
         String[] users = {v + "/users"}; //PUT
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
-                v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**"};
+                v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
+                v + "/chat/**/*", v + "/chat", v + "/chat/*", "/**/*"
+        };
 
         http.httpBasic().disable()
                 .csrf().disable() // csrf 필요없음

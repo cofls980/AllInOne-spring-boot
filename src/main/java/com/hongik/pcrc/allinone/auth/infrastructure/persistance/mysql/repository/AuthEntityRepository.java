@@ -11,7 +11,9 @@ import java.util.UUID;
 @Repository
 public interface AuthEntityRepository extends CrudRepository<AuthEntity, UUID> {
 
-
     @Query(value = "select * from users u where u.email = ?1", nativeQuery = true)
     Optional<AuthEntity> findByEmail(String email);
+
+    @Query(value = "select name from users u where u.email = ?1", nativeQuery = true)
+    String findByEmailResultName(String email);
 }
