@@ -38,7 +38,7 @@ public class SecurityConfig {
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
-                v + "/chat/**/*", v + "/chat", v + "/chat/*", "/**/*"
+                "/chat"
         };
 
         http.httpBasic().disable()
