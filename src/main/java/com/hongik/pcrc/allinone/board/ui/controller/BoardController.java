@@ -2,7 +2,6 @@ package com.hongik.pcrc.allinone.board.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.BoardOperationUseCase;
 import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
-import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardRequest;
@@ -38,7 +37,16 @@ public class BoardController {
     public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
                                                                                               @RequestParam(value = "title", required = false) String title,
                                                                                               HttpServletResponse response) {
-        logger.info("게시판 목록");
+        if (writer == null && title == null) {
+            logger.info("게시판 목록");
+        } else if (writer == null) {
+            logger.info("게시글 제목 검색");
+        } else if (title == null) {
+            logger.info("게시글 작성자 검색");
+        } else {
+            logger.info("게시글 전체 검색");
+        }
+
         List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(writer, title);
 
         if (result == null) {

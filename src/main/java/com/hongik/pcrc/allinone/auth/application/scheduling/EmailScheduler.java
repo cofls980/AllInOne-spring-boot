@@ -18,7 +18,6 @@ public class EmailScheduler {
 
     @Scheduled(fixedDelay = 1000 * 60 * 60)
     public void scheduleEmailCodeDeleteTask() {
-        System.out.println("Delete Complete");
 
         var emailEntities = emailRepository.findAll();
         for (var email : emailEntities) {
@@ -27,5 +26,6 @@ public class EmailScheduler {
                 emailRepository.delete(email);
             }
         }
+        System.out.println("[" + LocalDateTime.now() + "] (Email) Delete Complete");
     }
 }
