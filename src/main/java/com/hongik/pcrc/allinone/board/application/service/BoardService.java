@@ -7,7 +7,6 @@ import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.Li
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardEntityRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.LikesViewsMapperRepository;
-import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -94,7 +93,7 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public List<FindBoardResult> getBoardList(SearchEnum searchEnum, String b_writer, String title, String all) { //수정
+    public List<FindBoardResult> getBoardList(SearchEnum searchEnum, String b_writer, String title, String all) {
 
         List<FindBoardResult> result = new ArrayList<>();
 
@@ -160,6 +159,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     @Override
     public void increaseLikes(int board_id) {
 
+        if (boardEntityRepository.findById(board_id).isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
         String email = getUserEmail();
         var authEntity = authEntityRepository.findByEmail(email);
         if (likesViewsMapperRepository.isUserLikes(authEntity.get().getId().toString(), board_id) != 0) {
@@ -171,6 +174,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
     @Override
     public void deleteLikes(int board_id) {
+
+        if (boardEntityRepository.findById(board_id).isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
         String email = getUserEmail();
         var authEntity = authEntityRepository.findByEmail(email);

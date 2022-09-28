@@ -9,26 +9,9 @@ import java.util.List;
 
 public interface BoardReadUseCase {
 
-    List<FindBoardResult> getBoardList(SearchEnum searchEnum, String b_writer, String title, String all);
+    List<FindBoardResult> getBoardList(SearchEnum searchEnum,
+                                       String b_writer, String title, String all);
     FindOneBoardResult getOneBoard(int board_id);
-
-    /*@NoArgsConstructor
-    @EqualsAndHashCode(callSuper = false)
-    @Getter
-    @ToString
-    class BoardFindQuery {
-        private String title;
-        private String content;
-        private String writer;
-        private String user_id;
-
-        public BoardFindQuery(String title, String content, String writer, String writerEmail) {
-            this.title = title;
-            this.content = content;
-            this.writer = writer;
-            this.user_id = writerEmail;
-        }
-    }*/
 
     @Getter
     @ToString
@@ -95,3 +78,22 @@ public interface BoardReadUseCase {
 
     }
 }
+
+
+    /*@NoArgsConstructor
+    @EqualsAndHashCode(callSuper = false)
+    @Getter
+    @ToString
+    class BoardFindQuery {
+        private String title;
+        private String content;
+        private String writer;
+        private String user_id;
+
+        public BoardFindQuery(String title, String content, String writer, String writerEmail) {
+            this.title = title;
+            this.content = content;
+            this.writer = writer;
+            this.user_id = writerEmail;
+        }
+    }*/

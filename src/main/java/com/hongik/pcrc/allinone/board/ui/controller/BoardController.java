@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -85,7 +86,7 @@ public class BoardController {
 
     @PostMapping("")
     @ApiOperation(value = "게시글 작성")
-    public ResponseEntity<ApiResponseView<SuccessView>> createPost(@RequestBody BoardRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> createPost(@Valid @RequestBody BoardRequest request) {
 
         logger.info("게시글 작성");
         if (ObjectUtils.isEmpty(request)) {
@@ -104,7 +105,7 @@ public class BoardController {
 
     @PutMapping("/{board_id}")
     @ApiOperation(value = "게시글 수정")
-    public ResponseEntity<ApiResponseView<SuccessView>> editPost(@RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
+    public ResponseEntity<ApiResponseView<SuccessView>> editPost(@Valid @RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
 
         logger.info("게시글 수정");
         if (ObjectUtils.isEmpty(request)) {
@@ -124,7 +125,7 @@ public class BoardController {
 
     @DeleteMapping("/{board_id}")
     @ApiOperation(value = "게시글 삭제")
-    public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) { //token email, db email
+    public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) {
 
         logger.info("게시글 삭제");
         boardOperationUseCase.deleteBoard(board_id);
