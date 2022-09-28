@@ -1,4 +1,4 @@
-package com.hongik.pcrc.allinone.auth.ui.view.Auth;
+package com.hongik.pcrc.allinone.auth.ui.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hongik.pcrc.allinone.auth.application.service.AuthReadUseCase;
