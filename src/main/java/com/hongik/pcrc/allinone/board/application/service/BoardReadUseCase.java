@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BoardReadUseCase {
 
-    List<FindBoardResult> getBoardList(String b_writer, String title);
+    List<FindBoardResult> getBoardList(SearchEnum searchEnum, String b_writer, String title, String all);
     FindOneBoardResult getOneBoard(int board_id);
 
     /*@NoArgsConstructor

@@ -94,20 +94,20 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public List<FindBoardResult> getBoardList(String b_writer, String title) { //수정
+    public List<FindBoardResult> getBoardList(SearchEnum searchEnum, String b_writer, String title, String all) { //수정
 
         List<FindBoardResult> result = new ArrayList<>();
 
         List<BoardEntity> boards;
 
-        if (b_writer == null && title == null) {
+        if (searchEnum == SearchEnum.NOTHING) {
             boards = boardEntityRepository.findAll(); // all
-        } else if (b_writer == null) {
+        } else if (searchEnum == SearchEnum.TITLE) {
             boards = boardEntityRepository.findWithTitle(title); // title
-        } else if (title == null) {
+        } else if (searchEnum == SearchEnum.WRITER) {
             boards = boardEntityRepository.findWithWriter(b_writer); // b_writer
         } else {
-            boards = boardEntityRepository.findWithTitleAndWriter(title, b_writer); // title || b_writer
+            boards = boardEntityRepository.findWithTitleAndWriter(all, all); // title || b_writer
         }
 
         for (BoardEntity b : boards) {

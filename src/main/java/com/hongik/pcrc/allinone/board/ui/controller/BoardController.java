@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.board.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.BoardOperationUseCase;
 import com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase;
+import com.hongik.pcrc.allinone.board.application.service.SearchEnum;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.board.ui.requestBody.BoardRequest;
@@ -36,18 +37,28 @@ public class BoardController {
     @ApiOperation(value = "게시판 목록")
     public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
                                                                                               @RequestParam(value = "title", required = false) String title,
+                                                                                              @RequestParam(value = "all", required = false) String all,
                                                                                               HttpServletResponse response) {
-        if (writer == null && title == null) {
+
+        SearchEnum se;
+
+        if ((writer == null || writer.isEmpty()) && (title == null || title.isEmpty()) && (all == null || all.isEmpty())) {
             logger.info("게시판 목록");
-        } else if (writer == null) {
+            se = SearchEnum.NOTHING;
+        } else if ((writer == null || writer.isEmpty()) && (all == null || all.isEmpty())) {
             logger.info("게시글 제목 검색");
-        } else if (title == null) {
+            se = SearchEnum.TITLE;
+        } else if ((title == null || title.isEmpty()) && (all == null || all.isEmpty())) {
             logger.info("게시글 작성자 검색");
-        } else {
+            se = SearchEnum.WRITER;
+        } else if ((writer == null || writer.isEmpty()) && (title == null || title.isEmpty())){
             logger.info("게시글 전체 검색");
+            se = SearchEnum.ALL;
+        } else {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
         }
 
-        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(writer, title);
+        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(se, writer, title, all);
 
         if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
