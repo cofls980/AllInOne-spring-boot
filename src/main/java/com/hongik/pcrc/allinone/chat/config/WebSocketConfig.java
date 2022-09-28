@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @EnableWebSocketMessageBroker
 @Configuration
-public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -19,9 +19,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void configureMessageBroker(MessageBrokerRegistry registry) { // 메시지 브로커 구성
         // "/topic" 접두사가 붙은 url을 구독하는 대상들에 한하여 브로커가 메세지를 전달한다.
         // sub
-        registry.enableSimpleBroker("/topic/");
+        registry.enableSimpleBroker("/topic");
         // "/chat" 접두사가 붙은 url로 발행한 메세지만 핸들러로 라우팅
         // pub
-        registry.setApplicationDestinationPrefixes("/chat"); // 메시지를 전송할 때 사용하는 url
+        registry.setApplicationDestinationPrefixes("/app"); // 메시지를 전송할 때 사용하는 url
     }
 }

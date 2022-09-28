@@ -1,6 +1,6 @@
-package com.hongik.pcrc.allinone.chat.db.repository;
+package com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.repository;
 
-import com.hongik.pcrc.allinone.chat.db.entity.ChatEntity;
+import com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.entity.ChatEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

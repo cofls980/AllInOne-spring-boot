@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class KafkaMessage implements Serializable {
+public class KafkaMessage implements Serializable { // 이동되는 데이터 형식
     private int channel_id;
     private String user_email;
     private String user_name;
