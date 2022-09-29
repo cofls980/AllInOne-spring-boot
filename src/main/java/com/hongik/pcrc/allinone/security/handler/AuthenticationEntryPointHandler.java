@@ -39,6 +39,11 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
             setResponse(response, "MalformedJwtException", MessageType.MalformedJwtException);
             return;
         }
+
+        if (exception.equals("IllegalArgumentException") || exception.equals("UnsupportedJwtException")) {
+            setResponse(response, "IllegalArgumentJwtException", MessageType.MalformedJwtException);
+        }
+
     }
 
     private void setResponse(HttpServletResponse response, String type, MessageType messageType)  throws IOException {
