@@ -15,7 +15,8 @@ public enum MessageType {
     UNAUTHORIZED ("You can use it after login.", HttpStatus.UNAUTHORIZED),
     UsernameOrPasswordNotFound ("User id or password is not correct.", HttpStatus.BAD_REQUEST),
     ReLogin ("Access Token and Refresh Token are expired.", HttpStatus.UNAUTHORIZED),
-    MalformedJwtException ("Access token is malformed.", HttpStatus.BAD_REQUEST)
+    MalformedJwtException ("Access token is malformed.", HttpStatus.BAD_REQUEST),
+    IllegalArgumentJwtException("Access token is illegal.", HttpStatus.BAD_REQUEST)
     ;
 
     private final String message;

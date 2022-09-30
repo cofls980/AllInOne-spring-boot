@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class KafkaMessage implements Serializable {
+public class KafkaMessage implements Serializable { // 이동되는 데이터 형식
     private int channel_id;
     private String user_email;
     private String user_name;
@@ -16,12 +16,12 @@ public class KafkaMessage implements Serializable {
 
     @Override
     public String toString() {
-        return "Message { " + "channel_id='" + channel_id + "'" +
-                ", user_email='" + user_email + "'" +
-                ", user_name='" + user_name + "'" +
-                ", content='" + content + "'" +
-                ", type='" + type + "'" +
-                ", timestamp='" + timestamp + "' }";
+        return "{" + "\"channel_id\":\"" + channel_id + "\"" +
+                ",\"user_email\":\"" + user_email + "\"" +
+                ",\"user_name\":\"" + user_name + "\"" +
+                ",\"content\":\"" + content + "\"" +
+                ",\"type\":\"" + type + "\"" +
+                ",\"timestamp\":\"" + timestamp + "\"}";
     }
 
     public KafkaMessage() {

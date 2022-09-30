@@ -1,4 +1,4 @@
-package com.hongik.pcrc.allinone.chat.db.entity;
+package com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.entity;
 
 import com.hongik.pcrc.allinone.chat.application.domain.Chat;
 import lombok.Getter;

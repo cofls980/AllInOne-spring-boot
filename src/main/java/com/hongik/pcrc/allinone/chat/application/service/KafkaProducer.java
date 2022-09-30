@@ -3,8 +3,8 @@ package com.hongik.pcrc.allinone.chat.application.service;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.chat.application.domain.KafkaConstants;
 import com.hongik.pcrc.allinone.chat.application.domain.KafkaMessage;
-import com.hongik.pcrc.allinone.chat.db.entity.ChatEntity;
-import com.hongik.pcrc.allinone.chat.db.repository.ChatRepository;
+import com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.entity.ChatEntity;
+import com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.repository.ChatRepository;
 import com.hongik.pcrc.allinone.chat.application.domain.Chat;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,8 +40,8 @@ public class KafkaProducer {
                 .type(type)
                 .timestamp(LocalDateTime.now())
                 .build();
-        chatRepository.save(new ChatEntity(chat));
         kafkaTemplate.send(KafkaConstants.KAFKA_TOPIC, new KafkaMessage(chat));
+        chatRepository.save(new ChatEntity(chat));
         System.out.println("Produce message: " +  content);
     }
 

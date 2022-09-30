@@ -4,32 +4,47 @@ import com.hongik.pcrc.allinone.security.handler.AuthenticationEntryPointHandler
 import com.hongik.pcrc.allinone.security.handler.WebAccessDeniedHandler;
 import com.hongik.pcrc.allinone.security.jwt.JwtAuthenticationFilter;
 import com.hongik.pcrc.allinone.security.jwt.JwtProvider;
-import com.hongik.pcrc.allinone.security.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+@EnableWebMvc
+public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtProvider jwtProvider;
     private final WebAccessDeniedHandler webAccessDeniedHandler;
     private final AuthenticationEntryPointHandler authenticationEntryPointHandler;
+
+    @Value("${external.frontend}")
+    private String frontend;
+    @Value("${external.backend}")
+    private String backend;
+    @Value("${external.localFront}")
+    private String localFront;
+    @Value("${external.localBack}")
+    private String localBack;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,9 +53,10 @@ public class SecurityConfig {
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
-                "/chat"
+                "/chat/**/*", "/chat"
         };
 
+        http.cors().configurationSource(corsConfigurationSource());
         http.httpBasic().disable()
                 .csrf().disable() // csrf 필요없음
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt로 인증하므로 세션 Stateless 처리
@@ -48,6 +64,7 @@ public class SecurityConfig {
                     .authorizeRequests()
                     .antMatchers(HttpMethod.PUT, users).permitAll()
                     .antMatchers(HttpMethod.GET, boards).permitAll()
+                    .antMatchers("/websocket/**/*").permitAll()
                     .antMatchers(uri).permitAll()
                     .anyRequest().authenticated()
                 .and()
@@ -64,24 +81,34 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /*
-    private final CustomUserDetailService customUserDetailService;
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
 
-    // AuthenticationManagerBuilder를 통해 PasswordEncoder 구현체 지정
-    @Override
-    protected void configure(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.addAllowedOrigin(frontend);
+        configuration.addAllowedOrigin(backend);
+        configuration.addAllowedOrigin(localFront);
+        configuration.addAllowedOrigin(localBack);
+        configuration.addAllowedOrigin("http://jxy.me");
+        configuration.addAllowedHeader("http://jxy.me");
+        configuration.addAllowedHeader(localFront);
+        configuration.addAllowedHeader(frontend);
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
-    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
     @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {   // 기본 컨버터를 유지관리
+        converters.removeIf(v->v.getSupportedMediaTypes().contains(MediaType.APPLICATION_JSON));  // 기존 json용 컨버터 제거
+        converters.add(new MappingJackson2HttpMessageConverter());  // 새로 json 컨버터 추가. 필요시 커스텀 컨버터 bean 사용
     }
 
-    @Override
-    public void configure(WebSecurity webSecurity) {
-        webSecurity.ignoring().antMatchers();
-    }
-    */
 }
