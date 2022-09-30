@@ -23,6 +23,8 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
 
         String exception = (String)request.getAttribute("exception");
 
+        //System.out.println("exception:" + exception);
+
         //토큰이 없는 경우 예외처리
         if (exception == null) {
             setResponse(response, "UNAUTHORIZED", MessageType.UNAUTHORIZED);
@@ -40,6 +42,7 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
             return;
         }
 
+        // 이후 모든 exception은 illegal로 돌릴지./....
         if (exception.equals("IllegalArgumentException") || exception.equals("UnsupportedJwtException")) {
             setResponse(response, "IllegalArgumentJwtException", MessageType.MalformedJwtException);
         }

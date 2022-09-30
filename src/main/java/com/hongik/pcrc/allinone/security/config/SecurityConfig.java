@@ -62,9 +62,9 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt로 인증하므로 세션 Stateless 처리
                 .and()
                     .authorizeRequests()
-                    //.anyRequest().permitAll()
                     .antMatchers(HttpMethod.PUT, users).permitAll()
                     .antMatchers(HttpMethod.GET, boards).permitAll()
+                    .antMatchers("/websocket/**/*").permitAll()
                     .antMatchers(uri).permitAll()
                     .anyRequest().authenticated()
                 .and()
@@ -90,6 +90,8 @@ public class SecurityConfig implements WebMvcConfigurer {
         configuration.addAllowedOrigin(backend);
         configuration.addAllowedOrigin(localFront);
         configuration.addAllowedOrigin(localBack);
+        configuration.addAllowedOrigin("http://jxy.me");
+        configuration.addAllowedHeader("http://jxy.me");
         configuration.addAllowedHeader(localFront);
         configuration.addAllowedHeader(frontend);
         configuration.addAllowedMethod("POST");
