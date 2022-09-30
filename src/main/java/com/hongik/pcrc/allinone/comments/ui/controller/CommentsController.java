@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Signature;
 
 @RestController
@@ -34,7 +35,7 @@ public class CommentsController {
 
     @PostMapping("/{board_id}/comments")
     @ApiOperation(value = "댓글 작성")
-    public ResponseEntity<ApiResponseView<SuccessView>> writeComment(@RequestBody CommentsRequest request, @PathVariable int board_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> writeComment(@Valid @RequestBody CommentsRequest request, @PathVariable int board_id) {
 
         logger.info("댓글 작성");
         if (ObjectUtils.isEmpty(request)) {
@@ -63,7 +64,7 @@ public class CommentsController {
 
     @PutMapping("/{board_id}/comments/{comment_id}")
     @ApiOperation(value = "댓글 수정")
-    public ResponseEntity<ApiResponseView<SuccessView>> updateComment(@RequestBody CommentsRequest request, @PathVariable int board_id, @PathVariable int comment_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> updateComment(@Valid @RequestBody CommentsRequest request, @PathVariable int board_id, @PathVariable int comment_id) {
 
         logger.info("댓글 수정");
         if (ObjectUtils.isEmpty(request)) {
