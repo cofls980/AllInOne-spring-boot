@@ -4,6 +4,7 @@ import com.hongik.pcrc.allinone.chat.application.domain.KafkaConstants;
 import com.hongik.pcrc.allinone.chat.application.domain.KafkaMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,28 +14,17 @@ public class KafkaConsumer {
     SimpMessagingTemplate template;
 
     @KafkaListener(topics = KafkaConstants.KAFKA_TOPIC, groupId = KafkaConstants.GROUP_ID)
-    public void consume(KafkaMessage message) {
+    public void consume(@Payload KafkaMessage message) {
         try {
-            template.convertAndSend("/topic/kafka-chat", message);// convert the message to send that to WebSocket topic
+            // convert the message to send that to WebSocket topic
+            // message type is string
+            // later add channel_id
+            template.convertAndSend("/topic/kafka-chat", message.toString());
         } catch (Exception e) {
             System.out.println("error: " + e);
         }
-
         System.out.println("Listen: " + message);
     }
 }
-
-/*
-    //SimpMessageSendingOperations template;
-* logger.info("Consumed Message : " + message);
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("channel_id", String.valueOf(message.getChannel_id()));
-        msg.put("user_email", message.getUser_email());
-        msg.put("user_name", message.getUser_name());
-        msg.put("content", message.getContent());
-        msg.put("type", message.getType());
-        msg.put("timestamp", String.valueOf(message.getTimestamp()));
-
-        ObjectMapper mapper = new ObjectMapper();
-        template.convertAndSend("/topic/kafka-chat", mapper.writeValueAsString(msg));
-* */
+// 파티션을 가진 서버가 메시지를 받는다
+// 파티션은 서버 당 하나로 생각 중
