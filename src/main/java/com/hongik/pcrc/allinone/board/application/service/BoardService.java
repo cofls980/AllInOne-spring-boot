@@ -7,7 +7,6 @@ import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.entity.Li
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardEntityRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository;
 import com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.LikesViewsMapperRepository;
-import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -94,20 +93,20 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     }
 
     @Override
-    public List<FindBoardResult> getBoardList(String b_writer, String title) { //수정
+    public List<FindBoardResult> getBoardList(SearchEnum searchEnum, String b_writer, String title, String all) {
 
         List<FindBoardResult> result = new ArrayList<>();
 
         List<BoardEntity> boards;
 
-        if (b_writer == null && title == null) {
+        if (searchEnum == SearchEnum.NOTHING) {
             boards = boardEntityRepository.findAll(); // all
-        } else if (b_writer == null) {
+        } else if (searchEnum == SearchEnum.TITLE) {
             boards = boardEntityRepository.findWithTitle(title); // title
-        } else if (title == null) {
+        } else if (searchEnum == SearchEnum.WRITER) {
             boards = boardEntityRepository.findWithWriter(b_writer); // b_writer
         } else {
-            boards = boardEntityRepository.findWithTitleAndWriter(title, b_writer); // title || b_writer
+            boards = boardEntityRepository.findWithTitleAndWriter(all, all); // title || b_writer
         }
 
         for (BoardEntity b : boards) {
@@ -160,6 +159,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
     @Override
     public void increaseLikes(int board_id) {
 
+        if (boardEntityRepository.findById(board_id).isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
         String email = getUserEmail();
         var authEntity = authEntityRepository.findByEmail(email);
         if (likesViewsMapperRepository.isUserLikes(authEntity.get().getId().toString(), board_id) != 0) {
@@ -171,6 +174,10 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
 
     @Override
     public void deleteLikes(int board_id) {
+
+        if (boardEntityRepository.findById(board_id).isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
         String email = getUserEmail();
         var authEntity = authEntityRepository.findByEmail(email);

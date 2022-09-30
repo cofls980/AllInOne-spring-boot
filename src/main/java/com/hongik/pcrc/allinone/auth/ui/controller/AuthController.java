@@ -4,7 +4,7 @@ import com.hongik.pcrc.allinone.auth.application.service.AuthOperationUseCase;
 import com.hongik.pcrc.allinone.auth.application.service.AuthReadUseCase;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.AuthCreateRequest;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.AuthSignInRequest;
-import com.hongik.pcrc.allinone.auth.ui.view.Auth.AuthView;
+import com.hongik.pcrc.allinone.auth.ui.view.AuthView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/v2/users")
@@ -40,7 +42,7 @@ public class AuthController {
     //sign up
     @PostMapping("/signup")
     @ApiOperation(value = "회원가입")
-    public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@RequestBody AuthCreateRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@Valid @RequestBody AuthCreateRequest request) {
 
         logger.info("회원가입");
         if (ObjectUtils.isEmpty(request)) {
@@ -65,7 +67,7 @@ public class AuthController {
     //권한(role) 구분 없음
     @PostMapping("/login")
     @ApiOperation(value = "로그인")
-    public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@RequestBody AuthSignInRequest request) throws Exception {
+    public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@Valid @RequestBody AuthSignInRequest request) throws Exception {
 
         logger.info("로그인");
         if (ObjectUtils.isEmpty(request)) {
@@ -85,7 +87,7 @@ public class AuthController {
     //reset pasword
     @PutMapping("")
     @ApiOperation(value = "비밀번호 재설정")
-    public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@RequestBody AuthSignInRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@Valid @RequestBody AuthSignInRequest request) {
 
         logger.info("비밀번호 재설정");
         if (ObjectUtils.isEmpty(request)) {

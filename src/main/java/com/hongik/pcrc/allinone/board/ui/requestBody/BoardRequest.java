@@ -1,9 +1,9 @@
 package com.hongik.pcrc.allinone.board.ui.requestBody;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -11,7 +11,9 @@ import lombok.ToString;
 @NoArgsConstructor
 public class BoardRequest {
 
+    @NotNull @NotBlank
     private String title;
+    @NotNull @NotBlank
     private String content;
 
 }

@@ -13,16 +13,10 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ToString
 @NoArgsConstructor
-public class AuthCreateRequest {
+public class EmailSendCodeRequest {
 
-    //Auth Info
-    @Email @NotNull @NotBlank
+    @Email
+    @NotNull
+    @NotBlank
     private String email;
-    @NotNull @NotBlank
-    private String password;
-    @NotNull @NotBlank
-    private String name;
-    private String birth;
-    private String gender;
-    private String phoneNumber;
 }

@@ -1,12 +1,9 @@
 package com.hongik.pcrc.allinone.board.application.service;
 
-import com.hongik.pcrc.allinone.board.ui.requestBody.BoardViewsRequest;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.List;
 
 public interface BoardOperationUseCase {
 
