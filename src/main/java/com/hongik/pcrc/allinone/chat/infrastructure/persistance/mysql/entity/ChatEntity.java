@@ -1,4 +1,4 @@
-package com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.entity;
+package com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity;
 
 import com.hongik.pcrc.allinone.chat.application.domain.Chat;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "chat_test")
+@Table(name = "chat")
 public class ChatEntity {
 
     @Id

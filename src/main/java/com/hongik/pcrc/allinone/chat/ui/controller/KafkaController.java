@@ -8,10 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -27,13 +24,13 @@ public class KafkaController {
         this.producer = producer;
     }
 
-    @PostMapping("/publish")
+    @PostMapping("/{channel_id}")
     @ApiOperation(value = "메시지 전송")
-    public ResponseEntity<ApiResponseView<SuccessView>> sendMessage(@Valid @RequestBody ChatSendRequest request) {
-        // later resolve channel_id //@PathVariable int channel_id,
+    public ResponseEntity<ApiResponseView<SuccessView>> sendMessage(@PathVariable int channel_id, @Valid @RequestBody ChatSendRequest request) {
+
         logger.info("메시지 전송");
 
-        producer.sendMessage(request.getContent());
+        producer.sendMessage(channel_id, request.getContent());
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }

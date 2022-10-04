@@ -53,7 +53,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
-                "/chat/**/*", "/chat"
+                "/chat/**/*", "/chat", v + "/chat"
         };
 
         http.cors().configurationSource(corsConfigurationSource());

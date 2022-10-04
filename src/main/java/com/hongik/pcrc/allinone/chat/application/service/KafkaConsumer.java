@@ -21,9 +21,8 @@ public class KafkaConsumer {
         try {
             // convert the message to send that to WebSocket topic
             // message type is string
-            // later add channel_id
-            template.convertAndSend("/topic/kafka-chat", mapper.writeValueAsString(message));
-            System.out.println("Listen: " + mapper.writeValueAsString(message));
+            template.convertAndSend("/topic/kafka-chat" + message.getChannel_id(), mapper.writeValueAsString(message));
+            System.out.println("[" + message.getChannel_id() + "]Consume: " + mapper.writeValueAsString(message));
         } catch (Exception e) {
             System.out.println("error: " + e);
         }
