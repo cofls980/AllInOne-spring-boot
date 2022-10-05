@@ -51,9 +51,10 @@ public class SecurityConfig implements WebMvcConfigurer {
         String v = "/v2";
         String[] users = {v + "/users"}; //PUT
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
+        String[] chat = {v + "/chat"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
-                "/chat/**/*", "/chat", v + "/chat"
+                "/chat/**/*", "/chat"
         };
 
         http.cors().configurationSource(corsConfigurationSource());
@@ -64,6 +65,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                     .authorizeRequests()
                     .antMatchers(HttpMethod.PUT, users).permitAll()
                     .antMatchers(HttpMethod.GET, boards).permitAll()
+                    .antMatchers(HttpMethod.GET, chat).permitAll()
                     .antMatchers("/websocket/**/*").permitAll()
                     .antMatchers(uri).permitAll()
                     .anyRequest().authenticated()

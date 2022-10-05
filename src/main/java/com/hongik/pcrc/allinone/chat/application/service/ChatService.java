@@ -77,7 +77,7 @@ public class ChatService {
                     .user_name(authEntityRepository.findByEmailResultName(email))
                     .build();
             chatMapperRepository.addUserAboutChannel(new ChannelUsersEntity(channelUsers));
-            chatMapperRepository.increaseChannelNumberOfUsers(channel_id);// 잘 안됨..
+            chatMapperRepository.increaseChannelNumberOfUsers(channel_id);
         }// 2. 이미 입장한 이력이 있는 경우
 
         return chatMapperRepository.getRecordsInChannel(channel_id);
