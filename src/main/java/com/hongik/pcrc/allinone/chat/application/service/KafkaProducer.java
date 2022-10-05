@@ -3,9 +3,11 @@ package com.hongik.pcrc.allinone.chat.application.service;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.chat.application.domain.KafkaConstants;
 import com.hongik.pcrc.allinone.chat.application.domain.KafkaMessage;
-import com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.entity.ChatEntity;
-import com.hongik.pcrc.allinone.chat.intrastructure.persistance.mysql.repository.ChatRepository;
+import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChatEntity;
+import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.chat.application.domain.Chat;
+import com.hongik.pcrc.allinone.exception.AllInOneException;
+import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,24 +18,28 @@ import java.time.LocalDateTime;
 @Service
 public class KafkaProducer {
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
-    private final ChatRepository chatRepository;
     private final AuthEntityRepository authEntityRepository;
+    private final ChatMapperRepository chatMapperRepository;
 
-    public KafkaProducer(KafkaTemplate<String, KafkaMessage> kafkaTemplate, ChatRepository chatRepository, AuthEntityRepository authEntityRepository) {
+    public KafkaProducer(KafkaTemplate<String, KafkaMessage> kafkaTemplate,
+                         AuthEntityRepository authEntityRepository, ChatMapperRepository chatMapperRepository) {
         this.kafkaTemplate = kafkaTemplate;
-        this.chatRepository = chatRepository;
         this.authEntityRepository = authEntityRepository;
+        this.chatMapperRepository = chatMapperRepository;
     }
 
-    public void sendMessage(String content) {
+    public void sendMessage(int channel_id, String content) {
 
-        int ch = 0;//PathVariable
+        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
         String email = getUserEmail();
         String name = authEntityRepository.findByEmailResultName(email);
         String type = "TEXT";//RequestBody
 
         var chat = Chat.builder()
-                .channel_id(ch)
+                .channel_id(channel_id)
                 .user_email(email)
                 .user_name(name)
                 .content(content)
@@ -41,7 +47,7 @@ public class KafkaProducer {
                 .timestamp(LocalDateTime.now())
                 .build();
         kafkaTemplate.send(KafkaConstants.KAFKA_TOPIC, new KafkaMessage(chat));
-        chatRepository.save(new ChatEntity(chat));
+        chatMapperRepository.createRecord(new ChatEntity(chat));
         System.out.println("Produce message: " +  content);
     }
 

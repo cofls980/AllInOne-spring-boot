@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository">
+    <!--channel table-->
+    <select id="isExistedTitle" resultType="boolean">
+        select exists (select * from channel where ch_title = #{ch_title}) as success
+    </select>
+
+    <select id="isExistedChannel" resultType="boolean">
+        select exists (select * from channel where channel_id = #{channel_id}) as success
+    </select>
+
+    <select id="getChannelList" resultType="map">
+        select * from channel
+    </select>
+
+    <select id="searchChannelListWithTitle" resultType="map">
+        select * from channel where ch_title like CONCAT('%',#{ch_title},'%')
+    </select>
+
+    <select id="findChannelInfo" resultType="ChannelEntity">
+        select * from channel where channel_id = #{channel_id}
+    </select>
+
+    <select id="getChannelIdByTitle" resultType="int">
+        select channel_id from channel where ch_title = #{ch_title}
+    </select>
+
+    <insert id="createChannel" parameterType="ChannelEntity">
+        insert into channel(ch_title, created_date, number_of_users) value(#{ch_title},#{created_date},1)
+    </insert>
+
+    <update id="increaseChannelNumberOfUsers">
+        update channel set number_of_users = number_of_users + 1 where channel_id = #{channel_id}
+    </update>
+
+    <!--chat table-->
+    <select id="getRecordsInChannel" resultType="map">
+        select * from chat where channel_id = #{channel_id}
+    </select>
+
+    <insert id="createRecord" parameterType="ChatEntity">
+        insert into chat(channel_id, content, timestamp, type, user_email, user_name)
+        value(#{channel_id}, #{content}, #{timestamp}, #{type}, #{user_email}, #{user_name})
+    </insert>
+
+    <!--channel_users table-->
+    <select id="isExistedUser" resultType="boolean">
+        select exists (select * from channel_users as c
+        where c.channel_id = #{channel_id} and c.user_email = #{user_email}) as success
+    </select>
+
+    <select id="getUsersInChannel" resultType="map">
+        select * from channel_users where channel_id = #{channel_id}
+    </select>
+
+    <insert id="addUserAboutChannel" parameterType="ChannelUsersEntity">
+        insert into channel_users(channel_id, user_email, user_name)
+        value(#{channel_id}, #{user_email}, #{user_name})
+    </insert>
+
+    <!--mix-->
+
+    <!--clear-->
+    <delete id="deleteAllInChannel">
+        delete from chat as c where c.channel_id = #{channel_id}
+    </delete>
+
+    <delete id="deleteAllInChannelNum">
+        delete from chat where channel_id = #{channel_id} and chat_id = #{chat_id}
+    </delete>
+
+</mapper>
