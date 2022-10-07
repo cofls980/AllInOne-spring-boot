@@ -37,6 +37,14 @@
         update channel set number_of_users = number_of_users + 1 where channel_id = #{channel_id}
     </update>
 
+    <update id="decreaseChannelNumberOfUsers">
+        update channel set number_of_users = number_of_users - 1 where channel_id = #{channel_id}
+    </update>
+
+    <delete id="deleteChannel">
+        delete from channel where channel_id = #{channel_id}
+    </delete>
+
     <!--chat table-->
     <select id="getRecordsInChannel" resultType="map">
         select * from chat where channel_id = #{channel_id}
@@ -46,6 +54,10 @@
         insert into chat(channel_id, content, timestamp, type, user_email, user_name)
         value(#{channel_id}, #{content}, #{timestamp}, #{type}, #{user_email}, #{user_name})
     </insert>
+
+    <delete id="deleteAllRecordsInChannel">
+        delete from chat where channel_id = #{channel_id}
+    </delete>
 
     <!--channel_users table-->
     <select id="isExistedUser" resultType="boolean">
@@ -62,7 +74,16 @@
         value(#{channel_id}, #{user_email}, #{user_name})
     </insert>
 
+    <delete id="leaveTheChannel">
+        delete from channel_users where channel_id = #{channel_id} and user_email = #{user_email}
+    </delete>
+
     <!--mix-->
+    <select id="getMyChannelList" resultType="map">
+        select c.channel_id, c.ch_title, c.created_date, c.number_of_users
+        from (select channel_id from channel_users where user_email = #{user_email}) as t, channel as c
+        where c.channel_id = t.channel_id;
+    </select>
 
     <!--clear-->
     <delete id="deleteAllInChannel">

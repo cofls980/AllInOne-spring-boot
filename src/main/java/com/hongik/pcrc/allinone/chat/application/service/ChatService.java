@@ -83,11 +83,9 @@ public class ChatService {
         return chatMapperRepository.getRecordsInChannel(channel_id);
     }
 
-    //-------------------------------------------------------------------------------------
     public void leaveChannel(int channel_id) { // 탈퇴 했을 때만 이름없음....? 괜찮은데??
 
-
-        /*String email = getUserEmail();
+        String email = getUserEmail();
 
         var channelEntity = chatMapperRepository.findChannelInfo(channel_id);
         if (channelEntity == null) {
@@ -95,39 +93,18 @@ public class ChatService {
         }
         if (channelEntity.getNumber_of_users() == 1) {
             // 마지막으로 남아있는 경우
-            chatMapperRepository.leaveTheChannelLast(channel_id);
-            /*chatRepository.deleteByChannel_id(channel_id);
-            channelRepository.deleteById(channel_id);
+            chatMapperRepository.deleteAllRecordsInChannel(channel_id);
+            chatMapperRepository.leaveTheChannel(channel_id, email);
+            chatMapperRepository.deleteChannel(channel_id);
         } else {
             // 남아있는 유저가 2명 이상인 경우
-            var chatEntity = chatRepository.findByChannel_id(channel_id);
-            if (chatEntity.isEmpty()) {
-                throw new AllInOneException(MessageType.NOT_FOUND);
-            }
+            chatMapperRepository.leaveTheChannel(channel_id, email);
+            chatMapperRepository.decreaseChannelNumberOfUsers(channel_id);
+        }
+    }
 
-            ////수정
-            List<ChatEntity> list = new ArrayList<>();
-            for (ChatEntity c : chatEntity) {
-                if (c.getUser_email().equals(email)) {
-                    list.add(new ChatEntity(Chat.builder()
-                            .chat_id(c.getChat_id())
-                            .channel_id(c.getChannel_id())
-                            .user_email("non")
-                            .user_name("이름없음")
-                            .content(c.getContent())
-                            .type(c.getType())
-                            .timestamp(c.getTimestamp())
-                            .build()));
-                }
-            }
-            chatRepository.saveAll(list);
-            channelRepository.save(new ChannelEntity(Channel.builder()
-                    .channel_id(channel_id)
-                    .ch_title(channelEntity.get().getCh_title())
-                    .number_of_users(channelEntity.get().getNumber_of_users() - 1)
-                    .created_date(channelEntity.get().getCreated_date())
-                    .build()));
-        }*/
+    public List<ChannelEntity> getMyChannels() {
+        return chatMapperRepository.getMyChannelList(getUserEmail());
     }
 
     public String getUserEmail() {

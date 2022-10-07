@@ -21,21 +21,24 @@ public interface ChatMapperRepository {
 
     void createChannel(ChannelEntity channelEntity);
     void increaseChannelNumberOfUsers(@Param("channel_id") int channel_id);
+    void decreaseChannelNumberOfUsers(@Param("channel_id") int channel_id);
+    void deleteChannel(@Param("channel_id") int channel_id);
 
     // chat table
     List<ChatEntity> getRecordsInChannel(@Param("channel_id") int channel_id);
 
     void createRecord(ChatEntity chatEntity);
+    void deleteAllRecordsInChannel(int channel_id);
 
     // channel_users table
     boolean isExistedUser(@Param("channel_id") int channel_id, @Param("user_email") String user_email);
     List<ChannelUsersEntity> getUsersInChannel(@Param("channel_id") int channel_id);
 
     void addUserAboutChannel(ChannelUsersEntity channelUsersEntity);
+    void leaveTheChannel(@Param("channel_id") int channel_id, @Param("user_email") String user_email);
 
     // mix
-    void leaveTheChannelLast(int channel_id); // delete chat and channel table
-    void leaveTheChannel(int channel_id);
+    List<ChannelEntity> getMyChannelList(@Param("user_email") String user_email);
 
     // clear
     void deleteAllInChannel(@Param("channel_id") int channel_id);
