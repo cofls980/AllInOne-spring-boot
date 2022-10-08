@@ -1,13 +1,17 @@
 package com.hongik.pcrc.allinone.security.jwt;
 
+import com.hongik.pcrc.allinone.exception.AllInOneException;
+import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.security.service.CustomUserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -75,9 +79,15 @@ public class JwtProvider {
     }
 
     //Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
-    public Authentication getAuthentication(String accessToken) {
+    public Authentication getAuthentication(ServletRequest request, String accessToken) {
 
-        UserDetails userDetails = customUerDetailService.loadUserByUsername((String) parseClaims(accessToken).get("email"));//기본적으로 제공한 details 세팅
+        UserDetails userDetails;
+        try {
+            userDetails = customUerDetailService.loadUserByUsername((String) parseClaims(accessToken).get("email"));//기본적으로 제공한 details 세팅
+        } catch (UsernameNotFoundException ex) {
+            request.setAttribute("exception", "UsernameOrPasswordNotFound");
+            return null;
+        }
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
