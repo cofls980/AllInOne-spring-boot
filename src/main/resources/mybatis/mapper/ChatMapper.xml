@@ -59,10 +59,18 @@
         delete from chat where channel_id = #{channel_id}
     </delete>
 
+    <update id="changeUserRecordsNon">
+        update chat set user_email = "non", user_name = "이름없음" where user_email = #{user_email}
+    </update>
+
     <!--channel_users table-->
     <select id="isExistedUser" resultType="boolean">
         select exists (select * from channel_users as c
         where c.channel_id = #{channel_id} and c.user_email = #{user_email}) as success
+    </select>
+
+    <select id="getChannelsOfUser" resultType="map">
+        select * from channel_users where user_email = #{user_email}
     </select>
 
     <select id="getUsersInChannel" resultType="map">

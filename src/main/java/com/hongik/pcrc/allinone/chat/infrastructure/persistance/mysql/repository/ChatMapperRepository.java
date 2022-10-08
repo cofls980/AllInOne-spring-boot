@@ -6,6 +6,7 @@ import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.Cha
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Mapper
@@ -29,9 +30,11 @@ public interface ChatMapperRepository {
 
     void createRecord(ChatEntity chatEntity);
     void deleteAllRecordsInChannel(int channel_id);
+    void changeUserRecordsNon(@Param("user_email") String user_email);
 
     // channel_users table
     boolean isExistedUser(@Param("channel_id") int channel_id, @Param("user_email") String user_email);
+    List<HashMap<String, Object>> getChannelsOfUser(@Param("user_email") String user_email);
     List<ChannelUsersEntity> getUsersInChannel(@Param("channel_id") int channel_id);
 
     void addUserAboutChannel(ChannelUsersEntity channelUsersEntity);
