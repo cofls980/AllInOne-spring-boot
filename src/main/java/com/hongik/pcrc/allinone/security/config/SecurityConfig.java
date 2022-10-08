@@ -66,7 +66,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                     .antMatchers(HttpMethod.PUT, users).permitAll()
                     .antMatchers(HttpMethod.GET, boards).permitAll()
                     .antMatchers(HttpMethod.GET, chat).permitAll()
-                    .antMatchers("/websocket/**/*").permitAll()
                     .antMatchers(uri).permitAll()
                     .anyRequest().authenticated()
                 .and()
@@ -92,8 +91,6 @@ public class SecurityConfig implements WebMvcConfigurer {
         configuration.addAllowedOrigin(backend);
         configuration.addAllowedOrigin(localFront);
         configuration.addAllowedOrigin(localBack);
-        configuration.addAllowedOrigin("http://jxy.me");
-        configuration.addAllowedHeader("http://jxy.me");
         configuration.addAllowedHeader(localFront);
         configuration.addAllowedHeader(frontend);
         configuration.addAllowedMethod("POST");
