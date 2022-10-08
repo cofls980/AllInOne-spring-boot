@@ -16,7 +16,7 @@ public class KafkaConsumer {
 
     ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
-    @KafkaListener(topics = KafkaConstants.KAFKA_TOPIC, groupId = "foo")
+    @KafkaListener(topics = KafkaConstants.KAFKA_TOPIC, groupId = "duli")
     public void consume(KafkaMessage message) {
         try {
             // convert the message to send that to WebSocket topic

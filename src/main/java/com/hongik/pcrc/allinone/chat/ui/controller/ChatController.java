@@ -83,30 +83,38 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(users, result)));
     }
 
-    //-------------------------------------------------------------------------------------
+    @GetMapping("/my")
+    @ApiOperation(value = "내가 등록한 채널 목록")
+    public ResponseEntity<List<ChannelEntity>> getMyChannels() {
 
-    /*@DeleteMapping("/{channel_id}")
+        logger.info("내가 등록한 채널 목록");
+
+        var result = chatService.getMyChannels();
+        if (result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{channel_id}")
     @ApiOperation(value = "채팅방 나가기 및 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> leaveChannel(@PathVariable int channel_id) {
-        // 만약 채팅방을 나간 사람이면 "이름없음"으로 나오도록 처리함. 1. 목록 출력전에 이름없음으로 디비를 바꾸는 방법
-        // -> 개인이 채팅방 나갈 때 이름없음으로 바꾸고 나감
-        // ---> 채팅방 삭제는 마지막 사람이 채팅방 나가면서 이므로 개인이 채팅방을 계속 나갈 때마다 자신이 마지막인지 확인
-        // ------> 그러기 위해선 채팅방에 누가 있는지 알고있어야한다. count 컬럼 만들자 (o)
-        // 탈퇴한 사람의 경우에도 동일하게 적용
+        // 탈퇴한 사람의 경우 "이름없음"으로 처리
 
         logger.info("채팅방 나가기 및 삭제");
 
         chatService.leaveChannel(channel_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
-    }*/
+    }
 
     //-------------------------------------------------------------------------------------
-    @DeleteMapping("/{channel_id}")// 채팅방 삭제 - 대화 기록 삭제 및 채팅목록에서 삭제
+    /*@DeleteMapping("/{channel_id}")// 채팅방 삭제 - 대화 기록 삭제 및 채팅목록에서 삭제
     public void clearChannel(@PathVariable int channel_id) {
         chatService.clearChannel(channel_id);
     }
-
+*/
     @DeleteMapping("/{channel_id}/{chat_id}")
     public void deleteList(@PathVariable int channel_id, @PathVariable int chat_id) {
         chatService.deleteOne(channel_id, chat_id);

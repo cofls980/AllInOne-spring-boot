@@ -4,6 +4,9 @@ import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
+import com.hongik.pcrc.allinone.chat.application.service.ChatService;
+import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChannelUsersEntity;
+import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,12 +26,16 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     private final AuthEntityRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthMapperRepository authMapperRepository;
+    private final ChatMapperRepository chatMapperRepository;
+    private final ChatService chatService;
 
     @Autowired
-    public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder, AuthMapperRepository authMapperRepository) {
+    public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder, AuthMapperRepository authMapperRepository, ChatMapperRepository chatMapperRepository, ChatService chatService) {
         this.authRepository = authRepository;
         this.passwordEncoder = passwordEncoder;
         this.authMapperRepository = authMapperRepository;
+        this.chatMapperRepository = chatMapperRepository;
+        this.chatService = chatService;
     }
 
     @Override
@@ -79,6 +87,13 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
+        //-------------chat-------------//
+        List<HashMap<String, Object>> channelList = chatMapperRepository.getChannelsOfUser(email);
+        for (HashMap<String, Object> h : channelList) {
+            chatService.leaveChannel((int) h.get("channel_id"));
+        }
+        //대화 기록 수정
+        chatMapperRepository.changeUserRecordsNon(email);
         authMapperRepository.deleteByEmail(email);
     }
 
