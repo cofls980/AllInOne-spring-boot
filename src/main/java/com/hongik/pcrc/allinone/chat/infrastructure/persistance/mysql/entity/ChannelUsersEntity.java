@@ -1,6 +1,5 @@
 package com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity;
 
-import com.hongik.pcrc.allinone.chat.application.domain.Channel;
 import com.hongik.pcrc.allinone.chat.application.domain.ChannelUsers;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

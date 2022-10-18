@@ -15,8 +15,8 @@ public interface ChatMapperRepository {
     // channel table
     boolean isExistedTitle(@Param("ch_title") String ch_title);
     boolean isExistedChannel(@Param("channel_id") int channel_id);
-    List<ChannelEntity> getChannelList();
-    List<ChannelEntity> searchChannelListWithTitle(@Param("ch_title") String ch_title);
+    List<HashMap<String, Object>> getChannelList();
+    List<HashMap<String, Object>> searchChannelListWithTitle(@Param("ch_title") String ch_title);
     ChannelEntity findChannelInfo(@Param("channel_id") int channel_id);
     int getChannelIdByTitle(@Param("ch_title") String ch_title);
 
@@ -26,7 +26,7 @@ public interface ChatMapperRepository {
     void deleteChannel(@Param("channel_id") int channel_id);
 
     // chat table
-    List<ChatEntity> getRecordsInChannel(@Param("channel_id") int channel_id);
+    List<HashMap<String, Object>> getRecordsInChannel(@Param("channel_id") int channel_id);
 
     void createRecord(ChatEntity chatEntity);
     void deleteAllRecordsInChannel(int channel_id);
@@ -41,7 +41,7 @@ public interface ChatMapperRepository {
     void leaveTheChannel(@Param("channel_id") int channel_id, @Param("user_email") String user_email);
 
     // mix
-    List<ChannelEntity> getMyChannelList(@Param("user_email") String user_email);
+    List<HashMap<String, Object>> getMyChannelList(@Param("user_email") String user_email);
 
     // clear
     void deleteAllInChannel(@Param("channel_id") int channel_id);

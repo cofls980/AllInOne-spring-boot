@@ -4,6 +4,7 @@ import com.hongik.pcrc.allinone.auth.application.service.AuthOperationUseCase;
 import com.hongik.pcrc.allinone.auth.application.service.AuthReadUseCase;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.AuthCreateRequest;
 import com.hongik.pcrc.allinone.auth.ui.requestBody.AuthSignInRequest;
+import com.hongik.pcrc.allinone.auth.ui.requestBody.FriendCreateRequest;
 import com.hongik.pcrc.allinone.auth.ui.view.AuthView;
 import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
@@ -21,6 +22,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v2/users")
@@ -116,6 +118,48 @@ public class AuthController {
 
         logger.info("탈퇴");
         authOperationUseCase.deleteAuth();
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    //TODO(~10/23)
+    @GetMapping("/myfriends")
+    @ApiOperation(value = "내 친구 리스트 보기")
+    public ResponseEntity<List<AuthReadUseCase.FindMyFriendResult>> getMyFriendList() {
+        logger.info("내 친구 리스트 보기");
+
+        var result = authReadUseCase.getMyFriendList();
+        if (result == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/myfriends")
+    @ApiOperation(value = "친구 추가")
+    public ResponseEntity<ApiResponseView<SuccessView>> addFriend(@RequestBody FriendCreateRequest request) {
+        logger.info("친구 추가");
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        var command = AuthOperationUseCase.FriendCreatedCommand.builder()
+                .email(request.getUser_email())
+                .name(request.getUser_name())
+                .build();
+
+        authOperationUseCase.addFriend(command);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @DeleteMapping("/myfriends/{friend_id}")
+    @ApiOperation(value = "친구 삭제")
+    public ResponseEntity<ApiResponseView<SuccessView>> deleteFriend(@PathVariable int friend_id) {
+        logger.info("친구 삭제");
+
+        authOperationUseCase.deleteFriend(friend_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }

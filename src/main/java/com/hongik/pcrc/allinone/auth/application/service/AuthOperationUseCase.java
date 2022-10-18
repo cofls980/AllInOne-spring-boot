@@ -13,6 +13,8 @@ public interface AuthOperationUseCase {
     void updateAuth(AuthUpdateCommand command);
     void deleteAuth();
     void updateRefreshToken(UUID id, String refreshToken);
+    void addFriend(FriendCreatedCommand command);
+    void deleteFriend(int friend_id);
 
     @EqualsAndHashCode(callSuper = false)
     @Builder
@@ -36,5 +38,14 @@ public interface AuthOperationUseCase {
         //Auth Info
         private final String email;
         private final String password;
+    }
+
+    @EqualsAndHashCode(callSuper = false)
+    @Builder
+    @Getter
+    @ToString
+    class FriendCreatedCommand {
+        private final String email;
+        private final String name;
     }
 }

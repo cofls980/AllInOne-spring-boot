@@ -5,7 +5,6 @@ import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.Aut
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.chat.application.service.ChatService;
-import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChannelUsersEntity;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -15,10 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
@@ -74,14 +70,13 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         }
 
         String encodePassword = passwordEncoder.encode(command.getPassword());
-        authMapperRepository.updatePwd(makeMap(auth.get().getId(), "password", encodePassword));
+        authMapperRepository.updatePwd(auth.get().getId().toString(), encodePassword);
     }
 
     @Override
     public void deleteAuth() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetails userDetails = (UserDetails) principal;
-        String email = userDetails.getUsername();
+
+        String email = getUserEmail();
 
         if (!authMapperRepository.existsByEmail(email)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
@@ -94,11 +89,12 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         }
         //대화 기록 수정
         chatMapperRepository.changeUserRecordsNon(email);
+
         authMapperRepository.deleteByEmail(email);
     }
 
     @Override
-    public FindAuthResult getAuth(AuthFindQuery query) {
+    public FindAuthResult getAuth(AuthFindQuery query) { // login
 
         var auth = authRepository.findByEmail(query.getEmail());
 
@@ -109,17 +105,74 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     }
 
     @Override
-    public void updateRefreshToken(UUID id, String refresh_token) {
+    public List<FindMyFriendResult> getMyFriendList() {
 
-        authMapperRepository.updateRefreshToken(makeMap(id, "refresh_token", refresh_token));
+        String email = getUserEmail();
+
+        //get UUID
+        String uuid = authMapperRepository.getUUIDByEmail(email);
+        //get friend list
+        List<HashMap<String, Object>> friendList = authMapperRepository.getFriendList(uuid);
+        List<FindMyFriendResult> result = new ArrayList<>();
+        for (HashMap<String, Object> h : friendList) {
+            // get user's info
+            var friend = authMapperRepository.getFriendInfo(h.get("user2").toString());
+            if (friend == null) // 탈퇴한 회원인 경우
+            {
+                result.add(FindMyFriendResult.builder()
+                        .friend_id(Integer.parseInt(h.get("friend_id").toString()))
+                        .user_email("null")
+                        .user_name("알 수 없음")
+                        .build());
+            } else {
+                result.add(FindMyFriendResult.builder()
+                        .friend_id(Integer.parseInt(h.get("friend_id").toString()))
+                        .user_email(friend.getEmail())
+                        .user_name(friend.getName())
+                        .build());
+            }
+        }
+        return result;
     }
 
-    public Map<String, Object> makeMap(UUID id, String key, String value) {
+    @Override
+    public void addFriend(FriendCreatedCommand command) {
+        String email = getUserEmail();
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", id.toString());
-        map.put(key, value);
+        //get UUID
+        String user1 = authMapperRepository.getUUIDByEmail(email);
+        //get friend's uuid from command
+        //친구가 있는지 확인 없으면 non_found
+        String user2 = authMapperRepository.getFriendUUID(command.getEmail(), command.getName());
+        if (user2 == null) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+        //insert uuid pair into test_user_friend
+        //이미 있는지 확인 있으면 conflict
+        if (authMapperRepository.existedComb(user1, user2)) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        }
+        authMapperRepository.addFriend(user1, user2);
+    }
 
-        return map;
+    @Override
+    public void deleteFriend(int friend_id) {
+        authMapperRepository.deleteFriend(friend_id);
+    }
+
+    @Override
+    public void updateRefreshToken(UUID id, String refresh_token) {
+
+        authMapperRepository.updateRefreshToken(id.toString(), refresh_token);
+    }
+
+    public String getUserEmail() {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.equals("anonymousUser"))
+            return null;
+
+        UserDetails userDetails = (UserDetails) principal;
+        return userDetails.getUsername();
     }
 }

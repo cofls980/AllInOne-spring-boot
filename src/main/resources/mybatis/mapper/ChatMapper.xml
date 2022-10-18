@@ -60,7 +60,7 @@
     </delete>
 
     <update id="changeUserRecordsNon">
-        update chat set user_email = "non", user_name = "이름없음" where user_email = #{user_email}
+        update chat set user_email = "null", user_name = "알 수 없음" where user_email = #{user_email}
     </update>
 
     <!--channel_users table-->
@@ -94,10 +94,6 @@
     </select>
 
     <!--clear-->
-    <delete id="deleteAllInChannel">
-        delete from chat as c where c.channel_id = #{channel_id}
-    </delete>
-
     <delete id="deleteAllInChannelNum">
         delete from chat where channel_id = #{channel_id} and chat_id = #{chat_id}
     </delete>

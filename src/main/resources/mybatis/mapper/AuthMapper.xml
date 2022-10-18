@@ -5,20 +5,53 @@
 
 <mapper namespace="com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository">
 
-    <select id="existsByEmail" parameterType="String" resultType="boolean">
+    <!-- user table -->
+    <select id="existsByEmail" resultType="boolean">
         select exists (select * from users where email = #{email}) as success
     </select>
 
-    <delete id="deleteByEmail" parameterType="String">
+    <delete id="deleteByEmail">
         delete from users where email = #{email}
     </delete>
 
-    <update id="updatePwd" parameterType="map">
+    <update id="updatePwd">
         update users set password = #{password} where id = #{id}
     </update>
 
-    <update id="updateRefreshToken" parameterType="map">
+    <update id="updateRefreshToken">
         update users set refresh_token = #{refresh_token} where id = #{id}
     </update>
+
+    <select id="getUUIDByEmail" resultType="String">
+        select id from users where email = #{email}
+    </select>
+
+    <select id="getFriendUUID" resultType="String">
+        select id from users where email = #{email} and name = #{name}
+    </select>
+
+    <select id="getFriendInfo" resultType="AuthEntity">
+        select * from users where id = #{id}
+    </select>
+
+    <!-- user friend table -->
+    <select id="getFriendList" resultType="map">
+        select distinct * from test_user_friend where user1 = #{user}
+    </select>
+
+    <insert id="addFriend">
+        insert into test_user_friend(user1, user2) value(#{user1}, #{user2})
+    </insert>
+
+    <select id="existedComb" resultType="boolean">
+        select exists (
+            select * from test_user_friend
+            where (user1 = #{user1} and user2 = #{user2})
+        ) as success
+    </select>
+
+    <delete id="deleteFriend">
+        delete from test_user_friend where friend_id = #{friend_id}
+    </delete>
 
 </mapper>
