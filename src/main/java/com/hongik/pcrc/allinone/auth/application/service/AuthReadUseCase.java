@@ -4,11 +4,13 @@ import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import lombok.*;
 
 import javax.naming.AuthenticationException;
+import java.util.List;
 import java.util.UUID;
 
 public interface AuthReadUseCase {
 
     FindAuthResult getAuth(AuthFindQuery query) throws AuthenticationException;
+    List<FindMyFriendResult> getMyFriendList();
 
     @NoArgsConstructor
     @EqualsAndHashCode(callSuper = false)
@@ -48,5 +50,20 @@ public interface AuthReadUseCase {
         }
     }
 
+    @Getter
+    @ToString
+    @Builder
+    class FindMyFriendResult {
+        private final int friend_id;
+        private final String user_email;
+        private final String user_name;
 
+        public static FindMyFriendResult findByAuth(int friend_id, Auth auth) {
+            return FindMyFriendResult.builder()
+                    .friend_id(friend_id)
+                    .user_email(auth.getEmail())
+                    .user_name(auth.getName())
+                    .build();
+        }
+    }
 }
