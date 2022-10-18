@@ -45,10 +45,12 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
         // 이후 모든 exception은 illegal로 돌릴지./....
         if (exception.equals("IllegalArgumentException") || exception.equals("UnsupportedJwtException")) {
             setResponse(response, "IllegalArgumentJwtException", MessageType.MalformedJwtException);
+            return;
         }
 
         if (exception.equals("UsernameOrPasswordNotFound")) {
             setResponse(response, "UsernameOrPasswordNotFound", MessageType.UsernameOrPasswordNotFound);
+            return;
         }
 
     }
