@@ -93,6 +93,8 @@ public class SecurityConfig implements WebMvcConfigurer {
         configuration.addAllowedOrigin(localBack);
         configuration.addAllowedHeader(localFront);
         configuration.addAllowedHeader(frontend);
+        configuration.addAllowedOrigin("chrome-extension://gmmkjpcadciiokjpikmkkmapphbmdjok");
+        configuration.addAllowedHeader("chrome-extension://gmmkjpcadciiokjpikmkkmapphbmdjok");
         configuration.addAllowedMethod("POST");
         configuration.addAllowedMethod("GET");
         configuration.addAllowedMethod("PUT");

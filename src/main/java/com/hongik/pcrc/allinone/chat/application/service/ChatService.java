@@ -7,7 +7,6 @@ import com.hongik.pcrc.allinone.chat.application.domain.Channel;
 import com.hongik.pcrc.allinone.chat.application.domain.ChannelUsers;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChannelEntity;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChannelUsersEntity;
-import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChatEntity;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -16,27 +15,44 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
-public class ChatService {
+public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
 
     private final ChatMapperRepository chatMapperRepository;
     private final AuthEntityRepository authEntityRepository;
+    private final AuthMapperRepository authMapperRepository;
 
-    public ChatService(ChatMapperRepository chatMapperRepository, AuthEntityRepository authEntityRepository) {
+    public ChatService(ChatMapperRepository chatMapperRepository,
+                       AuthEntityRepository authEntityRepository,
+                       AuthMapperRepository authMapperRepository) {
         this.chatMapperRepository = chatMapperRepository;
         this.authEntityRepository = authEntityRepository;
+        this.authMapperRepository = authMapperRepository;
     }
 
-    public List<ChannelEntity> searchChannel(SearchEnum searchEnum, String ch_title) {
+    public List<FindChannelResult> searchChannel(ChannelFindQuery command) {
 
-        if (searchEnum == SearchEnum.NOTHING) {
-            return chatMapperRepository.getChannelList();
+        List<HashMap<String, Object>> list;
+        if (command.getSearchEnum() == SearchEnum.NOTHING) {
+            list =  chatMapperRepository.getChannelList();
         } else {
-            return chatMapperRepository.searchChannelListWithTitle(ch_title);
+            list = chatMapperRepository.searchChannelListWithTitle(command.getTitle());
         }
+        List<FindChannelResult> result = new ArrayList<>();
+        for (HashMap<String, Object> h : list) {
+            result.add(FindChannelResult.builder()
+                    .channel_id(Integer.parseInt(h.get("channel_id").toString()))
+                    .ch_title(h.get("ch_title").toString())
+                    .number_of_users(Integer.parseInt(h.get("number_of_users").toString()))
+                    .created_date(LocalDateTime.parse(h.get("created_date").toString()))
+                    .build());
+        }
+
+        return result;
     }
 
     public void createChannel(String ch_title) {
@@ -65,9 +81,14 @@ public class ChatService {
         chatMapperRepository.addUserAboutChannel(new ChannelUsersEntity(channelUsers));
     }
 
-    public List<ChatEntity> enterChannel(int channel_id) {
+    public List<FindChatListResult> enterChannel(int channel_id) {
 
         String email = getUserEmail();
+
+        //is channel existed
+        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
         if (!chatMapperRepository.isExistedUser(channel_id, email)) {
             // 1. 처음 입장한 경우
@@ -80,10 +101,23 @@ public class ChatService {
             chatMapperRepository.increaseChannelNumberOfUsers(channel_id);
         }// 2. 이미 입장한 이력이 있는 경우
 
-        return chatMapperRepository.getRecordsInChannel(channel_id);
+        var list = chatMapperRepository.getRecordsInChannel(channel_id);
+        List<FindChatListResult> result = new ArrayList<>();
+        for (HashMap<String, Object> h : list) {
+            result.add(FindChatListResult.builder()
+                    .chat_id(Integer.parseInt(h.get("chat_id").toString()))
+                    .channel_id(Integer.parseInt(h.get("channel_id").toString()))
+                    .user_mail(h.get("user_mail").toString())
+                    .user_name(h.get("user_name").toString())
+                    .content(h.get("content").toString())
+                    .type(h.get("type").toString())
+                    .timestamp(LocalDateTime.parse(h.get("timestamp").toString()))
+                    .build());
+        }
+        return result;
     }
 
-    public void leaveChannel(int channel_id) { // 탈퇴 했을 때만 이름없음....? 괜찮은데??
+    public void leaveChannel(int channel_id) {
 
         String email = getUserEmail();
 
@@ -103,8 +137,69 @@ public class ChatService {
         }
     }
 
-    public List<ChannelEntity> getMyChannels() {
-        return chatMapperRepository.getMyChannelList(getUserEmail());
+    public List<FindChannelResult> getMyChannels() {
+
+        List<HashMap<String, Object>> list = chatMapperRepository.getMyChannelList(getUserEmail());
+        List<FindChannelResult> result = new ArrayList<>();
+        for (HashMap<String, Object> h : list) {
+            result.add(FindChannelResult.builder()
+                    .channel_id(Integer.parseInt(h.get("channel_id").toString()))
+                    .ch_title(h.get("ch_title").toString())
+                    .number_of_users(Integer.parseInt(h.get("number_of_users").toString()))
+                    .created_date(LocalDateTime.parse(h.get("created_date").toString()))
+                    .build());
+        }
+        return result;
+    }
+
+    //TODO(~10/23)
+
+    public List<ChatReadUseCase.FindMyFriendResult> getMyFriendsListInChannel(int channel_id) {
+
+        //is channel existed
+        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        String email = getUserEmail();
+
+        //get UUID
+        String uuid = authMapperRepository.getUUIDByEmail(email);
+        //get friend list
+        List<HashMap<String, Object>> friendList = authMapperRepository.getFriendList(uuid);
+        List<ChatReadUseCase.FindMyFriendResult> result = new ArrayList<>();
+        for (HashMap<String, Object> h : friendList) {
+            // get user's info
+            var friend = authMapperRepository.getFriendInfo(h.get("user2").toString());
+            if (friend != null) // 탈퇴한 회원인 경우는 제외하고 출력
+            {
+                if (!chatMapperRepository.isExistedUser(channel_id, friend.getEmail())) {// 이미 채널에 있는 회원일 경우
+                    result.add(ChatReadUseCase.FindMyFriendResult.builder()
+                            .friend_id(Integer.parseInt(h.get("friend_id").toString()))
+                            .user_email(friend.getEmail())
+                            .user_name(friend.getName())
+                            .build());
+                }
+            }
+        }
+        return result;
+    }
+
+    public void inviteMyFriend(InviteCommand command) {
+        // channel_id가 있는지 확인 후 친구 초대
+        if (!chatMapperRepository.isExistedChannel(command.getChannel_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+        if (chatMapperRepository.isExistedUser(command.getChannel_id(), command.getUser_email())) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        }
+        chatMapperRepository.addUserAboutChannel(new ChannelUsersEntity(
+                ChannelUsers.builder()
+                .channel_id(command.getChannel_id())
+                .user_email(command.getUser_email())
+                .user_name(command.getUser_name())
+                .build()));
+        chatMapperRepository.increaseChannelNumberOfUsers(command.getChannel_id());
     }
 
     public String getUserEmail() {
@@ -118,10 +213,6 @@ public class ChatService {
     }
 
     //---------------------------------------------------------------------------
-    public void clearChannel(int channel_id) {
-        chatMapperRepository.deleteAllInChannel(channel_id);
-    }
-
     public void deleteOne(int channel_id, int chat_id) {
         chatMapperRepository.deleteAllInChannelNum(channel_id, chat_id);
     }

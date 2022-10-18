@@ -1,11 +1,13 @@
 package com.hongik.pcrc.allinone.chat.ui.controller;
 
 import com.hongik.pcrc.allinone.board.application.service.SearchEnum;
-import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.ChannelEntity;
-import com.hongik.pcrc.allinone.chat.application.service.ChatService;
+import com.hongik.pcrc.allinone.chat.application.service.ChatOperationUseCase;
+import com.hongik.pcrc.allinone.chat.application.service.ChatReadUseCase;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.chat.ui.requestBody.ChannelCreateRequest;
+import com.hongik.pcrc.allinone.chat.ui.requestBody.InviteFriendRequest;
 import com.hongik.pcrc.allinone.chat.ui.view.ChatRecordsView;
+import com.hongik.pcrc.allinone.chat.ui.view.ChatUserListView;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
@@ -25,18 +27,21 @@ import java.util.List;
 @Api(tags = {"Chat API"})
 public class ChatController {
 
-    private final ChatService chatService;
     private final ChatMapperRepository chatMapperRepository;
+    private final ChatOperationUseCase chatOperationUseCase;
+    private final ChatReadUseCase chatReadUseCase;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ChatController(ChatService chatService, ChatMapperRepository chatMapperRepository) {
-        this.chatService = chatService;
+    public ChatController(ChatMapperRepository chatMapperRepository,
+                          ChatOperationUseCase chatOperationUseCase, ChatReadUseCase chatReadUseCase) {
         this.chatMapperRepository = chatMapperRepository;
+        this.chatOperationUseCase = chatOperationUseCase;
+        this.chatReadUseCase = chatReadUseCase;
     }
 
     @GetMapping("")
     @ApiOperation(value = "채널 목록 (+검색)")
-    public ResponseEntity<List<ChannelEntity>> searchChannel(@RequestParam(value = "title", required = false) String title) {
+    public ResponseEntity<List<ChatReadUseCase.FindChannelResult>> searchChannel(@RequestParam(value = "title", required = false) String title) {
 
         SearchEnum searchEnum;
 
@@ -48,7 +53,8 @@ public class ChatController {
             searchEnum = SearchEnum.TITLE;
         }
 
-        var result = chatService.searchChannel(searchEnum, title);
+        ChatReadUseCase.ChannelFindQuery command = new ChatReadUseCase.ChannelFindQuery(searchEnum, title);
+        var result = chatReadUseCase.searchChannel(command);
         if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
@@ -62,7 +68,7 @@ public class ChatController {
 
         logger.info("채널 생성");
 
-        chatService.createChannel(request.getCh_title());
+        chatOperationUseCase.createChannel(request.getCh_title());
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
@@ -73,23 +79,37 @@ public class ChatController {
 
         logger.info("대화 목록");
 
-        var result =  chatService.enterChannel(channel_id);
+        var result =  chatReadUseCase.enterChannel(channel_id);
 
         if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
-        var users = chatMapperRepository.getUsersInChannel(channel_id);
 
-        return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(users, result)));
+        return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(result)));
+    }
+
+    @GetMapping("/{channel_id}/users")
+    @ApiOperation(value = "채팅방 유저 리스트")
+    public ResponseEntity<ApiResponseView<ChatUserListView>> getUserListInChannel(@PathVariable int channel_id) {
+
+        logger.info("채팅방 유저 리스트");
+
+        var result = chatMapperRepository.getUsersInChannel(channel_id);
+
+        if (result.isEmpty()) {
+            throw new AllInOneException(MessageType.INTERNAL_SERVER_ERROR);
+        }
+
+        return ResponseEntity.ok(new ApiResponseView<>(new ChatUserListView(result)));
     }
 
     @GetMapping("/my")
     @ApiOperation(value = "내가 등록한 채널 목록")
-    public ResponseEntity<List<ChannelEntity>> getMyChannels() {
+    public ResponseEntity<List<ChatReadUseCase.FindChannelResult>> getMyChannels() {
 
         logger.info("내가 등록한 채널 목록");
 
-        var result = chatService.getMyChannels();
+        var result = chatReadUseCase.getMyChannels();
         if (result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
@@ -104,20 +124,46 @@ public class ChatController {
 
         logger.info("채팅방 나가기 및 삭제");
 
-        chatService.leaveChannel(channel_id);
+        chatOperationUseCase.leaveChannel(channel_id);
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    //-------------------------------------------------------------------------------------
-    /*@DeleteMapping("/{channel_id}")// 채팅방 삭제 - 대화 기록 삭제 및 채팅목록에서 삭제
-    public void clearChannel(@PathVariable int channel_id) {
-        chatService.clearChannel(channel_id);
+    //TODO(~10/23)
+    @GetMapping("/{channel_id}/friends")
+    @ApiOperation(value = "채팅방에 초대할 수 있는 친구 리스트")
+    public ResponseEntity<List<ChatReadUseCase.FindMyFriendResult>> getMyFriendsListInChannel(@PathVariable int channel_id) {
+        logger.info("채팅방에 초대할 수 있는 친구 리스트");
+
+        var result = chatReadUseCase.getMyFriendsListInChannel(channel_id);
+        if (result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(result);
     }
-*/
+
+    @PostMapping("/{channel_id}/invite")
+    @ApiOperation(value = "채팅방에 친구 초대")
+    public ResponseEntity<ApiResponseView<SuccessView>> inviteMyFriend(@PathVariable int channel_id, @RequestBody InviteFriendRequest request) {
+
+        logger.info("채팅방에 친구 초대");
+
+        var command = ChatOperationUseCase.InviteCommand.builder()
+                .channel_id(channel_id)
+                .user_email(request.getUser_email())
+                .user_name(request.getUser_name())
+                .build();
+
+        chatOperationUseCase.inviteMyFriend(command);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+
+    //-------------------------------------------------------------------------------------
     @DeleteMapping("/{channel_id}/{chat_id}")
     public void deleteList(@PathVariable int channel_id, @PathVariable int chat_id) {
-        chatService.deleteOne(channel_id, chat_id);
+        chatOperationUseCase.deleteOne(channel_id, chat_id);
     }
 }
-// 모든 create에서 스페이스만 있는 경우 처리
