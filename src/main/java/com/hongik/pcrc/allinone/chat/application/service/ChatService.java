@@ -102,12 +102,13 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
         }// 2. 이미 입장한 이력이 있는 경우
 
         var list = chatMapperRepository.getRecordsInChannel(channel_id);
-        List<FindChatListResult> result = new ArrayList<>();
+        System.out.println("list: " + list);
+        List<ChatReadUseCase.FindChatListResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
             result.add(FindChatListResult.builder()
                     .chat_id(Integer.parseInt(h.get("chat_id").toString()))
                     .channel_id(Integer.parseInt(h.get("channel_id").toString()))
-                    .user_mail(h.get("user_mail").toString())
+                    .user_email(h.get("user_email").toString())
                     .user_name(h.get("user_name").toString())
                     .content(h.get("content").toString())
                     .type(h.get("type").toString())
