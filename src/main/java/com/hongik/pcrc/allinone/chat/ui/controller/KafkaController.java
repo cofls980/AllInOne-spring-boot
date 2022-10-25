@@ -88,8 +88,8 @@ public class KafkaController {
         logger.info("이미지 업로드");
 
         //이미지 저장소에 저장
-        String absolutePath = new File("").getAbsolutePath() + "\\";
-        String path = "images/profile";
+        String absolutePath = new File("").getAbsolutePath();
+        String path = "/images/profile";
 
         Arrays.stream(files).forEach(f -> { // 이미지 읽어서 원하는 경로에 transfer
             //이미지 저장소에 저장
