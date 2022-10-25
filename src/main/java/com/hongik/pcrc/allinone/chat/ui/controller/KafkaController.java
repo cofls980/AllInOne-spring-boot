@@ -26,7 +26,8 @@ public class KafkaController {
 
     @PostMapping("/{channel_id}")
     @ApiOperation(value = "메시지 전송")
-    public ResponseEntity<ApiResponseView<SuccessView>> sendMessage(@PathVariable int channel_id, @Valid @RequestBody ChatSendRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> sendMessage(@PathVariable int channel_id,
+                                                                    @Valid @RequestBody ChatSendRequest request) {
 
         logger.info("메시지 전송");
 

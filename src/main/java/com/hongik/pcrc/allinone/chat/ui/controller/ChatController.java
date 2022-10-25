@@ -144,7 +144,8 @@ public class ChatController {
 
     @PostMapping("/{channel_id}/invite")
     @ApiOperation(value = "채팅방에 친구 초대")
-    public ResponseEntity<ApiResponseView<SuccessView>> inviteMyFriend(@PathVariable int channel_id, @RequestBody InviteFriendRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> inviteMyFriend(@PathVariable int channel_id,
+                                                                       @Valid @RequestBody InviteFriendRequest request) {
 
         logger.info("채팅방에 친구 초대");
 
