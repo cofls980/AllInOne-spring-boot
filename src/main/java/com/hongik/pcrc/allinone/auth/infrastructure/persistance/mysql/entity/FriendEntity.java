@@ -14,7 +14,7 @@ import java.util.UUID;
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "test_user_friend")
+@Table(name = "user_friend")
 public class FriendEntity {
 
     @Id

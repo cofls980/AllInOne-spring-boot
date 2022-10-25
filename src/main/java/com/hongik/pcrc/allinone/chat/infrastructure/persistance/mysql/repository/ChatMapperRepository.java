@@ -27,6 +27,7 @@ public interface ChatMapperRepository {
 
     // chat table
     List<HashMap<String, Object>> getRecordsInChannel(@Param("channel_id") int channel_id);
+    List<HashMap<String, Object>> findContentInChannel(@Param("channel_id") int channel_id, @Param("content") String content);
 
     void createRecord(ChatEntity chatEntity);
     void deleteAllRecordsInChannel(int channel_id);

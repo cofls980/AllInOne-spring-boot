@@ -129,7 +129,6 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    //TODO(~10/23)
     @GetMapping("/{channel_id}/friends")
     @ApiOperation(value = "채팅방에 초대할 수 있는 친구 리스트")
     public ResponseEntity<List<ChatReadUseCase.FindMyFriendResult>> getMyFriendsListInChannel(@PathVariable int channel_id) {
@@ -145,7 +144,8 @@ public class ChatController {
 
     @PostMapping("/{channel_id}/invite")
     @ApiOperation(value = "채팅방에 친구 초대")
-    public ResponseEntity<ApiResponseView<SuccessView>> inviteMyFriend(@PathVariable int channel_id, @RequestBody InviteFriendRequest request) {
+    public ResponseEntity<ApiResponseView<SuccessView>> inviteMyFriend(@PathVariable int channel_id,
+                                                                       @Valid @RequestBody InviteFriendRequest request) {
 
         logger.info("채팅방에 친구 초대");
 
@@ -160,7 +160,27 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
+    //TODO(~10/26)
+    @GetMapping("/{channel_id}/find")
+    @ApiOperation(value = "채팅 내역 검색")
+    public ResponseEntity<ApiResponseView<ChatRecordsView>> findContentInChannel(@PathVariable int channel_id,
+                                                                                 @RequestParam(value = "content", required = false) String content) {
 
+        logger.info("채팅 내역 검색");
+
+        if (content == null || content.isEmpty()){
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        ChatReadUseCase.ContentFindQuery command = new ChatReadUseCase.ContentFindQuery(channel_id, content);
+        var result =  chatReadUseCase.findContentInChannel(command);
+
+        if (result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(result)));
+    }
     //-------------------------------------------------------------------------------------
     @DeleteMapping("/{channel_id}/{chat_id}")
     public void deleteList(@PathVariable int channel_id, @PathVariable int chat_id) {
