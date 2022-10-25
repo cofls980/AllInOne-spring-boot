@@ -36,22 +36,22 @@
 
     <!-- user friend table -->
     <select id="getFriendList" resultType="map">
-        select distinct * from test_user_friend where user1 = #{user}
+        select distinct * from user_friend where user1 = #{user}
     </select>
 
     <insert id="addFriend">
-        insert into test_user_friend(user1, user2) value(#{user1}, #{user2})
+        insert into user_friend(user1, user2) value(#{user1}, #{user2})
     </insert>
 
     <select id="existedComb" resultType="boolean">
         select exists (
-            select * from test_user_friend
+            select * from user_friend
             where (user1 = #{user1} and user2 = #{user2})
         ) as success
     </select>
 
     <delete id="deleteFriend">
-        delete from test_user_friend where friend_id = #{friend_id}
+        delete from user_friend where friend_id = #{friend_id}
     </delete>
 
 </mapper>
