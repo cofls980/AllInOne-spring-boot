@@ -12,6 +12,7 @@ public interface ChatReadUseCase {
     List<FindChatListResult> enterChannel(int channel_id);
     List<FindChannelResult> getMyChannels();
     List<FindMyFriendResult> getMyFriendsListInChannel(int channel_id);
+    List<FindChatListResult> findContentInChannel(ContentFindQuery command);
 
     @NoArgsConstructor
     @EqualsAndHashCode(callSuper = false)
@@ -24,6 +25,20 @@ public interface ChatReadUseCase {
         public ChannelFindQuery(SearchEnum searchEnum, String title) {
             this.searchEnum = searchEnum;
             this.title = title;
+        }
+    }
+
+    @NoArgsConstructor
+    @EqualsAndHashCode(callSuper = false)
+    @Getter
+    @ToString
+    class ContentFindQuery {
+        private int channel_id;
+        private String content;
+
+        public ContentFindQuery(int channel_id, String content) {
+            this.channel_id = channel_id;
+            this.content = content;
         }
     }
 

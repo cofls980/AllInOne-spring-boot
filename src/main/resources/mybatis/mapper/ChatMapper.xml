@@ -50,6 +50,10 @@
         select * from chat where channel_id = #{channel_id}
     </select>
 
+    <select id="findContentInChannel" resultType="map">
+        select * from chat where channel_id = #{channel_id} and content like CONCAT('%',#{content},'%')
+    </select>
+
     <insert id="createRecord" parameterType="ChatEntity">
         insert into chat(channel_id, content, timestamp, type, user_email, user_name)
         value(#{channel_id}, #{content}, #{timestamp}, #{type}, #{user_email}, #{user_name})
