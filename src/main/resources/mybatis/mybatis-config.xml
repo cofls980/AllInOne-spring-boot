@@ -8,5 +8,6 @@
         <mapper resource="CommentsMapper.xml"/>
         <mapper resource="LikesViewsMapper.xml"/>
         <mapper resource="ChatMapper.xml"/>
+        <mapper resource="CafeMapMapper.xml"/>
     </mappers>
 </configuration>
