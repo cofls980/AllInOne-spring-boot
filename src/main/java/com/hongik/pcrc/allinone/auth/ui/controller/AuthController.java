@@ -122,7 +122,6 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    //TODO(~10/23)
     @GetMapping("/myfriends")
     @ApiOperation(value = "내 친구 리스트 보기")
     public ResponseEntity<List<AuthReadUseCase.FindMyFriendResult>> getMyFriendList() {

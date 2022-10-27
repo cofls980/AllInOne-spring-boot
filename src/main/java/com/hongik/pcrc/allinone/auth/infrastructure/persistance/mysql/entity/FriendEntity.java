@@ -27,7 +27,3 @@ public class FriendEntity {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID user2;
 }
-//TODO
-// 1. make table
-// 2. insert data
-// 3. get list
