@@ -12,7 +12,7 @@
 
     <!-- station -->
     <select id="getStationList" resultType="map">
-        select * from cafe;
+        select * from station;
     </select>
 
 </mapper>

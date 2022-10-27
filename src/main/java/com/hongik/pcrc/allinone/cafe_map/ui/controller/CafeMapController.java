@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,7 @@ public class CafeMapController {
 
     @GetMapping(value = "/cafe", produces = "application/json")
     @ApiOperation(value = "카페 리스트")
-    public List<CafeMapReadUseCase.FindCafeResult> getCafeList() {
+    public HashMap<String, Object> getCafeList() {
 
         logger.info("카페 리스트");
 
@@ -38,12 +39,14 @@ public class CafeMapController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return result;
+        System.out.println("size: " + result.size());
+
+        return result.get(0);
     }
 
     @GetMapping(value = "/station", produces = "application/json")
     @ApiOperation(value = "지하철 역 리스트")
-    public List<CafeMapReadUseCase.FindStationResult> getStationList() {
+    public HashMap<String, Object> getStationList() {
 
         logger.info("지하철 역 리스트");
 
@@ -53,7 +56,9 @@ public class CafeMapController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return result;
+        System.out.println("size: " + result.size());
+
+        return result.get(0);
     }
 }
 // TODO

@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 public interface CafeMapReadUseCase {
 
-    List<FindCafeResult> getCafeList();
-    List<FindStationResult> getStationList();
+    List<HashMap<String, Object>> getCafeList();
+    List<HashMap<String, Object>> getStationList();
 
     @Getter
     @ToString
