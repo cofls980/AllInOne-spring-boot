@@ -1,5 +1,10 @@
 package com.hongik.pcrc.allinone.chat.application.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.board.application.service.SearchEnum;
@@ -10,12 +15,15 @@ import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.Cha
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,13 +33,18 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
     private final ChatMapperRepository chatMapperRepository;
     private final AuthEntityRepository authEntityRepository;
     private final AuthMapperRepository authMapperRepository;
+    private final AmazonS3Client amazonS3Client;
+    @Value("${cloud.aws.bucket.name}")
+    private String S3Bucket;
 
     public ChatService(ChatMapperRepository chatMapperRepository,
                        AuthEntityRepository authEntityRepository,
-                       AuthMapperRepository authMapperRepository) {
+                       AuthMapperRepository authMapperRepository,
+                       AmazonS3Client amazonS3Client) {
         this.chatMapperRepository = chatMapperRepository;
         this.authEntityRepository = authEntityRepository;
         this.authMapperRepository = authMapperRepository;
+        this.amazonS3Client = amazonS3Client;
     }
 
     public List<FindChannelResult> searchChannel(ChannelFindQuery command) {
@@ -81,7 +94,7 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
         chatMapperRepository.addUserAboutChannel(new ChannelUsersEntity(channelUsers));
     }
 
-    public List<FindChatListResult> enterChannel(int channel_id) {
+    public List<FindChatListResult> enterChannel(int channel_id) throws IOException {
 
         String email = getUserEmail();
 
@@ -104,12 +117,23 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
         var list = chatMapperRepository.getRecordsInChannel(channel_id);
         List<ChatReadUseCase.FindChatListResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
+            var content = h.get("content").toString();
+            String fileName = null;
+            if (h.get("type").toString().equals("image/png") || h.get("type").toString().equals("image/jpeg")) { // 사진이면 파일명, 확장자 필요
+                String tmp = content.substring(0, content.lastIndexOf("."));
+                fileName = tmp.substring(tmp.lastIndexOf("/") + 1);
+                S3Object object = amazonS3Client.getObject(new GetObjectRequest(S3Bucket, content));
+                S3ObjectInputStream objectInputStream = object.getObjectContent();
+                byte[] bytes = IOUtils.toByteArray(objectInputStream);
+                content = Base64.getEncoder().encodeToString(bytes);
+            }
             result.add(FindChatListResult.builder()
                     .chat_id(Integer.parseInt(h.get("chat_id").toString()))
                     .channel_id(Integer.parseInt(h.get("channel_id").toString()))
                     .user_email(h.get("user_email").toString())
                     .user_name(h.get("user_name").toString())
-                    .content(h.get("content").toString())
+                    .content(content)
+                    .fileName(fileName)
                     .type(h.get("type").toString())
                     .timestamp(LocalDateTime.parse(h.get("timestamp").toString()))
                     .build());
@@ -151,8 +175,6 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
         }
         return result;
     }
-
-    //TODO(~10/23)
 
     public List<ChatReadUseCase.FindMyFriendResult> getMyFriendsListInChannel(int channel_id) {
 

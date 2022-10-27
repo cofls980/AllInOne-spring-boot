@@ -41,8 +41,7 @@ public class AuthController {
         this.jwtProvider = jwtProvider;
     }
 
-    //sign up
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", produces = "application/json")
     @ApiOperation(value = "회원가입")
     public ResponseEntity<ApiResponseView<SuccessView>> createAuth(@Valid @RequestBody AuthCreateRequest request) {
 
@@ -65,9 +64,8 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    //sign in
     //권한(role) 구분 없음
-    @PostMapping("/login")
+    @PostMapping(value = "/login", produces = "application/json")
     @ApiOperation(value = "로그인")
     public ResponseEntity<ApiResponseView<AuthView>> loginAuth(@Valid @RequestBody AuthSignInRequest request) throws Exception {
 
@@ -86,8 +84,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new AuthView(result, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken())));
     }
 
-    //reset pasword
-    @PutMapping("")
+    @PutMapping(value = "", produces = "application/json")
     @ApiOperation(value = "비밀번호 재설정")
     public ResponseEntity<ApiResponseView<SuccessView>> resetPassword(@Valid @RequestBody AuthSignInRequest request) {
 
@@ -112,7 +109,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }*/
 
-    @DeleteMapping("")
+    @DeleteMapping(value = "", produces = "application/json")
     @ApiOperation(value = "탈퇴")
     public ResponseEntity<ApiResponseView<SuccessView>> userDelete() {
 
@@ -122,7 +119,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @GetMapping("/myfriends")
+    @GetMapping(value = "/myfriends", produces = "application/json")
     @ApiOperation(value = "내 친구 리스트 보기")
     public ResponseEntity<List<AuthReadUseCase.FindMyFriendResult>> getMyFriendList() {
         logger.info("내 친구 리스트 보기");
@@ -135,7 +132,7 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/myfriends")
+    @PostMapping(value = "/myfriends", produces = "application/json")
     @ApiOperation(value = "친구 추가")
     public ResponseEntity<ApiResponseView<SuccessView>> addFriend(@RequestBody FriendCreateRequest request) {
         logger.info("친구 추가");
@@ -153,7 +150,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @DeleteMapping("/myfriends/{friend_id}")
+    @DeleteMapping(value = "/myfriends/{friend_id}", produces = "application/json")
     @ApiOperation(value = "친구 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteFriend(@PathVariable int friend_id) {
         logger.info("친구 삭제");

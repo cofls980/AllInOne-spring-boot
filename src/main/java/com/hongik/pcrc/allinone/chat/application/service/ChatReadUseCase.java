@@ -3,13 +3,14 @@ package com.hongik.pcrc.allinone.chat.application.service;
 import com.hongik.pcrc.allinone.board.application.service.SearchEnum;
 import lombok.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatReadUseCase {
 
     List<FindChannelResult> searchChannel(ChannelFindQuery command);
-    List<FindChatListResult> enterChannel(int channel_id);
+    List<FindChatListResult> enterChannel(int channel_id) throws IOException;
     List<FindChannelResult> getMyChannels();
     List<FindMyFriendResult> getMyFriendsListInChannel(int channel_id);
     List<FindChatListResult> findContentInChannel(ContentFindQuery command);
@@ -69,8 +70,9 @@ public interface ChatReadUseCase {
         private final int channel_id;
         private final String user_email;
         private final String user_name;
-        private final String content;
+        private final String fileName;
         private final String type;
+        private final String content;
         private final LocalDateTime timestamp;
     }
 }

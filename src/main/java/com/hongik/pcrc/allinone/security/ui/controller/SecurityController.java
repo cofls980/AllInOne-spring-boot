@@ -37,7 +37,7 @@ public class SecurityController {
     //그게 아니라면 서버에서 재발급 토큰이 서버에 저장되어 있는 토큰과 비교하여 유효한 토큰인지 확인
     //이때 유효한 토큰이라면 access 토큰을 새로 만들어서 응답보냄
     //유효하지 않다면 "재로그인 필요" 메시지 보냄.
-    @GetMapping("/reissue")
+    @GetMapping(value = "/reissue", produces = "application/json")
     public ResponseEntity<ApiResponseView<AccessTokenView>> createAuth(HttpServletRequest request) {
 
         logger.info("토큰 재발급");
