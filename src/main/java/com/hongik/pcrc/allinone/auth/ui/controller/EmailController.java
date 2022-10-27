@@ -34,7 +34,7 @@ public class EmailController {
     }
 
     /** 이메일 인증 코드 보내기*/
-    @PostMapping("")
+    @PostMapping(value = "", produces = "application/json")
     @ApiOperation(value = "[회원가입] 이메일로 인증 코드 전송")
     public ResponseEntity<ApiResponseView<SuccessView>> emailAuth(@RequestBody EmailSendCodeRequest request) throws MessagingException {
 
@@ -48,7 +48,7 @@ public class EmailController {
     }
 
     /** 이메일 인증 코드 검증*/
-    @PostMapping("/confirm")
+    @PostMapping(value = "/confirm", produces = "application/json")
     @ApiOperation(value = "인증 코드 확인")
     public ResponseEntity<ApiResponseView<SuccessView>> verifyCode(@Valid @RequestBody EmailVerifyRequest request) {
 
@@ -64,7 +64,7 @@ public class EmailController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView(result)));
     }
 
-    @PostMapping("/reset-pwd")
+    @PostMapping(value = "/reset-pwd", produces = "application/json")
     @ApiOperation(value = "[비밀번호 재설정] 이메일로 인증 코드 전송")
     public ResponseEntity<ApiResponseView<SuccessView>> emailPasswordAuth(@RequestBody EmailSendCodeRequest request) throws MessagingException {
 

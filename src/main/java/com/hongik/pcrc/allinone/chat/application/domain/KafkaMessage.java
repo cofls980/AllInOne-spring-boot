@@ -1,5 +1,6 @@
 package com.hongik.pcrc.allinone.chat.application.domain;
 
+import com.hongik.pcrc.allinone.chat.application.service.KafkaOperationUseCase;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,8 +11,9 @@ public class KafkaMessage implements Serializable { // 이동되는 데이터 �
     private int channel_id;
     private String user_email;
     private String user_name;
-    private String content;
+    private String fileName;
     private String type;
+    private String content;
     private LocalDateTime timestamp;
 
     @Override
@@ -19,8 +21,9 @@ public class KafkaMessage implements Serializable { // 이동되는 데이터 �
         return "{" + "\"channel_id\":\"" + channel_id + "\"" +
                 ",\"user_email\":\"" + user_email + "\"" +
                 ",\"user_name\":\"" + user_name + "\"" +
-                ",\"content\":\"" + content + "\"" +
+                ",\"fileName\":\"" + fileName + "\"" +
                 ",\"type\":\"" + type + "\"" +
+                ",\"content\":\"" + content + "\"" +
                 ",\"timestamp\":\"" + timestamp + "\"}";
     }
 
@@ -28,12 +31,22 @@ public class KafkaMessage implements Serializable { // 이동되는 데이터 �
 
     }
 
+    public KafkaMessage(KafkaOperationUseCase.KafkaImageCommand chat) {
+        this.channel_id = chat.getChannel_id();
+        this.user_email = chat.getUser_email();
+        this.user_name = chat.getUser_name();
+        this.fileName = chat.getFileName();
+        this.type = chat.getType();
+        this.content = chat.getContent();
+        this.timestamp = chat.getTimestamp();
+    }
+
     public KafkaMessage(Chat chat) {
         this.channel_id = chat.getChannel_id();
         this.user_email = chat.getUser_email();
         this.user_name = chat.getUser_name();
-        this.content = chat.getContent();
         this.type = chat.getType();
+        this.content = chat.getContent();
         this.timestamp = chat.getTimestamp();
     }
 }

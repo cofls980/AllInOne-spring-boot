@@ -34,7 +34,7 @@ public class BoardController {
         this.boardOperationUseCase = boardOperationUseCase;
     }
 
-    @GetMapping("")
+    @GetMapping(value = "", produces = "application/json")
     @ApiOperation(value = "게시판 목록")
     public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
                                                                                               @RequestParam(value = "title", required = false) String title,
@@ -70,7 +70,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
-    @GetMapping("/{board_id}")
+    @GetMapping(value = "/{board_id}", produces = "application/json")
     @ApiOperation(value = "게시글 선택")
     public ResponseEntity<ApiResponseView<BoardReadUseCase.FindOneBoardResult>> selectOne(@PathVariable int board_id) {
 
@@ -84,7 +84,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(result));
     }
 
-    @PostMapping("")
+    @PostMapping(value = "", produces = "application/json")
     @ApiOperation(value = "게시글 작성")
     public ResponseEntity<ApiResponseView<SuccessView>> createPost(@Valid @RequestBody BoardRequest request) {
 
@@ -103,7 +103,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PutMapping("/{board_id}")
+    @PutMapping(value = "/{board_id}", produces = "application/json")
     @ApiOperation(value = "게시글 수정")
     public ResponseEntity<ApiResponseView<SuccessView>> editPost(@Valid @RequestBody BoardRequest request, @PathVariable int board_id) { //token email, request email, db email
 
@@ -123,7 +123,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @DeleteMapping("/{board_id}")
+    @DeleteMapping(value = "/{board_id}", produces = "application/json")
     @ApiOperation(value = "게시글 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deletePost(@PathVariable int board_id) {
 
@@ -133,7 +133,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PostMapping("/{board_id}/likes")
+    @PostMapping(value = "/{board_id}/likes", produces = "application/json")
     @ApiOperation(value = "게시글 좋아요")
     public ResponseEntity<ApiResponseView<SuccessView>> increaseLikes(@PathVariable int board_id) {
 
@@ -143,7 +143,7 @@ public class BoardController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @DeleteMapping("/{board_id}/unlikes")
+    @DeleteMapping(value = "/{board_id}/unlikes", produces = "application/json")
     @ApiOperation(value = "게시글 좋아요 취소")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteLikes(@PathVariable int board_id) {
 

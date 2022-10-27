@@ -24,16 +24,14 @@ import java.security.Signature;
 public class CommentsController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final CommentsReadUseCase commentsReadUseCase;
     private final CommentsOperationUseCase commentsOperationUseCase;
 
 
-    public CommentsController(CommentsReadUseCase commentsReadUseCase, CommentsOperationUseCase commentsOperationUseCase) {
-        this.commentsReadUseCase = commentsReadUseCase;
+    public CommentsController(CommentsOperationUseCase commentsOperationUseCase) {
         this.commentsOperationUseCase = commentsOperationUseCase;
     }
 
-    @PostMapping("/{board_id}/comments")
+    @PostMapping(value = "/{board_id}/comments", produces = "application/json")
     @ApiOperation(value = "댓글 작성")
     public ResponseEntity<ApiResponseView<SuccessView>> writeComment(@Valid @RequestBody CommentsRequest request, @PathVariable int board_id) {
 
@@ -52,7 +50,7 @@ public class CommentsController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @DeleteMapping("/{board_id}/comments/{comment_id}")
+    @DeleteMapping(value = "/{board_id}/comments/{comment_id}", produces = "application/json")
     @ApiOperation(value = "댓글 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> deleteComment(@PathVariable int board_id, @PathVariable int comment_id) {
 
@@ -62,7 +60,7 @@ public class CommentsController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @PutMapping("/{board_id}/comments/{comment_id}")
+    @PutMapping(value = "/{board_id}/comments/{comment_id}", produces = "application/json")
     @ApiOperation(value = "댓글 수정")
     public ResponseEntity<ApiResponseView<SuccessView>> updateComment(@Valid @RequestBody CommentsRequest request, @PathVariable int board_id, @PathVariable int comment_id) {
 

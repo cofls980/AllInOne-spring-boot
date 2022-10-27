@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,7 @@ public class ChatController {
         this.chatReadUseCase = chatReadUseCase;
     }
 
-    @GetMapping("")
+    @GetMapping(value = "", produces = "application/json")
     @ApiOperation(value = "채널 목록 (+검색)")
     public ResponseEntity<List<ChatReadUseCase.FindChannelResult>> searchChannel(@RequestParam(value = "title", required = false) String title) {
 
@@ -62,7 +63,7 @@ public class ChatController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("")
+    @PostMapping(value = "", produces = "application/json")
     @ApiOperation(value = "채널 생성")
     public ResponseEntity<ApiResponseView<SuccessView>> createChannel(@Valid @RequestBody ChannelCreateRequest request) {
 
@@ -73,9 +74,9 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @GetMapping("/{channel_id}")
+    @GetMapping(value = "/{channel_id}", produces = "application/json")//
     @ApiOperation(value = "대화 목록")
-    public ResponseEntity<ApiResponseView<ChatRecordsView>> enterChannel(@PathVariable int channel_id) {// 채팅방 입장
+    public ResponseEntity<ApiResponseView<ChatRecordsView>> enterChannel(@PathVariable int channel_id) throws IOException {// 채팅방 입장
 
         logger.info("대화 목록");
 
@@ -88,7 +89,7 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(result)));
     }
 
-    @GetMapping("/{channel_id}/users")
+    @GetMapping(value = "/{channel_id}/users", produces = "application/json")
     @ApiOperation(value = "채팅방 유저 리스트")
     public ResponseEntity<ApiResponseView<ChatUserListView>> getUserListInChannel(@PathVariable int channel_id) {
 
@@ -103,7 +104,7 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new ChatUserListView(result)));
     }
 
-    @GetMapping("/my")
+    @GetMapping(value = "/my", produces = "application/json")
     @ApiOperation(value = "내가 등록한 채널 목록")
     public ResponseEntity<List<ChatReadUseCase.FindChannelResult>> getMyChannels() {
 
@@ -117,7 +118,7 @@ public class ChatController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/{channel_id}")
+    @DeleteMapping(value = "/{channel_id}", produces = "application/json")
     @ApiOperation(value = "채팅방 나가기 및 삭제")
     public ResponseEntity<ApiResponseView<SuccessView>> leaveChannel(@PathVariable int channel_id) {
         // 탈퇴한 사람의 경우 "이름없음"으로 처리
@@ -129,7 +130,7 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @GetMapping("/{channel_id}/friends")
+    @GetMapping(value = "/{channel_id}/friends", produces = "application/json")
     @ApiOperation(value = "채팅방에 초대할 수 있는 친구 리스트")
     public ResponseEntity<List<ChatReadUseCase.FindMyFriendResult>> getMyFriendsListInChannel(@PathVariable int channel_id) {
         logger.info("채팅방에 초대할 수 있는 친구 리스트");
@@ -142,7 +143,7 @@ public class ChatController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/{channel_id}/invite")
+    @PostMapping(value = "/{channel_id}/invite", produces = "application/json")
     @ApiOperation(value = "채팅방에 친구 초대")
     public ResponseEntity<ApiResponseView<SuccessView>> inviteMyFriend(@PathVariable int channel_id,
                                                                        @Valid @RequestBody InviteFriendRequest request) {
@@ -160,8 +161,8 @@ public class ChatController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    //TODO(~10/26)
-    @GetMapping("/{channel_id}/find")
+    //TODO(~10/27)
+    @GetMapping(value = "/{channel_id}/find", produces = "application/json")
     @ApiOperation(value = "채팅 내역 검색")
     public ResponseEntity<ApiResponseView<ChatRecordsView>> findContentInChannel(@PathVariable int channel_id,
                                                                                  @RequestParam(value = "content", required = false) String content) {
@@ -181,8 +182,9 @@ public class ChatController {
 
         return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(result)));
     }
+
     //-------------------------------------------------------------------------------------
-    @DeleteMapping("/{channel_id}/{chat_id}")
+    @DeleteMapping(value = "/{channel_id}/{chat_id}", produces = "application/json")
     public void deleteList(@PathVariable int channel_id, @PathVariable int chat_id) {
         chatOperationUseCase.deleteOne(channel_id, chat_id);
     }
