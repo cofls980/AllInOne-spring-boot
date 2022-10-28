@@ -27,13 +27,18 @@ public class AllInOneContreollerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ClientAbortException.class)
     public ResponseEntity<?> clientAbortException() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
         return new ResponseEntity<>(new ApiErrorView(Collections.singletonList(MessageType.INTERNAL_SERVER_ERROR)),
+                headers,
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(AllInOneException.class)
     public ResponseEntity<?> opMessageException(AllInOneException ex) {
-        return new ResponseEntity<>(new ApiErrorView(ex), ex.getStatus());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        return new ResponseEntity<>(new ApiErrorView(ex), headers, ex.getStatus());
     }
 
     /*@ExceptionHandler(MethodArgumentNotValidException.class)
