@@ -195,7 +195,7 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
             var friend = authMapperRepository.getFriendInfo(h.get("user2").toString());
             if (friend != null) // 탈퇴한 회원인 경우는 제외하고 출력
             {
-                if (!chatMapperRepository.isExistedUser(channel_id, friend.getEmail())) {// 이미 채널에 있는 회원일 경우
+                if (!chatMapperRepository.isExistedUser(channel_id, friend.getEmail())) {// 이미 채널에 있는 회원일 경우 제외
                     result.add(ChatReadUseCase.FindMyFriendResult.builder()
                             .friend_id(Integer.parseInt(h.get("friend_id").toString()))
                             .user_email(friend.getEmail())
@@ -239,15 +239,17 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
         var list = chatMapperRepository.findContentInChannel(command.getChannel_id(), command.getContent());
         List<ChatReadUseCase.FindChatListResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
-            result.add(FindChatListResult.builder()
-                    .chat_id(Integer.parseInt(h.get("chat_id").toString()))
-                    .channel_id(Integer.parseInt(h.get("channel_id").toString()))
-                    .user_email(h.get("user_email").toString())
-                    .user_name(h.get("user_name").toString())
-                    .content(h.get("content").toString())
-                    .type(h.get("type").toString())
-                    .timestamp(LocalDateTime.parse(h.get("timestamp").toString()))
-                    .build());
+            if (h.get("type").toString().equals("TEXT")) {
+                result.add(FindChatListResult.builder()
+                        .chat_id(Integer.parseInt(h.get("chat_id").toString()))
+                        .channel_id(Integer.parseInt(h.get("channel_id").toString()))
+                        .user_email(h.get("user_email").toString())
+                        .user_name(h.get("user_name").toString())
+                        .content(h.get("content").toString())
+                        .type(h.get("type").toString())
+                        .timestamp(LocalDateTime.parse(h.get("timestamp").toString()))
+                        .build());
+            }
         }
         return result;
     }

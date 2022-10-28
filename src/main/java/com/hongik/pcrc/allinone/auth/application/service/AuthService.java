@@ -149,7 +149,7 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         }
         //insert uuid pair into test_user_friend
         //이미 있는지 확인 있으면 conflict
-        if (authMapperRepository.existedComb(user1, user2)) {
+        if (authMapperRepository.existedComb(user1, user2) || user1.equals(user2)) {
             throw new AllInOneException(MessageType.CONFLICT);
         }
         authMapperRepository.addFriend(user1, user2);
