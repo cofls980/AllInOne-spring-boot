@@ -16,6 +16,7 @@ public interface AuthMapperRepository {
     void deleteByEmail(@Param("email") String email);
     void updateRefreshToken(@Param("id") String id, @Param("refresh_token") String refresh_token);
     String getUUIDByEmail(@Param("email") String email);
+    String getUserNameByUUID(@Param("id") String id);
     String getFriendUUID(@Param("email") String email, @Param("name") String name);
     AuthEntity getFriendInfo(@Param("id") String id);
 

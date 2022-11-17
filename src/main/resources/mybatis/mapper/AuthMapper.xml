@@ -26,6 +26,10 @@
         select id from users where email = #{email}
     </select>
 
+    <select id="getUserNameByUUID" resultType="String">
+        select name from users where id = #{id}
+    </select>
+
     <select id="getFriendUUID" resultType="String">
         select id from users where email = #{email} and name = #{name}
     </select>

@@ -11,4 +11,8 @@
         value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number})
     </insert>
 
+    <select id="cafeMapReviewList" resultType="map">
+        select * from cafe_map_review where cafe_id = #{cafe_id}
+    </select>
+
 </mapper>

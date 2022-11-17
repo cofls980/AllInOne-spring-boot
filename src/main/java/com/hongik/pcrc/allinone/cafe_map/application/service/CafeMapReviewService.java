@@ -15,9 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
-public class CafeMapReviewService implements CafeMapReviewOperationUseCase{
+public class CafeMapReviewService implements CafeMapReviewOperationUseCase, CafeMapReviewReadUseCase {
 
     private final CafeReviewMapperRepository cafeReviewMapperRepository;
     private final AuthMapperRepository authMapperRepository;
@@ -55,7 +58,6 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase{
 //        }
 
         // 디비에 저장
-        System.out.println("date: " + LocalDateTime.now());
         cafeReviewMapperRepository.createReview(new CafeReviewEntity(CafeReview.builder()
                         .cafe_id(command.getCafe_id())
                         .user_id(user_id)
@@ -74,6 +76,24 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase{
 //
 //            amazonS3Client.putObject(S3Bucket, directoryName + "/" + fileName, photo.getInputStream(), objectMetadata);
 //        }
+    }
+
+    @Override
+    public List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
+        // cafe_id가 있는지 확인
+        if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        List<HashMap<String, Object>> getList = cafeReviewMapperRepository.cafeMapReviewList(cafe_id);
+        List<FindCafeMapReviewListResult> result = new ArrayList<>();
+
+        for (HashMap<String, Object> h : getList) {
+            String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
+            result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
+        }
+
+        return result;
     }
 
     public String getUserEmail() {
