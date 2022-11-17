@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeReviewMapperRepository">
+
+    <!-- cafe_map_review -->
+    <insert id="createReview" parameterType="CafeReviewEntity">
+        insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number)
+        value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number})
+    </insert>
+
+</mapper>

@@ -1,6 +1,5 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
-import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v2/cafe-map")
@@ -61,5 +59,8 @@ public class CafeMapController {
         return result.get(0);
     }
 }
+
 // TODO
 // 지하철, 카페 데이터 디비에 저장 후 api 생성 (o) -> 일단 서울 지역만
+// rds 용량이 괜찮은가
+// map 구성을 어떻게 할까

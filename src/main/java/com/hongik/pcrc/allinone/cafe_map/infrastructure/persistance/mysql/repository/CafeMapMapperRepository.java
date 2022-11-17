@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repos
 
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,4 +15,6 @@ public interface CafeMapMapperRepository {
 
     // station
     List<HashMap<String, Object>> getStationList();
+
+    boolean isExistedCafe(@Param("cafe_id") int cafe_id);
 }

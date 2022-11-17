@@ -5,14 +5,18 @@
 
 <mapper namespace="com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository">
 
-    <!-- cafe -->
+    <!-- cafe_map_cafe -->
     <select id="getCafeList" resultType="map">
-        select * from cafe;
+        select * from cafe_map_cafe;
     </select>
 
-    <!-- station -->
+    <!-- cafe_map_station -->
     <select id="getStationList" resultType="map">
-        select * from station;
+        select * from cafe_map_station;
+    </select>
+
+    <select id="isExistedCafe" resultType="boolean">
+        select exists (select * from cafe_map_cafe where cafe_id = #{cafe_id}) as success
     </select>
 
 </mapper>
