@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ToString
 @NoArgsConstructor
-public class CafeMapReviewCreateRequest {
+public class CafeMapReviewRequest {
 
     @NotNull
     private Double star_rating;

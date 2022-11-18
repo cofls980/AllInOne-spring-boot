@@ -2,7 +2,7 @@ package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewReadUseCase;
-import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewCreateRequest;
+import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -35,7 +34,7 @@ public class CafeMapReviewController {
 
     @PostMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
     @ApiOperation(value = "카페 리뷰 작성")
-    public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@Valid @RequestBody CafeMapReviewCreateRequest request, @PathVariable int cafe_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@Valid @RequestBody CafeMapReviewRequest request, @PathVariable int cafe_id) {
 
         logger.info("카페 리뷰 작성");
 
@@ -63,6 +62,41 @@ public class CafeMapReviewController {
         }
 
         return result;
+    }
+
+    @PutMapping(value = "/{cafe_id}/evaluate/{eval_id}", produces = "application/json")
+    @ApiOperation(value = "카페 리뷰 업데이트")
+    public ResponseEntity<ApiResponseView<SuccessView>> updateReview(@PathVariable int cafe_id, @PathVariable int eval_id,
+                                                                     @Valid @RequestBody CafeMapReviewRequest request) {
+
+        logger.info("카페 리뷰 업데이트");
+
+        var command = CafeMapReviewOperationUseCase.CafeMapReviewUpdatedCommand.builder()
+                .review_id(eval_id)
+                .cafe_id(cafe_id)
+                .star_rating(request.getStar_rating())
+                .content(request.getContent())
+                .build();
+
+        cafeMapReviewOperationUseCase.updateReview(command);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @DeleteMapping(value = "/{cafe_id}/evaluate/{eval_id}", produces = "application/json")
+    @ApiOperation(value = "카페 리뷰 삭제")
+    public ResponseEntity<ApiResponseView<SuccessView>> deleteReview(@PathVariable int cafe_id, @PathVariable int eval_id) {
+
+        logger.info("카페 리뷰 삭제");
+
+        var command = CafeMapReviewOperationUseCase.CafeMapReviewDeletedCommand.builder()
+                .review_id(eval_id)
+                .cafe_id(cafe_id)
+                .build();
+
+        cafeMapReviewOperationUseCase.deleteReview(command);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 }
 

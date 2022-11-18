@@ -15,4 +15,16 @@
         select * from cafe_map_review where cafe_id = #{cafe_id}
     </select>
 
+    <select id="isCorrectReview" resultType="boolean">
+        select exists (select * from cafe_map_review where review_id = #{review_id} and cafe_id = #{cafe_id} and user_id = #{user_id}) as success
+    </select>
+
+    <update id="updateReview">
+        update cafe_map_review set star_rating = #{star_rating}, content = #{content} where review_id = #{review_id}
+    </update>
+
+    <delete id="deleteReview">
+        delete from cafe_map_review where review_id = #{review_id}
+    </delete>
+
 </mapper>

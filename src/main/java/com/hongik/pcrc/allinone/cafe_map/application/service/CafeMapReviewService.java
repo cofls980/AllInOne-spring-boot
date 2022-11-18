@@ -96,6 +96,44 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         return result;
     }
 
+    @Override
+    public void updateReview(CafeMapReviewUpdatedCommand command) {
+        // cafe_id가 있는지 확인
+        if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        // 이메일을 통해 아이디 얻어오기
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+
+        // 리뷰 작성자가 맞는지 확인
+        if (!cafeReviewMapperRepository.isCorrectReview(command.getReview_id(), command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        cafeReviewMapperRepository.updateReview(command.getReview_id(), command.getStar_rating(), command.getContent());
+    }
+
+    @Override
+    public void deleteReview(CafeMapReviewDeletedCommand command) {
+        // cafe_id가 있는지 확인
+        if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        // 이메일을 통해 아이디 얻어오기
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+
+        // 리뷰 작성자가 맞는지 확인
+        if (!cafeReviewMapperRepository.isCorrectReview(command.getReview_id(), command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        cafeReviewMapperRepository.deleteReview(command.getReview_id());
+    }
+
     public String getUserEmail() {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
