@@ -19,4 +19,8 @@
         select exists (select * from cafe_map_cafe where cafe_id = #{cafe_id}) as success
     </select>
 
+    <select id="getListByCafeName" resultType="map">
+        select * from cafe_map_cafe where cafe_name like CONCAT('%', #{cafe_name}, '%')
+    </select>
+
 </mapper>

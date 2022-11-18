@@ -51,7 +51,7 @@ public class CafeMapReviewController {
 
     @GetMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
     @ApiOperation(value = "카페 리뷰 리스트")
-    public List<CafeMapReviewReadUseCase.FindCafeMapReviewListResult> cafeEvaluatedList(@PathVariable int cafe_id) {
+    public ResponseEntity<List<CafeMapReviewReadUseCase.FindCafeMapReviewListResult>> cafeEvaluatedList(@PathVariable int cafe_id) {
 
         logger.info("카페 리뷰 리스트");
 
@@ -61,7 +61,7 @@ public class CafeMapReviewController {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        return result;
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping(value = "/{cafe_id}/evaluate/{eval_id}", produces = "application/json")

@@ -1,17 +1,22 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
+import com.hongik.pcrc.allinone.cafe_map.application.service.CafeSearchEnum;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v2/cafe-map")
@@ -23,6 +28,36 @@ public class CafeMapController {
 
     public CafeMapController(CafeMapReadUseCase cafeMapReadUseCase) {
         this.cafeMapReadUseCase = cafeMapReadUseCase;
+    }
+
+    /*
+    * /v2/cafe-map/search?cafe={}&region={}&category={}
+    * - only cafe done
+    * */
+    @GetMapping(value = "/search", produces = "application/json")
+    @ApiOperation(value = "카페, 지역, 카테고리를 통한 검색")
+    public ResponseEntity<List<CafeMapReadUseCase.FindCafeSearchResult>> searchCafe(@RequestParam(value = "cafe", required = false) String cafe,
+                                                                                    @RequestParam(value = "region", required = false) String region,
+                                                                                    @RequestParam(value = "category", required = false) String category,
+                                                                                    HttpServletResponse response) {
+
+        CafeSearchEnum searchEnum;
+
+        if (!(cafe == null || cafe.isEmpty())) {
+            searchEnum = CafeSearchEnum.CAFE;
+        } else {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        var result = cafeMapReadUseCase.searchCafe(searchEnum, cafe, region, category);
+
+        if (result == null || result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        response.setHeader("Count-Cafe", String.valueOf(result.size()));
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(value = "/cafe", produces = "application/json")

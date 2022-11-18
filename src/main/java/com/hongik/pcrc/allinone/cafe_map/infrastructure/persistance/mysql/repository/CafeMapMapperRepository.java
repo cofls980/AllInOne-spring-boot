@@ -17,4 +17,5 @@ public interface CafeMapMapperRepository {
     List<HashMap<String, Object>> getStationList();
 
     boolean isExistedCafe(@Param("cafe_id") int cafe_id);
+    List<HashMap<String, Object>> getListByCafeName(@Param("cafe_name") String cafe_name);
 }
