@@ -2,6 +2,7 @@ package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeSearchEnum;
+import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import io.swagger.annotations.Api;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -23,6 +23,7 @@ import java.util.List;
 @Api(tags = {"Cafe-Map API"})
 public class CafeMapController {
 
+    private CafeMapMapperRepository cafeMapMapperRepository;
     private final CafeMapReadUseCase cafeMapReadUseCase;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -86,6 +87,23 @@ public class CafeMapController {
         if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/category", produces = "application/json")
+    @ApiOperation(value = "카테고리 정보")
+    public ResponseEntity<List<CafeMapReadUseCase.FindCategoryList>> getCategoryInfo() {
+
+        logger.info("카테고리 정보");
+
+        var result = cafeMapReadUseCase.getCategoryInfo();
+
+        if (result == null || result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        System.out.println("궁금: " + cafeMapMapperRepository.get("경치좋은"));
 
         return ResponseEntity.ok(result);
     }

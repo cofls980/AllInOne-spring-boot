@@ -16,6 +16,9 @@ public interface CafeMapMapperRepository {
     List<HashMap<String, Object>> getListByCafeNameAndRegion(@Param("cafe_name") String cafe_name,
                                                              @Param("province") String province, @Param("city") String city);
     List<HashMap<String, Object>> getRegionInfo();
+    HashMap<String, Object> getCategoryInfo();
+
+    Integer get(@Param("column") String column);
 //    List<HashMap<String, Object>> getListBySearch(@Param("cafe_name") String cafe_name,
 //                                                  @Param("province") String province, @Param("city") String city);
 }

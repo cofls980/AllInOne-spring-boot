@@ -12,6 +12,7 @@ public interface CafeMapReadUseCase {
     List<FindCafeSearchResult> searchCafe(CafeSearchEnum searchEnum, String cafe,
                                           String province, String city, String category);
     List<FindRegionList> getRegionInfo();
+    List<FindCategoryList> getCategoryInfo();
 
     @Getter
     @ToString
@@ -24,6 +25,9 @@ public interface CafeMapReadUseCase {
         private final String floor_info;
         private final double latitude;
         private final double longitude;
+        private final String category_1;
+        private final String category_2;
+        private final String category_3;
 
         public static FindCafeSearchResult findByCafeSearchResult(HashMap<String, Object> list, String floor_info) {
             return FindCafeSearchResult.builder()
@@ -70,6 +74,21 @@ public interface CafeMapReadUseCase {
             return FindRegionList.builder()
                     .province(province)
                     .list(list)
+                    .build();
+        }
+    }
+
+    @Getter
+    @ToString
+    @Builder
+    class FindCategoryList {
+        private final String category_name;
+        private final int category_cafe_num;
+
+        public static FindCategoryList findByCategoryResult(String cn, int ccn) {
+            return FindCategoryList.builder()
+                    .category_name(cn)
+                    .category_cafe_num(ccn)
                     .build();
         }
     }

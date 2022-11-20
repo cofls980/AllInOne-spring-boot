@@ -64,4 +64,25 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
         res.add(FindRegionList.findByRegionResult(comp, result));
         return res;
     }
+
+    @Override
+    public List<FindCategoryList> getCategoryInfo() {
+        HashMap<String, Object> map = cafeMapMapperRepository.getCategoryInfo();
+        List<FindCategoryList> result = new ArrayList<>();
+        if (!map.isEmpty()) {
+            result.add(FindCategoryList.findByCategoryResult("경치좋은", Integer.parseInt(map.get("경치좋은").toString())));
+            result.add(FindCategoryList.findByCategoryResult("공부맛집", Integer.parseInt(map.get("공부맛집").toString())));
+            result.add(FindCategoryList.findByCategoryResult("데이트코스", Integer.parseInt(map.get("데이트코스").toString())));
+            result.add(FindCategoryList.findByCategoryResult("드라이브", Integer.parseInt(map.get("드라이브").toString())));
+            result.add(FindCategoryList.findByCategoryResult("디저트맛집", Integer.parseInt(map.get("디저트맛집").toString())));
+            result.add(FindCategoryList.findByCategoryResult("소개팅", Integer.parseInt(map.get("소개팅").toString())));
+            result.add(FindCategoryList.findByCategoryResult("인스타감성", Integer.parseInt(map.get("인스타감성").toString())));
+            result.add(FindCategoryList.findByCategoryResult("조용한", Integer.parseInt(map.get("조용한").toString())));
+            result.add(FindCategoryList.findByCategoryResult("커피맛집", Integer.parseInt(map.get("커피맛집").toString())));
+            result.add(FindCategoryList.findByCategoryResult("큰규모", Integer.parseInt(map.get("큰규모").toString())));
+            result.add(FindCategoryList.findByCategoryResult("테마있는", Integer.parseInt(map.get("테마있는").toString())));
+            result.add(FindCategoryList.findByCategoryResult("테이크아웃", Integer.parseInt(map.get("테이크아웃").toString())));
+        }
+        return result;
+    }
 }

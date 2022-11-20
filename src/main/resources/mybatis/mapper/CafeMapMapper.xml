@@ -29,4 +29,15 @@
         select * from cafe_map_region
     </select>
 
+    <!-- cafe_map_category -->
+    <select id="getCategoryInfo" resultType="hashmap">
+        select sum(경치좋은) as 경치좋은, sum(공부맛집) as 공부맛집, sum(데이트코스) as 데이트코스, sum(드라이브) as 드라이브, sum(디저트맛집) as 디저트맛집, sum(소개팅) as 소개팅,
+        sum(인스타감성) as 인스타감성, sum(조용한) as 조용한, sum(커피맛집) as 커피맛집, sum(큰규모) as 큰규모, sum(테마있는) as 테마있는, sum(테이크아웃) as 테이크아웃
+        from cafe_map_category
+    </select>
+
+    <select id="get" resultType="Integer">
+        select #{column} from cafe_map_category
+    </select>
+
 </mapper>

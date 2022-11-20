@@ -53,7 +53,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         String[] boards = {v + "/boards", v + "/boards/{board_id}"}; //GET
         String[] chat = {v + "/chat"}; //GET
         String[] cafe_map = {v + "/cafe-map/{cafe_id}/evaluate", v + "/cafe-map/search",
-                            v + "/cafe-map/region"}; //GET
+                            v + "/cafe-map/region", v + "/cafe-map/category"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
                 "/chat/**/*", "/chat"
