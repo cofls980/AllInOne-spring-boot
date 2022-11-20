@@ -10,12 +10,12 @@ import java.util.List;
 @Mapper
 public interface CafeMapMapperRepository {
 
-    // cafe
-    List<HashMap<String, Object>> getCafeList();
-
-    // station
-    List<HashMap<String, Object>> getStationList();
-
     boolean isExistedCafe(@Param("cafe_id") int cafe_id);
     List<HashMap<String, Object>> getListByCafeName(@Param("cafe_name") String cafe_name);
+    List<HashMap<String, Object>> getListByRegion(@Param("province") String province, @Param("city") String city);
+    List<HashMap<String, Object>> getListByCafeNameAndRegion(@Param("cafe_name") String cafe_name,
+                                                             @Param("province") String province, @Param("city") String city);
+    List<HashMap<String, Object>> getRegionInfo();
+//    List<HashMap<String, Object>> getListBySearch(@Param("cafe_name") String cafe_name,
+//                                                  @Param("province") String province, @Param("city") String city);
 }

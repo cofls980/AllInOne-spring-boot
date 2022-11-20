@@ -6,21 +6,27 @@
 <mapper namespace="com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository">
 
     <!-- cafe_map_cafe -->
-    <select id="getCafeList" resultType="map">
-        select * from cafe_map_cafe;
-    </select>
-
-    <!-- cafe_map_station -->
-    <select id="getStationList" resultType="map">
-        select * from cafe_map_station;
-    </select>
-
     <select id="isExistedCafe" resultType="boolean">
         select exists (select * from cafe_map_cafe where cafe_id = #{cafe_id}) as success
     </select>
 
     <select id="getListByCafeName" resultType="map">
         select * from cafe_map_cafe where cafe_name like CONCAT('%', #{cafe_name}, '%')
+    </select>
+
+    <select id="getListByRegion" resultType="map">
+        select * from cafe_map_cafe where province = #{province} and city = #{city}
+    </select>
+
+    <select id="getListByCafeNameAndRegion" resultType="map">
+        select distinct c.cafe_id, c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, c.latitude, c.longitude
+        from cafe_map_cafe c, cafe_map_region r
+        where c.cafe_name like CONCAT('%', #{cafe_name}, '%') and (r.province = #{province} and r.city = #{city} and r.province = c.province and r.city = c.city)
+    </select>
+
+    <!-- cafe_map_region -->
+    <select id="getRegionInfo" resultType="map">
+        select * from cafe_map_region
     </select>
 
 </mapper>

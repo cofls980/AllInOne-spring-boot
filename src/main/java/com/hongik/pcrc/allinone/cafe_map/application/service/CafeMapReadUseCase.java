@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface CafeMapReadUseCase {
 
-    List<HashMap<String, Object>> getCafeList();
-    List<HashMap<String, Object>> getStationList();
-    List<FindCafeSearchResult> searchCafe(CafeSearchEnum searchEnum, String cafe, String region, String category);
+    List<FindCafeSearchResult> searchCafe(CafeSearchEnum searchEnum, String cafe,
+                                          String province, String city, String category);
+    List<FindRegionList> getRegionInfo();
 
     @Getter
     @ToString
@@ -22,8 +22,8 @@ public interface CafeMapReadUseCase {
         private final String cafe_branch;
         private final String road_addr;
         private final String floor_info;
-        private final double longitude;
         private final double latitude;
+        private final double longitude;
 
         public static FindCafeSearchResult findByCafeSearchResult(HashMap<String, Object> list, String floor_info) {
             return FindCafeSearchResult.builder()
@@ -32,8 +32,8 @@ public interface CafeMapReadUseCase {
                     .cafe_branch((String) list.get("cafe_branch"))
                     .road_addr((String) list.get("road_addr"))
                     .floor_info(floor_info)
-                    .longitude((Double) list.get("longitude"))
                     .latitude((Double) list.get("latitude"))
+                    .longitude((Double) list.get("longitude"))
                     .build();
         }
     }
@@ -41,12 +41,36 @@ public interface CafeMapReadUseCase {
     @Getter
     @ToString
     @Builder
-    class FindCafeResult {
+    class FindRegionResult {
+        private final int region_id;
+        private final String province;
+        private final String city;
+        private final double latitude;
+        private final double longitude;
+
+        public static FindRegionResult findByRegionResult(HashMap<String, Object> list) {
+            return FindRegionResult.builder()
+                    .region_id((Integer) list.get("region_id"))
+                    .province((String) list.get("province"))
+                    .city((String) list.get("city"))
+                    .latitude((Double) list.get("latitude"))
+                    .longitude((Double) list.get("longitude"))
+                    .build();
+        }
     }
 
     @Getter
     @ToString
     @Builder
-    class FindStationResult {
+    class FindRegionList {
+        private final String province;
+        private final List<FindRegionResult> list;
+
+        public static FindRegionList findByRegionResult(String province, List<FindRegionResult> list) {
+            return FindRegionList.builder()
+                    .province(province)
+                    .list(list)
+                    .build();
+        }
     }
 }

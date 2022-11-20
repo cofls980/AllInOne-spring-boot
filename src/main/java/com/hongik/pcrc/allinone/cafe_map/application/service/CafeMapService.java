@@ -17,23 +17,15 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
     }
 
     @Override
-    public List<HashMap<String, Object>> getCafeList() {
-        return cafeMapMapperRepository.getCafeList();
-    }
-
-    @Override
-    public List<HashMap<String, Object>> getStationList() {
-        return cafeMapMapperRepository.getStationList();
-    }
-
-    @Override
-    public List<FindCafeSearchResult> searchCafe(CafeSearchEnum searchEnum, String cafe, String region, String category) {
+    public List<FindCafeSearchResult> searchCafe(CafeSearchEnum searchEnum, String cafe_name, String province, String city, String category) {
 
         List<HashMap<String, Object>> list = null;
         if (searchEnum == CafeSearchEnum.CAFE) {
-            list =  cafeMapMapperRepository.getListByCafeName(cafe);
-        } else {
-            //list = chatMapperRepository.searchChannelListWithTitle(command.getTitle());
+            list =  cafeMapMapperRepository.getListByCafeName(cafe_name);
+        } else if (searchEnum == CafeSearchEnum.REGION) {
+            list = cafeMapMapperRepository.getListByRegion(province, city);
+        } else if (searchEnum == CafeSearchEnum.CAFEANDREGION) {
+            list = cafeMapMapperRepository.getListByCafeNameAndRegion(cafe_name, province, city);
         }
         List<FindCafeSearchResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
@@ -49,5 +41,27 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
             result.add(FindCafeSearchResult.findByCafeSearchResult(h, floor_info));
         }
         return result;
+    }
+
+    @Override
+    public List<FindRegionList> getRegionInfo() {
+
+        List<HashMap<String, Object>> list = cafeMapMapperRepository.getRegionInfo();
+        List<FindRegionResult> result = new ArrayList<>();
+        List<FindRegionList> res = new ArrayList<>();
+        String comp = "";
+        for (HashMap<String, Object> h : list) {
+            if (comp.equals("")) {
+                comp = h.get("province").toString();
+            }
+            if (!comp.equals(h.get("province").toString())) {
+                res.add(FindRegionList.findByRegionResult(comp, result));
+                result = new ArrayList<>();
+                comp = h.get("province").toString();
+            }
+            result.add(FindRegionResult.findByRegionResult(h));
+        }
+        res.add(FindRegionList.findByRegionResult(comp, result));
+        return res;
     }
 }

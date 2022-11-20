@@ -37,19 +37,34 @@ public class CafeMapController {
     @GetMapping(value = "/search", produces = "application/json")
     @ApiOperation(value = "카페, 지역, 카테고리를 통한 검색")
     public ResponseEntity<List<CafeMapReadUseCase.FindCafeSearchResult>> searchCafe(@RequestParam(value = "cafe", required = false) String cafe,
-                                                                                    @RequestParam(value = "region", required = false) String region,
+                                                                                    @RequestParam(value = "province", required = false) String province,
+                                                                                    @RequestParam(value = "city", required = false) String city,
                                                                                     @RequestParam(value = "category", required = false) String category,
                                                                                     HttpServletResponse response) {
 
         CafeSearchEnum searchEnum;
 
-        if (!(cafe == null || cafe.isEmpty())) {
-            searchEnum = CafeSearchEnum.CAFE;
-        } else {
+        if ((cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && (city == null || city.isEmpty()) && (category == null || category.isEmpty())) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if ((province == null || province.isEmpty()) && !(city == null || city.isEmpty())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if (!(province == null || province.isEmpty()) && (city == null || city.isEmpty())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if (!(cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty())) {
+            logger.info("카페 이름으로만 검색");
+            searchEnum = CafeSearchEnum.CAFE;
+        } else if ((cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty())) {
+            logger.info("지역으로만 검색");
+            searchEnum = CafeSearchEnum.REGION;
+        } else if (!(cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty())) {
+            logger.info("카페 이름과 지역으로만 검색");
+            searchEnum = CafeSearchEnum.CAFEANDREGION;
+        } else {
+            logger.info("카페 이름, 지역, 카테고리 모두로 검색");
+            searchEnum = CafeSearchEnum.ALL;
         }
 
-        var result = cafeMapReadUseCase.searchCafe(searchEnum, cafe, region, category);
+        var result = cafeMapReadUseCase.searchCafe(searchEnum, cafe, province, city, category);
 
         if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
@@ -60,38 +75,19 @@ public class CafeMapController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping(value = "/cafe", produces = "application/json")
-    @ApiOperation(value = "카페 리스트")
-    public HashMap<String, Object> getCafeList() {
+    @GetMapping(value = "/region", produces = "application/json")
+    @ApiOperation(value = "지역 정보")
+    public ResponseEntity<List<CafeMapReadUseCase.FindRegionList>> getRegionInfo() {
 
-        logger.info("카페 리스트");
+        logger.info("지역 정보");
 
-        var result = cafeMapReadUseCase.getCafeList();
+        var result = cafeMapReadUseCase.getRegionInfo();
 
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        System.out.println("size: " + result.size());
-
-        return result.get(0);
-    }
-
-    @GetMapping(value = "/station", produces = "application/json")
-    @ApiOperation(value = "지하철 역 리스트")
-    public HashMap<String, Object> getStationList() {
-
-        logger.info("지하철 역 리스트");
-
-        var result = cafeMapReadUseCase.getStationList();
-
-        if (result.isEmpty()) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
-
-        System.out.println("size: " + result.size());
-
-        return result.get(0);
+        return ResponseEntity.ok(result);
     }
 }
 
