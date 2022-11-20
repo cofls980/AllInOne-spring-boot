@@ -1,7 +1,6 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
-import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
     @Override
     public List<FindCafeSearchResult> searchCafe(CafeSearchEnum searchEnum, String cafe_name, String province, String city, String category) {
 
-        List<HashMap<String, Object>> list = null;
+        List<HashMap<String, Object>> list;
         if (searchEnum == CafeSearchEnum.CAFE) {
             list =  cafeMapMapperRepository.getListByCafeName(cafe_name);
         } else if (searchEnum == CafeSearchEnum.REGION) {
@@ -31,11 +30,14 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
         } else if (searchEnum == CafeSearchEnum.CAFEANDREGION) {
             list = cafeMapMapperRepository.getListByCafeNameAndRegion(cafe_name, province, city);
         } else if (searchEnum == CafeSearchEnum.CAFEANDCATEGORY) {
-            //list = cafeMapMapperRepository.getListByCafeNameAndCategory(cafe_name, category);
+            list =  cafeMapMapperRepository.getListByCafeName(cafe_name);
+            list = selectCafe(list, category);
         } else if (searchEnum == CafeSearchEnum.REGIONANDCATEGORY) {
-            //list = cafeMapMapperRepository.getListByRegionAndCategory(province, city, category);
+            list = cafeMapMapperRepository.getListByRegion(province, city);
+            list = selectCafe(list, category);
         } else {
-            //list = cafeMapMapperRepository.getListByALL(cafe_name, province, city, category);
+            list = cafeMapMapperRepository.getListByCafeNameAndRegion(cafe_name, province, city);
+            list = selectCafe(list, category);
         }
 
         List<FindCafeSearchResult> result = new ArrayList<>();
@@ -50,8 +52,7 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
                 }
                 floor_info += (floor + "층");
             }
-            HashMap<String, Object> categories = cafeMapMapperRepository.getCategoriesAboutCafe((Integer) h.get("cafe_id"));
-            result.add(FindCafeSearchResult.findByCafeSearchResult(h, floor_info, AboutCategory.getTop3(categories)));
+            result.add(FindCafeSearchResult.findByCafeSearchResult(h, floor_info, AboutCategory.getTop3(h)));
         }
         return result;
     }

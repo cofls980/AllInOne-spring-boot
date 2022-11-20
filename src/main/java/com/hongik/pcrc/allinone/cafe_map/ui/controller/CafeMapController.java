@@ -3,7 +3,6 @@ package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeSearchEnum;
-import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import io.swagger.annotations.Api;
@@ -24,7 +23,6 @@ import java.util.List;
 @Api(tags = {"Cafe-Map API"})
 public class CafeMapController {
 
-    private CafeMapMapperRepository cafeMapMapperRepository;
     private final CafeMapReadUseCase cafeMapReadUseCase;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,10 +30,6 @@ public class CafeMapController {
         this.cafeMapReadUseCase = cafeMapReadUseCase;
     }
 
-    /*
-    * /v2/cafe-map/search?cafe={}&region={}&category={}
-    * - only cafe done
-    * */
     @GetMapping(value = "/search", produces = "application/json")
     @ApiOperation(value = "카페, 지역, 카테고리를 통한 검색")
     public ResponseEntity<List<CafeMapReadUseCase.FindCafeSearchResult>> searchCafe(@RequestParam(value = "cafe", required = false) String cafe,

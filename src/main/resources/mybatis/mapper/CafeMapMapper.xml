@@ -11,20 +11,22 @@
     </select>
 
     <select id="getListByCafeName" resultType="map">
-        select * from cafe_map_cafe where cafe_name like CONCAT('%', #{cafe_name}, '%')
+        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        where c.cafe_name like CONCAT('%', #{cafe_name}, '%')
     </select>
 
     <select id="getListByRegion" resultType="map">
-        select * from cafe_map_cafe where province = #{province} and city = #{city}
+        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        where c.province = #{province} and c.city = #{city}
     </select>
 
     <select id="getListByCategory" resultType="map">
-        select * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
     </select>
 
     <select id="getListByCafeNameAndRegion" resultType="map">
-        select distinct c.cafe_id, c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, c.latitude, c.longitude
-        from cafe_map_cafe c, cafe_map_region r
+        select distinct c.cafe_id, c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, c.latitude, c.longitude, 경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
+        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id, cafe_map_region r
         where c.cafe_name like CONCAT('%', #{cafe_name}, '%') and (r.province = #{province} and r.city = #{city} and r.province = c.province and r.city = c.city)
     </select>
 
@@ -46,10 +48,5 @@
         인스타감성 = #{인스타감성}, 조용한 = #{조용한}, 커피맛집 = #{커피맛집}, 큰규모 = #{큰규모}, 테마있는 = #{테마있는}, 테이크아웃 = #{테이크아웃}
         where cafe_id = #{cafe_id}
     </insert>
-
-    <select id="getCategoriesAboutCafe" resultType="hashmap">
-        select 경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
-        from cafe_map_category where cafe_id = #{cafe_id}
-    </select>
 
 </mapper>

@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.io.IOException;
-
 public interface CafeMapReviewOperationUseCase {
 
     void createReview(CafeMapReviewCreatedCommand command);

@@ -1,8 +1,5 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
-import com.hongik.pcrc.allinone.auth.application.domain.Auth;
-import com.hongik.pcrc.allinone.auth.application.service.AuthReadUseCase;
-import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.entity.CafeReviewEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

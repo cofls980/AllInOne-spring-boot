@@ -102,9 +102,3 @@ public class CafeMapReviewController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 }
-
-//TODO
-//리뷰 작성 (o)
-//리뷰 목록 (o)
-//리뷰 업데이트
-//리뷰 삭제
