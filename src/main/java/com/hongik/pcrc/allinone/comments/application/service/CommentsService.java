@@ -104,6 +104,13 @@ public class CommentsService implements CommentsOperationUseCase, CommentsReadUs
 
         List<CommentsEntity> comments = commentsEntityRepository.findByBoard_id(board_id);
 
+        // 최근 순으로 정렬
+        comments.sort((o1, o2) -> {
+            LocalDateTime age1 = o1.getC_date();
+            LocalDateTime age2 = o2.getC_date();
+            return age2.compareTo(age1);
+        });
+
         for (CommentsEntity c : comments) {
             result.add(FindCommentResult.builder()
                     .comment_id(c.getComment_id())

@@ -14,9 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CafeMapReviewService implements CafeMapReviewOperationUseCase, CafeMapReviewReadUseCase {
@@ -87,7 +85,14 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
+        // 최근 순으로 정렬
         List<HashMap<String, Object>> getList = cafeReviewMapperRepository.cafeMapReviewList(cafe_id);
+        getList.sort((o1, o2) -> {
+            LocalDateTime age1 = (LocalDateTime) o1.get("review_date");
+            LocalDateTime age2 = (LocalDateTime) o2.get("review_date");
+            return age2.compareTo(age1);
+        });
+
         List<FindCafeMapReviewListResult> result = new ArrayList<>();
 
         for (HashMap<String, Object> h : getList) {
