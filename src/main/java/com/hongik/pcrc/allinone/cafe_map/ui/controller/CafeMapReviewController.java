@@ -42,6 +42,9 @@ public class CafeMapReviewController {
                 .cafe_id(cafe_id)
                 .star_rating(request.getStar_rating())
                 .content(request.getContent())
+                .category_1(request.getCategory_1())
+                .category_2(request.getCategory_2())
+                .category_3(request.getCategory_3())
                 .build();
 
         cafeMapReviewOperationUseCase.createReview(command);

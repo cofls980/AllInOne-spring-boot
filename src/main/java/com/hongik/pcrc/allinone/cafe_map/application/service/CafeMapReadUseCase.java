@@ -29,7 +29,7 @@ public interface CafeMapReadUseCase {
         private final String category_2;
         private final String category_3;
 
-        public static FindCafeSearchResult findByCafeSearchResult(HashMap<String, Object> list, String floor_info) {
+        public static FindCafeSearchResult findByCafeSearchResult(HashMap<String, Object> list, String floor_info, String[] top3) {
             return FindCafeSearchResult.builder()
                     .cafe_id((Integer) list.get("cafe_id"))
                     .cafe_name((String) list.get("cafe_name"))
@@ -38,6 +38,9 @@ public interface CafeMapReadUseCase {
                     .floor_info(floor_info)
                     .latitude((Double) list.get("latitude"))
                     .longitude((Double) list.get("longitude"))
+                    .category_1(top3[0])
+                    .category_2(top3[1])
+                    .category_3(top3[2])
                     .build();
         }
     }

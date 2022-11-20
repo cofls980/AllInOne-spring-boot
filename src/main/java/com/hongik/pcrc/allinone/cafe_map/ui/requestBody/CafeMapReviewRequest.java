@@ -19,6 +19,15 @@ public class CafeMapReviewRequest {
     @NotNull
     @NotBlank
     private String content;
+    @NotNull
+    @NotBlank
+    private String category_1;
+    @NotNull
+    @NotBlank
+    private String category_2;
+    @NotNull
+    @NotBlank
+    private String category_3;
 //    private MultipartFile photo;
 
 }

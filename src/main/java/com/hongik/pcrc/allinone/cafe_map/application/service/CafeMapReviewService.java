@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,13 +49,6 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         String email = getUserEmail();
         String user_id = authMapperRepository.getUUIDByEmail(email);
 
-//        // 사진 있는지 확인
-//        MultipartFile photo = command.getPhoto();
-//        String directoryName = null;
-//        if (!photo.isEmpty()) {
-//            directoryName = "cafe-map/" + command.getCafe_id() + "/" + user_id;//파일 이름 빼도 되지 않을까
-//        }
-
         // 디비에 저장
         cafeReviewMapperRepository.createReview(new CafeReviewEntity(CafeReview.builder()
                         .cafe_id(command.getCafe_id())
@@ -66,6 +58,16 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
                         .content(command.getContent())
                         //.photo(directoryName)
                         .build()));
+
+        String[] categories = {command.getCategory_1(), command.getCategory_2(), command.getCategory_3()};
+
+        cafeMapMapperRepository.increaseCategoryNum(AboutCategory.makeIncreasedValueMap(categories, command.getCafe_id()));
+//        // 사진 있는지 확인 후 디비에 저장
+//        MultipartFile photo = command.getPhoto();
+//        String directoryName = null;
+//        if (!photo.isEmpty()) {
+//            directoryName = "cafe-map/" + command.getCafe_id() + "/" + user_id;//파일 이름 빼도 되지 않을까
+//        }
          //AWS S3에 저장
 //        if (directoryName != null) {
 //            String fileName = command.getPhoto().getOriginalFilename();

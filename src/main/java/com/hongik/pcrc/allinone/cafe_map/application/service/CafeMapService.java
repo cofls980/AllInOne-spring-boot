@@ -1,6 +1,7 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,12 +25,23 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
             list =  cafeMapMapperRepository.getListByCafeName(cafe_name);
         } else if (searchEnum == CafeSearchEnum.REGION) {
             list = cafeMapMapperRepository.getListByRegion(province, city);
+        } else if (searchEnum == CafeSearchEnum.CATEGORY) {
+            list = cafeMapMapperRepository.getListByCategory(category);
+            list = selectCafe(list, category);
         } else if (searchEnum == CafeSearchEnum.CAFEANDREGION) {
             list = cafeMapMapperRepository.getListByCafeNameAndRegion(cafe_name, province, city);
+        } else if (searchEnum == CafeSearchEnum.CAFEANDCATEGORY) {
+            //list = cafeMapMapperRepository.getListByCafeNameAndCategory(cafe_name, category);
+        } else if (searchEnum == CafeSearchEnum.REGIONANDCATEGORY) {
+            //list = cafeMapMapperRepository.getListByRegionAndCategory(province, city, category);
+        } else {
+            //list = cafeMapMapperRepository.getListByALL(cafe_name, province, city, category);
         }
+
         List<FindCafeSearchResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
             String floor_info = "";
+
             if (!h.get("floor_info").toString().isEmpty()) {
                 int floor = Integer.parseInt(h.get("floor_info").toString());
                 if (floor < 0) {
@@ -38,7 +50,8 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
                 }
                 floor_info += (floor + "층");
             }
-            result.add(FindCafeSearchResult.findByCafeSearchResult(h, floor_info));
+            HashMap<String, Object> categories = cafeMapMapperRepository.getCategoriesAboutCafe((Integer) h.get("cafe_id"));
+            result.add(FindCafeSearchResult.findByCafeSearchResult(h, floor_info, AboutCategory.getTop3(categories)));
         }
         return result;
     }
@@ -70,19 +83,43 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
         HashMap<String, Object> map = cafeMapMapperRepository.getCategoryInfo();
         List<FindCategoryList> result = new ArrayList<>();
         if (!map.isEmpty()) {
-            result.add(FindCategoryList.findByCategoryResult("경치좋은", Integer.parseInt(map.get("경치좋은").toString())));
-            result.add(FindCategoryList.findByCategoryResult("공부맛집", Integer.parseInt(map.get("공부맛집").toString())));
-            result.add(FindCategoryList.findByCategoryResult("데이트코스", Integer.parseInt(map.get("데이트코스").toString())));
-            result.add(FindCategoryList.findByCategoryResult("드라이브", Integer.parseInt(map.get("드라이브").toString())));
-            result.add(FindCategoryList.findByCategoryResult("디저트맛집", Integer.parseInt(map.get("디저트맛집").toString())));
-            result.add(FindCategoryList.findByCategoryResult("소개팅", Integer.parseInt(map.get("소개팅").toString())));
-            result.add(FindCategoryList.findByCategoryResult("인스타감성", Integer.parseInt(map.get("인스타감성").toString())));
-            result.add(FindCategoryList.findByCategoryResult("조용한", Integer.parseInt(map.get("조용한").toString())));
-            result.add(FindCategoryList.findByCategoryResult("커피맛집", Integer.parseInt(map.get("커피맛집").toString())));
-            result.add(FindCategoryList.findByCategoryResult("큰규모", Integer.parseInt(map.get("큰규모").toString())));
-            result.add(FindCategoryList.findByCategoryResult("테마있는", Integer.parseInt(map.get("테마있는").toString())));
-            result.add(FindCategoryList.findByCategoryResult("테이크아웃", Integer.parseInt(map.get("테이크아웃").toString())));
+            for (String t : AboutCategory.getType()) {
+                result.add(FindCategoryList.findByCategoryResult(t, Integer.parseInt(map.get(t).toString())));
+            }
         }
         return result;
+    }
+
+    private List<HashMap<String, Object>> selectCafe(List<HashMap<String, Object>> list, String category_name) {
+        List<HashMap<String, Object>> result = new ArrayList<>();
+
+        for (HashMap<String, Object> h : list) {
+            if (valueCompare(h, category_name)) {
+                result.add(h);
+            }
+        }
+        return result;
+    }
+
+    private boolean valueCompare(HashMap<String, Object> hmap, String category_name) {//pair?
+        String[] type = AboutCategory.getType();
+        Integer[] values = new Integer[type.length];
+        int comp = AboutCategory.getCategoryIndex(category_name);
+
+        if (comp == -1) {
+            return false;
+        }
+        for (int t = 0; t < type.length; t++) {
+            values[t] = Integer.parseInt(hmap.get(type[t]).toString());
+        }
+        if (values[comp] == 0) { // 나중에 수정
+            return false;
+        }
+        for (int t = 0; t < type.length; t++) {
+            if (values[comp] < values[t]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

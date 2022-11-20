@@ -1,5 +1,6 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
+import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeSearchEnum;
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
@@ -51,15 +52,26 @@ public class CafeMapController {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         } else if (!(province == null || province.isEmpty()) && (city == null || city.isEmpty())) {
             throw new AllInOneException(MessageType.BAD_REQUEST);
-        } else if (!(cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty())) {
+        } else if (!(category == null || category.isEmpty()) && AboutCategory.isNotInCategories(category)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if (!(cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && (category == null || category.isEmpty())) {
             logger.info("카페 이름으로만 검색");
             searchEnum = CafeSearchEnum.CAFE;
-        } else if ((cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty())) {
+        } else if ((cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty()) && (category == null || category.isEmpty())) {
             logger.info("지역으로만 검색");
             searchEnum = CafeSearchEnum.REGION;
-        } else if (!(cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty())) {
+        } else if ((cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && !(category == null || category.isEmpty())) {
+            logger.info("카테고리로만 검색");
+            searchEnum = CafeSearchEnum.CATEGORY;
+        } else if (!(cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty()) && (category == null || category.isEmpty())) {
             logger.info("카페 이름과 지역으로만 검색");
             searchEnum = CafeSearchEnum.CAFEANDREGION;
+        } else if (!(cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && !(category == null || category.isEmpty())) {
+            logger.info("카페 이름과 카테고리로만 검색");
+            searchEnum = CafeSearchEnum.CAFEANDCATEGORY;
+        } else if ((cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty()) && !(category == null || category.isEmpty())) {
+            logger.info("지역과 카테고리로만 검색");
+            searchEnum = CafeSearchEnum.REGIONANDCATEGORY;
         } else {
             logger.info("카페 이름, 지역, 카테고리 모두로 검색");
             searchEnum = CafeSearchEnum.ALL;
@@ -102,8 +114,6 @@ public class CafeMapController {
         if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
-
-        System.out.println("궁금: " + cafeMapMapperRepository.get("경치좋은"));
 
         return ResponseEntity.ok(result);
     }
