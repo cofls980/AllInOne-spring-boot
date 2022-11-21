@@ -34,6 +34,9 @@ public interface CafeMapReviewOperationUseCase {
         private final int cafe_id;
         private final double star_rating;
         private final String content;
+        private final String category_1;
+        private final String category_2;
+        private final String category_3;
     }
 
     @EqualsAndHashCode(callSuper = false)

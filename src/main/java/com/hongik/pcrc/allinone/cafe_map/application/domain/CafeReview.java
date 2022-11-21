@@ -18,4 +18,7 @@ public class CafeReview {
     private final String content;
     private final String photo;
     private final int like_number;
+    private final String category_1;
+    private final String category_2;
+    private final String category_3;
 }

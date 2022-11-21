@@ -40,6 +40,24 @@ public class AboutCategory {
         return map;
     }
 
+    public static HashMap<String, Integer> makeDecreasedValueMap(HashMap<String, Object> categories, Integer cafe_id) {
+        HashMap<String, Integer> map = new HashMap<>();
+
+        String[] arr = {(String) categories.get("category_1"), (String) categories.get("category_2"), (String) categories.get("category_3")};
+        map.put("cafe_id", cafe_id);
+        for (String t : type) {
+            map.put(t, 0);
+        }
+        for (String c : arr) {
+            for (String t : type) {
+                if (t.equals(c)) {
+                    map.put(t, map.get(t) - 1);
+                }
+            }
+        }
+        return map;
+    }
+
     public static String[] getTop3(HashMap<String, Object> hmap) {
 
         // Object -> Integer

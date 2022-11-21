@@ -42,11 +42,16 @@
         from cafe_map_category
     </select>
 
-    <insert id="increaseCategoryNum" parameterType="hashmap">
+    <update id="changeCategoryNum" parameterType="hashmap">
         update cafe_map_category
         set 경치좋은 = #{경치좋은}, 공부맛집 = #{공부맛집}, 데이트코스 = #{데이트코스}, 드라이브 = #{드라이브}, 디저트맛집 = #{디저트맛집}, 소개팅 = #{소개팅},
         인스타감성 = #{인스타감성}, 조용한 = #{조용한}, 커피맛집 = #{커피맛집}, 큰규모 = #{큰규모}, 테마있는 = #{테마있는}, 테이크아웃 = #{테이크아웃}
         where cafe_id = #{cafe_id}
-    </insert>
+    </update>
+
+    <select id="getACafeInfo" resultType="hashmap">
+        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        where c.cafe_id = #{cafe_id}
+    </select>
 
 </mapper>

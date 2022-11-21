@@ -1,5 +1,6 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
+import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewReadUseCase;
 import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
@@ -38,6 +39,12 @@ public class CafeMapReviewController {
 
         logger.info("카페 리뷰 작성");
 
+        if (AboutCategory.isNotInCategories(request.getCategory_1())
+        || AboutCategory.isNotInCategories(request.getCategory_2())
+        || AboutCategory.isNotInCategories(request.getCategory_3())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
         var command = CafeMapReviewOperationUseCase.CafeMapReviewCreatedCommand.builder()
                 .cafe_id(cafe_id)
                 .star_rating(request.getStar_rating())
@@ -54,13 +61,13 @@ public class CafeMapReviewController {
 
     @GetMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
     @ApiOperation(value = "카페 리뷰 리스트")
-    public ResponseEntity<List<CafeMapReviewReadUseCase.FindCafeMapReviewListResult>> cafeEvaluatedList(@PathVariable int cafe_id) {
+    public ResponseEntity<CafeMapReviewReadUseCase.FindCafeInfoWithReviewResult> cafeEvaluatedList(@PathVariable int cafe_id) {
 
         logger.info("카페 리뷰 리스트");
 
-        var result = cafeMapReviewReadUseCase.getCafeMapReviewList(cafe_id);
+        var result = cafeMapReviewReadUseCase.getCafeInfoWithReview(cafe_id);
 
-        if (result.isEmpty()) {
+        if (result == null) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -74,11 +81,20 @@ public class CafeMapReviewController {
 
         logger.info("카페 리뷰 업데이트");
 
+        if (AboutCategory.isNotInCategories(request.getCategory_1())
+                || AboutCategory.isNotInCategories(request.getCategory_2())
+                || AboutCategory.isNotInCategories(request.getCategory_3())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
         var command = CafeMapReviewOperationUseCase.CafeMapReviewUpdatedCommand.builder()
                 .review_id(eval_id)
                 .cafe_id(cafe_id)
                 .star_rating(request.getStar_rating())
                 .content(request.getContent())
+                .category_1(request.getCategory_1())
+                .category_2(request.getCategory_2())
+                .category_3(request.getCategory_3())
                 .build();
 
         cafeMapReviewOperationUseCase.updateReview(command);

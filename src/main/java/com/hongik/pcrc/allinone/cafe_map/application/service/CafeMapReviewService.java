@@ -54,12 +54,16 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
                         .review_date(LocalDateTime.now())
                         .star_rating(command.getStar_rating())
                         .content(command.getContent())
+                        .category_1(command.getCategory_1())
+                        .category_2(command.getCategory_2())
+                        .category_3(command.getCategory_3())
                         //.photo(directoryName)
                         .build()));
 
+        // category 테이블 변화
         String[] categories = {command.getCategory_1(), command.getCategory_2(), command.getCategory_3()};
 
-        cafeMapMapperRepository.increaseCategoryNum(AboutCategory.makeIncreasedValueMap(categories, command.getCafe_id()));
+        cafeMapMapperRepository.changeCategoryNum(AboutCategory.makeIncreasedValueMap(categories, command.getCafe_id()));
 //        // 사진 있는지 확인 후 디비에 저장
 //        MultipartFile photo = command.getPhoto();
 //        String directoryName = null;
@@ -79,7 +83,20 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
     }
 
     @Override
-    public List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
+    public FindCafeInfoWithReviewResult getCafeInfoWithReview(int cafe_id) {
+        // cafe_id가 있는지 확인
+        if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        HashMap<String, Object> map = cafeMapMapperRepository.getACafeInfo(cafe_id);
+        Double total_rating = cafeReviewMapperRepository.getTotalRating(cafe_id);
+
+        return FindCafeInfoWithReviewResult.findByCafeReview(map, total_rating, AboutCategory.getTop3(map), getCafeMapReviewList(cafe_id));
+
+    }
+
+    private List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
         // cafe_id가 있는지 확인
         if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
@@ -119,7 +136,18 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        cafeReviewMapperRepository.updateReview(command.getReview_id(), command.getStar_rating(), command.getContent());
+        // 카테고리를 제외한 나머지 업데이트
+        cafeReviewMapperRepository.updateReview(command.getReview_id(), command.getStar_rating(), command.getContent(),
+                command.getCategory_1(), command.getCategory_2(), command.getCategory_3());
+
+        // 선택한 3가지 알아내서 그에 해당하는 값들 -1씩 하기
+        HashMap<String, Object> selected = cafeReviewMapperRepository.getSelectedCategories(command.getReview_id());
+        cafeMapMapperRepository.changeCategoryNum(AboutCategory.makeDecreasedValueMap(selected, command.getCafe_id()));
+        // cafeMapMapperRepository.decreaseCategoryNum()
+        // category 테이블 변화
+        String[] categories = {command.getCategory_1(), command.getCategory_2(), command.getCategory_3()};
+
+        cafeMapMapperRepository.changeCategoryNum(AboutCategory.makeIncreasedValueMap(categories, command.getCafe_id()));
     }
 
     @Override

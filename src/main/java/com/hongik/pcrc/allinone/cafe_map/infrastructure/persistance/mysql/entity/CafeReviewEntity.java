@@ -34,6 +34,12 @@ public class CafeReviewEntity {
     private String photo; // 다음에
     @Column(nullable = false) // 0으로 초기화 필요 -> 다음에
     private int like_number;
+    @Column(nullable = false)
+    private String category_1;
+    @Column(nullable = false)
+    private String category_2;
+    @Column(nullable = false)
+    private String category_3;
 
     public CafeReviewEntity(CafeReview cafeReview) {
         this.review_id = cafeReview.getReview_id();
@@ -44,5 +50,8 @@ public class CafeReviewEntity {
         this.content = cafeReview.getContent();
         this.photo = cafeReview.getPhoto();
         this.like_number = cafeReview.getLike_number();
+        this.category_1 = cafeReview.getCategory_1();
+        this.category_2 = cafeReview.getCategory_2();
+        this.category_3 = cafeReview.getCategory_3();
     }
 }
