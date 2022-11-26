@@ -9,5 +9,6 @@
         <mapper resource="LikesViewsMapper.xml"/>
         <mapper resource="ChatMapper.xml"/>
         <mapper resource="CafeMapMapper.xml"/>
+        <mapper resource="CafeReviewMapper.xml"/>
     </mappers>
 </configuration>

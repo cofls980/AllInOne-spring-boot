@@ -109,6 +109,13 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
             boards = boardEntityRepository.findWithTitleAndWriter(all, all); // title || b_writer
         }
 
+        // 최근 순으로 정렬
+        boards.sort((o1, o2) -> {
+            LocalDateTime age1 = o1.getB_date();
+            LocalDateTime age2 = o2.getB_date();
+            return age2.compareTo(age1);
+        });
+
         for (BoardEntity b : boards) {
             result.add(FindBoardResult.builder()
                     .board_id(b.getBoard_id())

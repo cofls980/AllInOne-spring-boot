@@ -12,23 +12,17 @@ import javax.persistence.*;
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "cafe_map_station")
-public class StationEntity {
+@Table(name = "cafe_map_region")
+public class RegionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int subway_id;
+    private int region_id;
     @Column(nullable = false)
-    private int station_id;
+    private String province;
     @Column(nullable = false)
     private String city;
     @Column(nullable = false)
-    private String district;
+    private double latitude;
     @Column(nullable = false)
-    private int line;
-    @Column(nullable = false)
-    private String station_name;
-    @Column(nullable = false)
-    private String lot_number_addr;
-    @Column(nullable = false)
-    private String road_addr;
+    private double longitude;
 }

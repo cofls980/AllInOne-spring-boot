@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeReviewMapperRepository">
+
+    <!-- cafe_map_review -->
+    <insert id="createReview" parameterType="CafeReviewEntity">
+        insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number, category_1, category_2, category_3)
+        value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number}, #{category_1}, #{category_2}, #{category_3})
+    </insert>
+
+    <select id="cafeMapReviewList" resultType="map">
+        select * from cafe_map_review where cafe_id = #{cafe_id}
+    </select>
+
+    <select id="isCorrectReview" resultType="boolean">
+        select exists (select * from cafe_map_review where review_id = #{review_id} and cafe_id = #{cafe_id} and user_id = #{user_id}) as success
+    </select>
+
+    <update id="updateReview">
+        update cafe_map_review set star_rating = #{star_rating}, content = #{content},
+        category_1 = #{category_1}, category_2 = #{category_2}, category_3 = #{category_3}
+        where review_id = #{review_id}
+    </update>
+
+    <delete id="deleteReview">
+        delete from cafe_map_review where review_id = #{review_id}
+    </delete>
+
+    <select id="getTotalRating" resultType="double">
+        select cast((sum(star_rating) / count(star_rating)) as double) as total_rating from cafe_map_review where cafe_id = #{cafe_id}
+    </select>
+
+    <select id="getSelectedCategories" resultType="hashmap">
+        select category_1, category_2, category_3 from cafe_map_review
+        where review_id = #{review_id}
+    </select>
+
+</mapper>

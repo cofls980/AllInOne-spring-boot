@@ -1,18 +1,21 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
-import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapOperationUseCase;
+import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
+import com.hongik.pcrc.allinone.cafe_map.application.service.CafeSearchEnum;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -27,39 +30,90 @@ public class CafeMapController {
         this.cafeMapReadUseCase = cafeMapReadUseCase;
     }
 
-    @GetMapping(value = "/cafe", produces = "application/json")
-    @ApiOperation(value = "카페 리스트")
-    public HashMap<String, Object> getCafeList() {
+    @GetMapping(value = "/search", produces = "application/json")
+    @ApiOperation(value = "카페, 지역, 카테고리를 통한 검색")
+    public ResponseEntity<List<CafeMapReadUseCase.FindCafeSearchResult>> searchCafe(@RequestParam(value = "cafe", required = false) String cafe,
+                                                                                    @RequestParam(value = "province", required = false) String province,
+                                                                                    @RequestParam(value = "city", required = false) String city,
+                                                                                    @RequestParam(value = "category", required = false) String category,
+                                                                                    HttpServletResponse response) {
 
-        logger.info("카페 리스트");
+        CafeSearchEnum searchEnum;
 
-        var result = cafeMapReadUseCase.getCafeList();
+        if ((cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && (city == null || city.isEmpty()) && (category == null || category.isEmpty())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if ((province == null || province.isEmpty()) && !(city == null || city.isEmpty())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if (!(province == null || province.isEmpty()) && (city == null || city.isEmpty())) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if (!(category == null || category.isEmpty()) && AboutCategory.isNotInCategories(category)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        } else if (!(cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && (category == null || category.isEmpty())) {
+            logger.info("카페 이름으로만 검색");
+            searchEnum = CafeSearchEnum.CAFE;
+        } else if ((cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty()) && (category == null || category.isEmpty())) {
+            logger.info("지역으로만 검색");
+            searchEnum = CafeSearchEnum.REGION;
+        } else if ((cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && !(category == null || category.isEmpty())) {
+            logger.info("카테고리로만 검색");
+            searchEnum = CafeSearchEnum.CATEGORY;
+        } else if (!(cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty()) && (category == null || category.isEmpty())) {
+            logger.info("카페 이름과 지역으로만 검색");
+            searchEnum = CafeSearchEnum.CAFEANDREGION;
+        } else if (!(cafe == null || cafe.isEmpty()) && (province == null || province.isEmpty()) && !(category == null || category.isEmpty())) {
+            logger.info("카페 이름과 카테고리로만 검색");
+            searchEnum = CafeSearchEnum.CAFEANDCATEGORY;
+        } else if ((cafe == null || cafe.isEmpty()) && !(province == null || province.isEmpty()) && !(category == null || category.isEmpty())) {
+            logger.info("지역과 카테고리로만 검색");
+            searchEnum = CafeSearchEnum.REGIONANDCATEGORY;
+        } else {
+            logger.info("카페 이름, 지역, 카테고리 모두로 검색");
+            searchEnum = CafeSearchEnum.ALL;
+        }
 
-        if (result.isEmpty()) {
+        var result = cafeMapReadUseCase.searchCafe(searchEnum, cafe, province, city, category);
+
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        System.out.println("size: " + result.size());
+        response.setHeader("Count-Cafe", String.valueOf(result.size()));
 
-        return result.get(0);
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(value = "/station", produces = "application/json")
-    @ApiOperation(value = "지하철 역 리스트")
-    public HashMap<String, Object> getStationList() {
+    @GetMapping(value = "/region", produces = "application/json")
+    @ApiOperation(value = "지역 정보")
+    public ResponseEntity<List<CafeMapReadUseCase.FindRegionList>> getRegionInfo() {
 
-        logger.info("지하철 역 리스트");
+        logger.info("지역 정보");
 
-        var result = cafeMapReadUseCase.getStationList();
+        var result = cafeMapReadUseCase.getRegionInfo();
 
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        System.out.println("size: " + result.size());
+        return ResponseEntity.ok(result);
+    }
 
-        return result.get(0);
+    @GetMapping(value = "/category", produces = "application/json")
+    @ApiOperation(value = "카테고리 정보")
+    public ResponseEntity<List<CafeMapReadUseCase.FindCategoryList>> getCategoryInfo() {
+
+        logger.info("카테고리 정보");
+
+        var result = cafeMapReadUseCase.getCategoryInfo();
+
+        if (result == null || result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(result);
     }
 }
+
 // TODO
 // 지하철, 카페 데이터 디비에 저장 후 api 생성 (o) -> 일단 서울 지역만
+// rds 용량이 괜찮은가
+// map 구성을 어떻게 할까
