@@ -56,7 +56,7 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
                 }
                 floor_info += (floor + "층");
             }
-            System.out.println(cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id")));
+            //System.out.println(cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id")));
             Double total_rating = cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id"));
             result.add(FindCafeSearchResult.findByCafeSearchResult(h, total_rating, floor_info, AboutCategory.getTop3(h)));
         }
@@ -95,8 +95,11 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
             map.put(t, 0);
         }
         for (HashMap<String, Object> h : list) {
-            String[] top3 = AboutCategory.getTop3(h);
-            map.put(top3[0], map.get(top3[0]) + 1);
+            for (String t : AboutCategory.getType()) {
+                if (valueCompare(h, t)) {
+                    map.put(t, map.get(t) + 1);
+                }
+            }
         }
         for (String t : AboutCategory.getType()) {
             result.add(FindCategoryList.findByCategoryResult(t, map.get(t)));
