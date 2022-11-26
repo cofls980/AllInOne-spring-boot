@@ -1,7 +1,6 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
-import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeReviewMapperRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,12 +11,9 @@ import java.util.List;
 public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCase{
 
     private final CafeMapMapperRepository cafeMapMapperRepository;
-    private final CafeReviewMapperRepository cafeReviewMapperRepository;
 
-    public CafeMapService(CafeMapMapperRepository cafeMapMapperRepository,
-                          CafeReviewMapperRepository cafeReviewMapperRepository) {
+    public CafeMapService(CafeMapMapperRepository cafeMapMapperRepository) {
         this.cafeMapMapperRepository = cafeMapMapperRepository;
-        this.cafeReviewMapperRepository = cafeReviewMapperRepository;
     }
 
     @Override
@@ -56,9 +52,7 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
                 }
                 floor_info += (floor + "층");
             }
-            //System.out.println(cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id")));
-            Double total_rating = cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id"));
-            result.add(FindCafeSearchResult.findByCafeSearchResult(h, total_rating, floor_info, AboutCategory.getTop3(h)));
+            result.add(FindCafeSearchResult.findByCafeSearchResult(h, Double.valueOf(h.get("total_rating").toString()), floor_info, AboutCategory.getTop3(h)));
         }
         return result;
     }

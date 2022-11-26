@@ -11,23 +11,42 @@
     </select>
 
     <select id="getListByCafeName" resultType="map">
-        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        select c.cafe_id, cafe_name, cafe_branch, road_addr, floor_info, latitude, longitude, ifnull(cast((sum(star_rating) / count(star_rating)) as double),0.0) as total_rating,
+        경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
+        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id left join cafe_map_review r on c.cafe_id = r.cafe_id
         where c.cafe_name like CONCAT('%', #{cafe_name}, '%')
+        group by cafe_id
+<!--        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id-->
+<!--        where c.cafe_name like CONCAT('%', #{cafe_name}, '%')-->
     </select>
 
     <select id="getListByRegion" resultType="map">
-        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        select distinct c.cafe_id, cafe_name, cafe_branch, road_addr, floor_info, latitude, longitude, ifnull(cast((sum(star_rating) / count(star_rating)) as double),0.0) as total_rating,
+        경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
+        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id left join cafe_map_review r on c.cafe_id = r.cafe_id
         where c.province = #{province} and c.city = #{city}
+        group by cafe_id
+<!--        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id-->
+<!--        where c.province = #{province} and c.city = #{city}-->
     </select>
 
     <select id="getListByCategory" resultType="map">
-        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        select distinct c.cafe_id, cafe_name, cafe_branch, road_addr, floor_info, latitude, longitude, ifnull(cast((sum(star_rating) / count(star_rating)) as double),0.0) as total_rating,
+        경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
+        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id left join cafe_map_review r on c.cafe_id = r.cafe_id
+        group by cafe_id
+<!--        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id-->
     </select>
 
     <select id="getListByCafeNameAndRegion" resultType="map">
-        select distinct c.cafe_id, c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, c.latitude, c.longitude, 경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
-        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id, cafe_map_region r
+        select distinct c.cafe_id, c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, c.latitude, c.longitude, ifnull(cast((sum(star_rating) / count(star_rating)) as double),0.0) as total_rating,
+        경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃
+        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id left join cafe_map_review rv on c.cafe_id = rv.cafe_id, cafe_map_region r
         where c.cafe_name like CONCAT('%', #{cafe_name}, '%') and (r.province = #{province} and r.city = #{city} and r.province = c.province and r.city = c.city)
+        group by cafe_id
+<!--        select distinct c.cafe_id, c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, c.latitude, c.longitude, 경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃-->
+<!--        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id, cafe_map_region r-->
+<!--        where c.cafe_name like CONCAT('%', #{cafe_name}, '%') and (r.province = #{province} and r.city = #{city} and r.province = c.province and r.city = c.city)-->
     </select>
 
     <!-- cafe_map_region -->
