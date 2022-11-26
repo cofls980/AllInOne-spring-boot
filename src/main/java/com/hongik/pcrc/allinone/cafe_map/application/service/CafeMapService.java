@@ -42,17 +42,17 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
 
         List<FindCafeSearchResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
-            String floor_info = "";
-
             if (!h.get("floor_info").toString().isEmpty()) {
+                String floor_info = "";
                 int floor = Integer.parseInt(h.get("floor_info").toString());
                 if (floor < 0) {
                     floor = -floor;
                     floor_info += "지하 ";
                 }
                 floor_info += (floor + "층");
+                h.put("floor_info", floor_info);
             }
-            result.add(FindCafeSearchResult.findByCafeSearchResult(h, Double.valueOf(h.get("total_rating").toString()), floor_info, AboutCategory.getTop3(h)));
+            result.add(FindCafeSearchResult.findByCafeSearchResult(h, Double.valueOf(h.get("total_rating").toString()), AboutCategory.getTop3(h)));
         }
         return result;
     }

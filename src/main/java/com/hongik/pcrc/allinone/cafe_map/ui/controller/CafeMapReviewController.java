@@ -3,7 +3,6 @@ package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewReadUseCase;
-import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -14,11 +13,10 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v2/cafe-map")
@@ -40,6 +38,10 @@ public class CafeMapReviewController {
     public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@Valid @RequestBody CafeMapReviewRequest request, @PathVariable int cafe_id) {
 
         logger.info("카페 리뷰 작성");
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
 
         if (AboutCategory.isNotInCategories(request.getCategory_1())
         || AboutCategory.isNotInCategories(request.getCategory_2())
@@ -82,6 +84,10 @@ public class CafeMapReviewController {
                                                                      @Valid @RequestBody CafeMapReviewRequest request) {
 
         logger.info("카페 리뷰 업데이트");
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
 
         if (AboutCategory.isNotInCategories(request.getCategory_1())
                 || AboutCategory.isNotInCategories(request.getCategory_2())

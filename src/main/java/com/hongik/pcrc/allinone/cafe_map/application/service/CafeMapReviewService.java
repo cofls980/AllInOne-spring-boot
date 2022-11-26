@@ -90,51 +90,21 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         }
 
         HashMap<String, Object> map = cafeMapMapperRepository.getACafeInfo(cafe_id);
-        Double total_rating = cafeReviewMapperRepository.getTotalRating(cafe_id);
 
-        return FindCafeInfoWithReviewResult.findByCafeReview(map, total_rating, AboutCategory.getTop3(map), getCafeMapReviewList(cafe_id));
-
-    }
-
-    @Override
-    public void dummy() {
-
-        //20092
-        // 카페 개수만큼 실행
-        for (int i = 1;i <= 20092;i++) {
-            HashMap<String, Integer> map = new HashMap<>();
-            map.put("cafe_id", i);
-            for (String t : AboutCategory.getType()) {
-                //램덤 숫자
-                int random = (int) (Math.random() * 100);
-                map.put(t, random);
+        if (!map.get("floor_info").toString().isEmpty()) {
+            String floor_info = "";
+            int floor = Integer.parseInt(map.get("floor_info").toString());
+            if (floor < 0) {
+                floor = -floor;
+                floor_info += "지하 ";
             }
-            cafeMapMapperRepository.changeCategoryNum(map);
+            floor_info += (floor + "층");
+            map.put("floor_info", floor_info);
         }
-    }
+//        Double total_rating = cafeReviewMapperRepository.getTotalRating(cafe_id);
 
-    private List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
-        // cafe_id가 있는지 확인
-        if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
+        return FindCafeInfoWithReviewResult.findByCafeReview(map, Double.valueOf(map.get("total_rating").toString()), AboutCategory.getTop3(map), getCafeMapReviewList(cafe_id));
 
-        // 최근 순으로 정렬
-        List<HashMap<String, Object>> getList = cafeReviewMapperRepository.cafeMapReviewList(cafe_id);
-        getList.sort((o1, o2) -> {
-            LocalDateTime age1 = (LocalDateTime) o1.get("review_date");
-            LocalDateTime age2 = (LocalDateTime) o2.get("review_date");
-            return age2.compareTo(age1);
-        });
-
-        List<FindCafeMapReviewListResult> result = new ArrayList<>();
-
-        for (HashMap<String, Object> h : getList) {
-            String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
-            result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
-        }
-
-        return result;
     }
 
     @Override
@@ -185,6 +155,47 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         // 선택한 3가지 알아내서 그에 해당하는 값들 -1씩 하기?
 
         cafeReviewMapperRepository.deleteReview(command.getReview_id());
+    }
+
+    @Override
+    public void dummy() {
+
+        //20092
+        // 카페 개수만큼 실행
+        for (int i = 1;i <= 20092;i++) {
+            HashMap<String, Integer> map = new HashMap<>();
+            map.put("cafe_id", i);
+            for (String t : AboutCategory.getType()) {
+                //램덤 숫자
+                int random = (int) (Math.random() * 100);
+                map.put(t, random);
+            }
+            cafeMapMapperRepository.changeCategoryNum(map);
+        }
+    }
+
+    private List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
+        // cafe_id가 있는지 확인
+        if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        // 최근 순으로 정렬
+        List<HashMap<String, Object>> getList = cafeReviewMapperRepository.cafeMapReviewList(cafe_id);
+        getList.sort((o1, o2) -> {
+            LocalDateTime age1 = (LocalDateTime) o1.get("review_date");
+            LocalDateTime age2 = (LocalDateTime) o2.get("review_date");
+            return age2.compareTo(age1);
+        });
+
+        List<FindCafeMapReviewListResult> result = new ArrayList<>();
+
+        for (HashMap<String, Object> h : getList) {
+            String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
+            result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
+        }
+
+        return result;
     }
 
     public String getUserEmail() {

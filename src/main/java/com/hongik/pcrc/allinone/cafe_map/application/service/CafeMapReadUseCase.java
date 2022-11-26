@@ -31,7 +31,7 @@ public interface CafeMapReadUseCase {
         private final String category_3;
 
         public static FindCafeSearchResult findByCafeSearchResult(HashMap<String, Object> list, Double total_rating,
-                                                                  String floor_info, String[] top3) {
+                                                                  String[] top3) {
             if (total_rating == null) {
                 total_rating = 0.0;
             }
@@ -40,7 +40,7 @@ public interface CafeMapReadUseCase {
                     .cafe_name((String) list.get("cafe_name"))
                     .cafe_branch((String) list.get("cafe_branch"))
                     .road_addr((String) list.get("road_addr"))
-                    .floor_info(floor_info)
+                    .floor_info((String) list.get("floor_info"))
                     .latitude((Double) list.get("latitude"))
                     .longitude((Double) list.get("longitude"))
                     .total_rating(total_rating)
