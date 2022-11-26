@@ -87,12 +87,19 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
 
     @Override
     public List<FindCategoryList> getCategoryInfo() {
-        HashMap<String, Object> map = cafeMapMapperRepository.getCategoryInfo();
+        List<HashMap<String, Object>> list = cafeMapMapperRepository.getCategoryInfo();
+        HashMap<String, Integer> map = new HashMap<>();
         List<FindCategoryList> result = new ArrayList<>();
-        if (!map.isEmpty()) {
-            for (String t : AboutCategory.getType()) {
-                result.add(FindCategoryList.findByCategoryResult(t, Integer.parseInt(map.get(t).toString())));
-            }
+
+        for (String t : AboutCategory.getType()) {
+            map.put(t, 0);
+        }
+        for (HashMap<String, Object> h : list) {
+            String[] top3 = AboutCategory.getTop3(h);
+            map.put(top3[0], map.get(top3[0]) + 1);
+        }
+        for (String t : AboutCategory.getType()) {
+            result.add(FindCategoryList.findByCategoryResult(t, map.get(t)));
         }
         return result;
     }

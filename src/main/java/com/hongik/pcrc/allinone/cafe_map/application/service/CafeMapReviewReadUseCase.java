@@ -11,6 +11,7 @@ import java.util.List;
 public interface CafeMapReviewReadUseCase {
 
     FindCafeInfoWithReviewResult getCafeInfoWithReview(int cafe_id);
+    void dummy();
 
     @Getter
     @ToString

@@ -96,6 +96,23 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
 
     }
 
+    @Override
+    public void dummy() {
+
+        //20092
+        // 카페 개수만큼 실행
+        for (int i = 1;i <= 20092;i++) {
+            HashMap<String, Integer> map = new HashMap<>();
+            map.put("cafe_id", i);
+            for (String t : AboutCategory.getType()) {
+                //램덤 숫자
+                int random = (int) (Math.random() * 100);
+                map.put(t, random);
+            }
+            cafeMapMapperRepository.changeCategoryNum(map);
+        }
+    }
+
     private List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
         // cafe_id가 있는지 확인
         if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
@@ -165,6 +182,7 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         if (!cafeReviewMapperRepository.isCorrectReview(command.getReview_id(), command.getCafe_id(), user_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
+        // 선택한 3가지 알아내서 그에 해당하는 값들 -1씩 하기?
 
         cafeReviewMapperRepository.deleteReview(command.getReview_id());
     }

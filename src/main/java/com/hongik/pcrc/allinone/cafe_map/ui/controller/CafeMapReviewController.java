@@ -3,6 +3,7 @@ package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewReadUseCase;
+import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -117,4 +119,10 @@ public class CafeMapReviewController {
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
+
+//    @GetMapping(value = "/dummy", produces = "application/json")
+//    @ApiOperation(value = "카테고리 더미 데이터")
+//    public void dummy() {
+//        cafeMapReviewReadUseCase.dummy();
+//    }
 }
