@@ -1,6 +1,7 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.application.domain.CafeReview;
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.entity.CafeReviewEntity;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -36,7 +39,7 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
     }
 
     @Override
-    public void createReview(CafeMapReviewCreatedCommand command) {
+    public void createReview(CafeMapReviewCreatedCommand command) throws IOException {
 
         // cafe_id가 있는지 확인
         if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
@@ -52,6 +55,13 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
             throw new AllInOneException(MessageType.CONFLICT);
         }
 
+        // 사진이 있는지 없는지 확인
+        MultipartFile[] photos = command.getPhotos();
+        String directoryName = null;
+        if (photos != null) {
+            directoryName = "cafe-map/" + command.getCafe_id();//파일 이름 빼도 되지 않을까
+        }
+        // 있으면 디비에 저장하고 S3에 저장
         // 디비에 저장
         cafeReviewMapperRepository.createReview(new CafeReviewEntity(CafeReview.builder()
                         .cafe_id(command.getCafe_id())
@@ -62,29 +72,26 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
                         .category_1(command.getCategory_1())
                         .category_2(command.getCategory_2())
                         .category_3(command.getCategory_3())
-                        //.photo(directoryName)
+                        .photo(directoryName)
                         .build()));
 
         // category 테이블 변화
         String[] categories = {command.getCategory_1(), command.getCategory_2(), command.getCategory_3()};
 
         cafeMapMapperRepository.changeCategoryNum(AboutCategory.makeIncreasedValueMap(categories, command.getCafe_id()));
-//        // 사진 있는지 확인 후 디비에 저장
-//        MultipartFile photo = command.getPhoto();
-//        String directoryName = null;
-//        if (!photo.isEmpty()) {
-//            directoryName = "cafe-map/" + command.getCafe_id() + "/" + user_id;//파일 이름 빼도 되지 않을까
-//        }
-         //AWS S3에 저장
-//        if (directoryName != null) {
-//            String fileName = command.getPhoto().getOriginalFilename();
-//            ObjectMetadata objectMetadata = new ObjectMetadata();
-//
-//            objectMetadata.setContentLength(photo.getInputStream().available());
-//            objectMetadata.setContentType(photo.getContentType());
-//
-//            amazonS3Client.putObject(S3Bucket, directoryName + "/" + fileName, photo.getInputStream(), objectMetadata);
-//        }
+
+        //AWS S3에 저장
+        if (directoryName != null) {
+            for (MultipartFile m : photos) {
+                String fileName = m.getOriginalFilename();
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+
+                objectMetadata.setContentLength(m.getInputStream().available());
+                objectMetadata.setContentType(m.getContentType());
+
+                amazonS3Client.putObject(S3Bucket, directoryName + "/" + user_id + "/" + fileName, m.getInputStream(), objectMetadata);
+            }
+        }
     }
 
     @Override
@@ -213,3 +220,12 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         return userDetails.getUsername();
     }
 }
+/*
+* {
+  "star_rating": 1,
+  "content": "nop",
+  "category_1": "디저트맛집",
+  "category_2": "조용한",
+  "category_3": "공부맛집"
+}
+* */

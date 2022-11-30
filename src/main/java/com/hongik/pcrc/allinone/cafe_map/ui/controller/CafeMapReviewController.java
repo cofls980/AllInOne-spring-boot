@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/v2/cafe-map")
@@ -35,7 +37,9 @@ public class CafeMapReviewController {
 
     @PostMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
     @ApiOperation(value = "카페 리뷰 작성")
-    public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@Valid @RequestBody CafeMapReviewRequest request, @PathVariable int cafe_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@PathVariable int cafe_id,
+                                                                     @Valid @RequestPart(value = "request") CafeMapReviewRequest request,
+                                                                     @RequestPart(value = "photos", required = false) MultipartFile[] photos) throws IOException {
 
         logger.info("카페 리뷰 작성");
 
@@ -56,6 +60,7 @@ public class CafeMapReviewController {
                 .category_1(request.getCategory_1())
                 .category_2(request.getCategory_2())
                 .category_3(request.getCategory_3())
+                .photos(photos)
                 .build();
 
         cafeMapReviewOperationUseCase.createReview(command);

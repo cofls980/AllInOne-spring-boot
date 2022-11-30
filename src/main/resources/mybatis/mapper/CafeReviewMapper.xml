@@ -11,8 +11,8 @@
     </select>
 
     <insert id="createReview" parameterType="CafeReviewEntity">
-        insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number, category_1, category_2, category_3)
-        value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number}, #{category_1}, #{category_2}, #{category_3})
+        insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number, category_1, category_2, category_3, photo)
+        value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number}, #{category_1}, #{category_2}, #{category_3}, #{photo})
     </insert>
 
     <select id="cafeMapReviewList" resultType="map">
