@@ -31,8 +31,8 @@ public class CafeReviewEntity {
     private Double star_rating;
     @Column(nullable = false)
     private String content;
-    private String photo; // 다음에
-    @Column(nullable = false) // 0으로 초기화 필요 -> 다음에
+    private String photo;
+    @Column(nullable = false)
     private int like_number;
     @Column(nullable = false)
     private String category_1;

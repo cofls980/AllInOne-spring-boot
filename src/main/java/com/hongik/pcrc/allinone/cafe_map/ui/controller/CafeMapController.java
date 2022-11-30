@@ -1,19 +1,19 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
 import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
+import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReadUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeSearchEnum;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
+import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
+import com.hongik.pcrc.allinone.exception.view.SuccessView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -24,10 +24,13 @@ import java.util.List;
 public class CafeMapController {
 
     private final CafeMapReadUseCase cafeMapReadUseCase;
+    private final CafeMapOperationUseCase cafeMapOperationUseCase;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public CafeMapController(CafeMapReadUseCase cafeMapReadUseCase) {
+    public CafeMapController(CafeMapReadUseCase cafeMapReadUseCase,
+                             CafeMapOperationUseCase cafeMapOperationUseCase) {
         this.cafeMapReadUseCase = cafeMapReadUseCase;
+        this.cafeMapOperationUseCase = cafeMapOperationUseCase;
     }
 
     @GetMapping(value = "/search", produces = "application/json")
@@ -110,6 +113,54 @@ public class CafeMapController {
         }
 
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping(value = "/{cafe_id}/scrap", produces = "application/json")
+    @ApiOperation(value = "스크랩 클릭")
+    public ResponseEntity<ApiResponseView<SuccessView>> doScrap(@PathVariable int cafe_id) {
+
+        logger.info("스크랩 클릭");
+
+        var command =
+                CafeMapOperationUseCase.CafeMapScrapCreatedCommand.builder()
+                .cafe_id(cafe_id)
+                .build();
+
+        cafeMapOperationUseCase.createScrap(command);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
+    }
+
+    @GetMapping(value = "/scrap", produces = "application/json")
+    @ApiOperation(value = "스크랩 확인")
+    public ResponseEntity<List<CafeMapReadUseCase.FindCategoryScrapList>> checkScrap() {
+
+        logger.info("스크랩 확인");
+
+        var result = cafeMapReadUseCase.getScrap();
+
+        if (result == null || result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping(value = "/{cafe_id}/scrap/{scrap_id}", produces = "application/json")
+    @ApiOperation(value = "스크랩 삭제")
+    public ResponseEntity<ApiResponseView<SuccessView>> deleteScrap(@PathVariable int cafe_id, @PathVariable int scrap_id) {
+
+        logger.info("스크랩 삭제");
+
+        var command =
+                CafeMapOperationUseCase.CafeMapScrapDeletedCommand.builder()
+                        .cafe_id(cafe_id)
+                        .scrap_id(scrap_id)
+                        .build();
+
+        cafeMapOperationUseCase.deleteScrap(command);
+
+        return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 }
 

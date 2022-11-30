@@ -1,7 +1,11 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
-import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeReviewMapperRepository;
+import com.hongik.pcrc.allinone.exception.AllInOneException;
+import com.hongik.pcrc.allinone.exception.MessageType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,12 +16,12 @@ import java.util.List;
 public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCase{
 
     private final CafeMapMapperRepository cafeMapMapperRepository;
-    private final CafeReviewMapperRepository cafeReviewMapperRepository;
+    private final AuthMapperRepository authMapperRepository;
 
     public CafeMapService(CafeMapMapperRepository cafeMapMapperRepository,
-                          CafeReviewMapperRepository cafeReviewMapperRepository) {
+                          AuthMapperRepository authMapperRepository) {
         this.cafeMapMapperRepository = cafeMapMapperRepository;
-        this.cafeReviewMapperRepository = cafeReviewMapperRepository;
+        this.authMapperRepository = authMapperRepository;
     }
 
     @Override
@@ -46,19 +50,17 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
 
         List<FindCafeSearchResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
-            String floor_info = "";
-
             if (!h.get("floor_info").toString().isEmpty()) {
+                String floor_info = "";
                 int floor = Integer.parseInt(h.get("floor_info").toString());
                 if (floor < 0) {
                     floor = -floor;
                     floor_info += "지하 ";
                 }
                 floor_info += (floor + "층");
+                h.put("floor_info", floor_info);
             }
-            System.out.println(cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id")));
-            Double total_rating = cafeReviewMapperRepository.getTotalRating((Integer) h.get("cafe_id"));
-            result.add(FindCafeSearchResult.findByCafeSearchResult(h, total_rating, floor_info, AboutCategory.getTop3(h)));
+            result.add(FindCafeSearchResult.findByCafeSearchResult(h, Double.valueOf(h.get("total_rating").toString()), AboutCategory.getTop3(h)));
         }
         return result;
     }
@@ -95,8 +97,11 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
             map.put(t, 0);
         }
         for (HashMap<String, Object> h : list) {
-            String[] top3 = AboutCategory.getTop3(h);
-            map.put(top3[0], map.get(top3[0]) + 1);
+            for (String t : AboutCategory.getType()) {
+                if (valueCompare(h, t)) {
+                    map.put(t, map.get(t) + 1);
+                }
+            }
         }
         for (String t : AboutCategory.getType()) {
             result.add(FindCategoryList.findByCategoryResult(t, map.get(t)));
@@ -135,5 +140,68 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
             }
         }
         return true;
+    }
+
+    // Scrap
+    @Override
+    public void createScrap(CafeMapScrapCreatedCommand command) {
+        if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+
+        if (cafeMapMapperRepository.isExistedScrap(command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        cafeMapMapperRepository.createScrap(command.getCafe_id(), user_id);
+    }
+
+    @Override
+    public List<FindCategoryScrapList> getScrap() {
+        //user_id -> cafe_id&scrap_id in scrap table -> cafe_info
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+        List<HashMap<String, Object>> list = cafeMapMapperRepository.getScrap(user_id);
+        List<FindCategoryScrapList> result = new ArrayList<>();
+
+        for (String type : AboutCategory.getType()) {
+            List<HashMap<String, Object>> selected = selectCafe(list, type);
+            List<FindScraps> scraps = new ArrayList<>();
+            for (HashMap<String, Object> h : selected) {
+                scraps.add(FindScraps.findByScrapsResult(h));
+            }
+            result.add(FindCategoryScrapList.findByCategoryScrapResult(type, scraps));
+        }
+
+        return result;
+    }
+
+    @Override
+    public void deleteScrap(CafeMapScrapDeletedCommand command) {
+        if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+
+        if (!cafeMapMapperRepository.canDeleteScrap(command.getScrap_id(),command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        cafeMapMapperRepository.deleteScrap(command.getScrap_id());
+    }
+
+    public String getUserEmail() {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.equals("anonymousUser"))
+            return null;
+
+        UserDetails userDetails = (UserDetails) principal;
+        return userDetails.getUsername();
     }
 }

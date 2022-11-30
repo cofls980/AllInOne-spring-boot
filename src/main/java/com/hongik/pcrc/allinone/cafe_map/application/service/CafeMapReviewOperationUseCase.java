@@ -4,10 +4,13 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface CafeMapReviewOperationUseCase {
 
-    void createReview(CafeMapReviewCreatedCommand command);
+    void createReview(CafeMapReviewCreatedCommand command) throws IOException;
     void updateReview(CafeMapReviewUpdatedCommand command);
     void deleteReview(CafeMapReviewDeletedCommand command);
 
@@ -22,7 +25,7 @@ public interface CafeMapReviewOperationUseCase {
         private final String category_1;
         private final String category_2;
         private final String category_3;
-//        private final MultipartFile photo;
+        private final MultipartFile[] photos;
     }
 
     @EqualsAndHashCode(callSuper = false)

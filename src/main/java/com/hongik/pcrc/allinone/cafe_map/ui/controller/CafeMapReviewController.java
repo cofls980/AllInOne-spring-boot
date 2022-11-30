@@ -3,7 +3,6 @@ package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewReadUseCase;
-import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
@@ -14,11 +13,12 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/v2/cafe-map")
@@ -37,9 +37,15 @@ public class CafeMapReviewController {
 
     @PostMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
     @ApiOperation(value = "카페 리뷰 작성")
-    public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@Valid @RequestBody CafeMapReviewRequest request, @PathVariable int cafe_id) {
+    public ResponseEntity<ApiResponseView<SuccessView>> cafeEvaluate(@PathVariable int cafe_id,
+                                                                     @Valid @RequestPart(value = "request") CafeMapReviewRequest request,
+                                                                     @RequestPart(value = "photos", required = false) MultipartFile[] photos) throws IOException {
 
         logger.info("카페 리뷰 작성");
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
 
         if (AboutCategory.isNotInCategories(request.getCategory_1())
         || AboutCategory.isNotInCategories(request.getCategory_2())
@@ -54,6 +60,7 @@ public class CafeMapReviewController {
                 .category_1(request.getCategory_1())
                 .category_2(request.getCategory_2())
                 .category_3(request.getCategory_3())
+                .photos(photos)
                 .build();
 
         cafeMapReviewOperationUseCase.createReview(command);
@@ -62,10 +69,10 @@ public class CafeMapReviewController {
     }
 
     @GetMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
-    @ApiOperation(value = "카페 리뷰 리스트")
-    public ResponseEntity<CafeMapReviewReadUseCase.FindCafeInfoWithReviewResult> cafeEvaluatedList(@PathVariable int cafe_id) {
+    @ApiOperation(value = "카페 상세 페이지")
+    public ResponseEntity<CafeMapReviewReadUseCase.FindCafeInfoWithReviewResult> cafeEvaluatedList(@PathVariable int cafe_id) throws IOException {
 
-        logger.info("카페 리뷰 리스트");
+        logger.info("카페 상세 페이지");
 
         var result = cafeMapReviewReadUseCase.getCafeInfoWithReview(cafe_id);
 
@@ -82,6 +89,10 @@ public class CafeMapReviewController {
                                                                      @Valid @RequestBody CafeMapReviewRequest request) {
 
         logger.info("카페 리뷰 업데이트");
+
+        if (ObjectUtils.isEmpty(request)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
 
         if (AboutCategory.isNotInCategories(request.getCategory_1())
                 || AboutCategory.isNotInCategories(request.getCategory_2())

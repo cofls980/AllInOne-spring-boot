@@ -10,6 +10,7 @@ import java.util.List;
 @Mapper
 public interface CafeReviewMapperRepository {
 
+    boolean isExistedReview(@Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
     void createReview(CafeReviewEntity entity);
     List<HashMap<String, Object>> cafeMapReviewList(@Param("cafe_id") int cafe_id);
     boolean isCorrectReview(@Param("review_id") int review_id, @Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
@@ -18,4 +19,5 @@ public interface CafeReviewMapperRepository {
     void deleteReview(@Param("review_id") int review_id);
     Double getTotalRating(@Param("cafe_id") int cafe_id);
     HashMap<String, Object> getSelectedCategories(@Param("review_id") int review_id);
+    List<HashMap<String, Object>> getACafeInfo(@Param("cafe_id") int cafe_id);
 }

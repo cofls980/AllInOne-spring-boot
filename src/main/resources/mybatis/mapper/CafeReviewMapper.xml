@@ -6,9 +6,13 @@
 <mapper namespace="com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeReviewMapperRepository">
 
     <!-- cafe_map_review -->
+    <select id="isExistedReview" resultType="boolean">
+        select exists (select * from cafe_map_review where cafe_id = #{cafe_id} and user_id = #{user_id}) as success
+    </select>
+
     <insert id="createReview" parameterType="CafeReviewEntity">
-        insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number, category_1, category_2, category_3)
-        value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number}, #{category_1}, #{category_2}, #{category_3})
+        insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number, category_1, category_2, category_3, photo)
+        value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number}, #{category_1}, #{category_2}, #{category_3}, #{photo})
     </insert>
 
     <select id="cafeMapReviewList" resultType="map">
@@ -36,6 +40,20 @@
     <select id="getSelectedCategories" resultType="hashmap">
         select category_1, category_2, category_3 from cafe_map_review
         where review_id = #{review_id}
+    </select>
+
+    <select id="getACafeInfo" resultType="map">
+        select distinct *
+        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id
+        left join cafe_map_review r on c.cafe_id = r.cafe_id
+        where c.cafe_id = #{cafe_id}
+        <!--        select distinct c.cafe_name, c.cafe_branch, c.road_addr, c.floor_info, ifnull(cast((sum(star_rating) / count(star_rating)) as double),0.0) as total_rating,-->
+        <!--        경치좋은, 공부맛집, 데이트코스, 드라이브, 디저트맛집, 소개팅, 인스타감성, 조용한, 커피맛집, 큰규모, 테마있는, 테이크아웃-->
+        <!--        from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id left join cafe_map_review r on c.cafe_id = r.cafe_id-->
+        <!--        where c.cafe_id = #{cafe_id}-->
+        <!--        group by c.cafe_id-->
+        <!--        select distinct * from cafe_map_cafe as c left join cafe_map_category as ct on c.cafe_id = ct.cafe_id-->
+        <!--        where c.cafe_id = #{cafe_id}-->
     </select>
 
 </mapper>

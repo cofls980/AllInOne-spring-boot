@@ -4,30 +4,32 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
 public interface CafeMapReviewReadUseCase {
 
-    FindCafeInfoWithReviewResult getCafeInfoWithReview(int cafe_id);
+    FindCafeInfoWithReviewResult getCafeInfoWithReview(int cafe_id) throws IOException;
     void dummy();
 
     @Getter
     @ToString
     @Builder
     class FindCafeInfoWithReviewResult {
-        private final String  cafe_name;
-        private final String  cafe_branch;
-        private final String  road_addr;
-        private final String  floor_info;
+        private final String cafe_name;
+        private final String cafe_branch;
+        private final String road_addr;
+        private final String floor_info;
         private final Double total_rating;
-        private final String  category_1;
-        private final String  category_2;
-        private final String  category_3;
+        private final String category_1;
+        private final String category_2;
+        private final String category_3;
+        private final List<String> photos;
         private final List<FindCafeMapReviewListResult> reviews;
 
-        public static FindCafeInfoWithReviewResult findByCafeReview(HashMap<String, Object> map,
+        public static FindCafeInfoWithReviewResult findByCafeReview(HashMap<String, Object> map, List<String> photos,
                                                                     Double total_rating, String[] categories,
                                                                     List<FindCafeMapReviewListResult> reviews) {
             if (total_rating == null) {
@@ -42,6 +44,7 @@ public interface CafeMapReviewReadUseCase {
                     .category_1(categories[0])
                     .category_2(categories[1])
                     .category_3(categories[2])
+                    .photos(photos)
                     .reviews(reviews)
                     .build();
         }
