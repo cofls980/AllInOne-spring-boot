@@ -25,4 +25,5 @@ public interface CafeMapMapperRepository {
     boolean canDeleteScrap(@Param("scrap_id") int scrap_id, @Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
     void createScrap(@Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
     void deleteScrap(@Param("scrap_id") int scrap_id);
+    List<HashMap<String, Object>> getScrap(@Param("user_id") String user_id);
 }

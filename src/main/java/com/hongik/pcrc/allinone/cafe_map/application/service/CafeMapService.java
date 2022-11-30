@@ -143,6 +143,7 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
         return true;
     }
 
+    // Scrap
     @Override
     public void createScrap(CafeMapScrapCreatedCommand command) {
         if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
@@ -157,6 +158,26 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
         }
 
         cafeMapMapperRepository.createScrap(command.getCafe_id(), user_id);
+    }
+
+    @Override
+    public List<FindCategoryScrapList> getScrap() {
+        //user_id -> cafe_id&scrap_id in scrap table -> cafe_info
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+        List<HashMap<String, Object>> list = cafeMapMapperRepository.getScrap(user_id);
+        List<FindCategoryScrapList> result = new ArrayList<>();
+
+        for (String type : AboutCategory.getType()) {
+            List<HashMap<String, Object>> selected = selectCafe(list, type);
+            List<FindScraps> scraps = new ArrayList<>();
+            for (HashMap<String, Object> h : selected) {
+                scraps.add(FindScraps.findByScrapsResult(h));
+            }
+            result.add(FindCategoryScrapList.findByCategoryScrapResult(type, scraps));
+        }
+
+        return result;
     }
 
     @Override

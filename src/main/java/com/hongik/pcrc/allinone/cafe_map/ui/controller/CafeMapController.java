@@ -131,15 +131,19 @@ public class CafeMapController {
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
 
-    @GetMapping(value = "/{cafe_id}/scrap", produces = "application/json")
+    @GetMapping(value = "/scrap", produces = "application/json")
     @ApiOperation(value = "스크랩 확인")
-    public void checkScrap(@PathVariable int cafe_id) {
+    public ResponseEntity<List<CafeMapReadUseCase.FindCategoryScrapList>> checkScrap() {
 
         logger.info("스크랩 확인");
 
+        var result = cafeMapReadUseCase.getScrap();
 
+        if (result == null || result.isEmpty()) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
 
-        return ;
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping(value = "/{cafe_id}/scrap/{scrap_id}", produces = "application/json")

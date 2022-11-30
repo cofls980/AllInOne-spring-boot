@@ -13,6 +13,7 @@ public interface CafeMapReadUseCase {
                                           String province, String city, String category);
     List<FindRegionList> getRegionInfo();
     List<FindCategoryList> getCategoryInfo();
+    List<FindCategoryScrapList> getScrap();
 
     @Getter
     @ToString
@@ -98,6 +99,43 @@ public interface CafeMapReadUseCase {
             return FindCategoryList.builder()
                     .category_name(cn)
                     .category_cafe_num(ccn)
+                    .build();
+        }
+    }
+
+    @Getter
+    @ToString
+    @Builder
+    class FindScraps {
+        private final int scrap_id;
+        private final int cafe_id;
+        private final String cafe_name;
+        private final String cafe_branch;
+        private final String road_addr;
+
+        public static FindScraps findByScrapsResult(HashMap<String, Object> map) {
+            return FindScraps.builder()
+                    .scrap_id((Integer) map.get("scrap_id"))
+                    .cafe_id((Integer) map.get("cafe_id"))
+                    .cafe_name((String) map.get("cafe_name"))
+                    .cafe_branch((String) map.get("cafe_branch"))
+                    .road_addr((String) map.get("road_addr"))
+                    .build();
+        }
+    }
+
+    @Getter
+    @ToString
+    @Builder
+    class FindCategoryScrapList {
+        private final String category_name;
+        private final List<FindScraps> scrap_list;
+
+        public static FindCategoryScrapList findByCategoryScrapResult(String category_name,
+                                                            List<FindScraps> scrap_list) {
+            return FindCategoryScrapList.builder()
+                    .category_name(category_name)
+                    .scrap_list(scrap_list)
                     .build();
         }
     }
