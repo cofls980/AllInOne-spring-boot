@@ -47,6 +47,11 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         String email = getUserEmail();
         String user_id = authMapperRepository.getUUIDByEmail(email);
 
+        // 이미 리뷰를 작성했는지 확인
+        if (cafeReviewMapperRepository.isExistedReview(command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.CONFLICT);
+        }
+
         // 디비에 저장
         cafeReviewMapperRepository.createReview(new CafeReviewEntity(CafeReview.builder()
                         .cafe_id(command.getCafe_id())

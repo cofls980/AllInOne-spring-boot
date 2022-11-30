@@ -6,6 +6,10 @@
 <mapper namespace="com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeReviewMapperRepository">
 
     <!-- cafe_map_review -->
+    <select id="isExistedReview" resultType="boolean">
+        select exists (select * from cafe_map_review where cafe_id = #{cafe_id} and user_id = #{user_id}) as success
+    </select>
+
     <insert id="createReview" parameterType="CafeReviewEntity">
         insert into cafe_map_review(cafe_id, user_id, review_date, star_rating, content, like_number, category_1, category_2, category_3)
         value (#{cafe_id}, #{user_id}, #{review_date}, #{star_rating}, #{content}, #{like_number}, #{category_1}, #{category_2}, #{category_3})
