@@ -64,10 +64,10 @@ public class CafeMapReviewController {
     }
 
     @GetMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
-    @ApiOperation(value = "카페 리뷰 리스트")
+    @ApiOperation(value = "카페 상세 페이지")
     public ResponseEntity<CafeMapReviewReadUseCase.FindCafeInfoWithReviewResult> cafeEvaluatedList(@PathVariable int cafe_id) {
 
-        logger.info("카페 리뷰 리스트");
+        logger.info("카페 상세 페이지");
 
         var result = cafeMapReviewReadUseCase.getCafeInfoWithReview(cafe_id);
 

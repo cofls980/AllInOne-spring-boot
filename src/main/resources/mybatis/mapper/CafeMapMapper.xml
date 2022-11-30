@@ -77,4 +77,21 @@
 <!--        where c.cafe_id = #{cafe_id}-->
     </select>
 
+    <!--  Scrap  -->
+    <select id="isExistedScrap" resultType="boolean">
+        select exists (select * from cafe_map_scrap where cafe_id = #{cafe_id} and user_id = #{user_id}) as success
+    </select>
+
+    <select id="canDeleteScrap" resultType="boolean">
+        select exists (select * from cafe_map_scrap where scrap_id = #{scrap_id} and cafe_id = #{cafe_id} and user_id = #{user_id}) as success
+    </select>
+
+    <insert id="createScrap">
+        insert into cafe_map_scrap(cafe_id, user_id) value(#{cafe_id}, #{user_id})
+    </insert>
+
+    <delete id="deleteScrap">
+        delete from cafe_map_scrap where scrap_id = #{scrap_id}
+    </delete>
+
 </mapper>

@@ -1,6 +1,12 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
+import com.hongik.pcrc.allinone.exception.AllInOneException;
+import com.hongik.pcrc.allinone.exception.MessageType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -11,9 +17,12 @@ import java.util.List;
 public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCase{
 
     private final CafeMapMapperRepository cafeMapMapperRepository;
+    private final AuthMapperRepository authMapperRepository;
 
-    public CafeMapService(CafeMapMapperRepository cafeMapMapperRepository) {
+    public CafeMapService(CafeMapMapperRepository cafeMapMapperRepository,
+                          AuthMapperRepository authMapperRepository) {
         this.cafeMapMapperRepository = cafeMapMapperRepository;
+        this.authMapperRepository = authMapperRepository;
     }
 
     @Override
@@ -132,5 +141,47 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
             }
         }
         return true;
+    }
+
+    @Override
+    public void createScrap(CafeMapScrapCreatedCommand command) {
+        if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+
+        if (cafeMapMapperRepository.isExistedScrap(command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.BAD_REQUEST);
+        }
+
+        cafeMapMapperRepository.createScrap(command.getCafe_id(), user_id);
+    }
+
+    @Override
+    public void deleteScrap(CafeMapScrapDeletedCommand command) {
+        if (!cafeMapMapperRepository.isExistedCafe(command.getCafe_id())) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
+
+        if (!cafeMapMapperRepository.canDeleteScrap(command.getScrap_id(),command.getCafe_id(), user_id)) {
+            throw new AllInOneException(MessageType.NOT_FOUND);
+        }
+
+        cafeMapMapperRepository.deleteScrap(command.getScrap_id());
+    }
+
+    public String getUserEmail() {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.equals("anonymousUser"))
+            return null;
+
+        UserDetails userDetails = (UserDetails) principal;
+        return userDetails.getUsername();
     }
 }

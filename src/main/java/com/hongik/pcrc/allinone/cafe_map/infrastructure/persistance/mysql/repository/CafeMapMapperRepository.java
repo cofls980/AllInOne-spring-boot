@@ -19,4 +19,10 @@ public interface CafeMapMapperRepository {
     List<HashMap<String, Object>> getCategoryInfo();
     void changeCategoryNum(HashMap<String, Integer> categories);
     HashMap<String, Object> getACafeInfo(@Param("cafe_id") int cafe_id);
+
+    // Scrap
+    boolean isExistedScrap(@Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
+    boolean canDeleteScrap(@Param("scrap_id") int scrap_id, @Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
+    void createScrap(@Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
+    void deleteScrap(@Param("scrap_id") int scrap_id);
 }
