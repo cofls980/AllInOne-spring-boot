@@ -90,4 +90,8 @@
         left join cafe_map_cafe as t2 on t1.cafe_id = t2.cafe_id
         left join cafe_map_category as t3 on t1.cafe_id = t3.cafe_id
     </select>
+
+    <delete id="deleteAllUserScrap">
+        delete from cafe_map_scrap where user_id = #{user_id}
+    </delete>
 </mapper>
