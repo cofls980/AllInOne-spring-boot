@@ -70,7 +70,7 @@ public class CafeMapReviewController {
 
     @GetMapping(value = "/{cafe_id}/evaluate", produces = "application/json")
     @ApiOperation(value = "카페 상세 페이지")
-    public ResponseEntity<CafeMapReviewReadUseCase.FindCafeInfoWithReviewResult> cafeEvaluatedList(@PathVariable int cafe_id) {
+    public ResponseEntity<CafeMapReviewReadUseCase.FindCafeInfoWithReviewResult> cafeEvaluatedList(@PathVariable int cafe_id) throws IOException {
 
         logger.info("카페 상세 페이지");
 

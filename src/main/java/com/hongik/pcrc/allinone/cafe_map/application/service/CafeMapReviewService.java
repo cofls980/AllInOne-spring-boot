@@ -1,7 +1,11 @@
 package com.hongik.pcrc.allinone.cafe_map.application.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.application.domain.CafeReview;
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.entity.CafeReviewEntity;
@@ -59,7 +63,13 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         MultipartFile[] photos = command.getPhotos();
         String directoryName = null;
         if (photos != null) {
-            directoryName = "cafe-map/" + command.getCafe_id();//파일 이름 빼도 되지 않을까
+            for (MultipartFile m : photos) {
+                String fileName = m.getOriginalFilename();
+                if (directoryName == null) {
+                    directoryName = "";
+                }
+                directoryName += (fileName + "/");
+            }
         }
         // 있으면 디비에 저장하고 S3에 저장
         // 디비에 저장
@@ -79,44 +89,70 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         String[] categories = {command.getCategory_1(), command.getCategory_2(), command.getCategory_3()};
 
         cafeMapMapperRepository.changeCategoryNum(AboutCategory.makeIncreasedValueMap(categories, command.getCafe_id()));
-
-        //AWS S3에 저장
         if (directoryName != null) {
-            for (MultipartFile m : photos) {
-                String fileName = m.getOriginalFilename();
-                ObjectMetadata objectMetadata = new ObjectMetadata();
+            uploadInS3(photos, command.getCafe_id(), user_id);
+        }
 
-                objectMetadata.setContentLength(m.getInputStream().available());
-                objectMetadata.setContentType(m.getContentType());
+    }
 
-                amazonS3Client.putObject(S3Bucket, directoryName + "/" + user_id + "/" + fileName, m.getInputStream(), objectMetadata);
-            }
+    private void uploadInS3(MultipartFile[] photos, int cafe_id, String user_id) throws IOException {
+        //AWS S3에 저장
+        for (MultipartFile m : photos) {
+            String fileName = m.getOriginalFilename();
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+
+            objectMetadata.setContentLength(m.getInputStream().available());
+            objectMetadata.setContentType(m.getContentType());
+
+            amazonS3Client.putObject(S3Bucket, "cafe-map/" + cafe_id + "/" + user_id + "/" + fileName, m.getInputStream(), objectMetadata);
         }
     }
 
     @Override
-    public FindCafeInfoWithReviewResult getCafeInfoWithReview(int cafe_id) {
+    public FindCafeInfoWithReviewResult getCafeInfoWithReview(int cafe_id) throws IOException {
         // cafe_id가 있는지 확인
         if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
-        HashMap<String, Object> map = cafeMapMapperRepository.getACafeInfo(cafe_id);
+        List<HashMap<String, Object>> list = cafeReviewMapperRepository.getACafeInfo(cafe_id);
+        list.sort((o1, o2) -> {
+            LocalDateTime age1 = (LocalDateTime) o1.get("review_date");
+            LocalDateTime age2 = (LocalDateTime) o2.get("review_date");
+            return age2.compareTo(age1);
+        });
 
-        if (!map.get("floor_info").toString().isEmpty()) {
+        List<FindCafeMapReviewListResult> result = new ArrayList<>();
+        List<String> bytes = new ArrayList<>();
+        double total_rating = 0.0;
+
+        for (HashMap<String, Object> h : list) {
+            String[] photo = h.get("photo").toString().split("/");
+            for (String p : photo) {
+                String file = "cafe-map/" + cafe_id + "/" + h.get("user_id").toString() + "/" + p;
+                S3Object object = amazonS3Client.getObject(new GetObjectRequest(S3Bucket, file));
+
+                S3ObjectInputStream objectInputStream = object.getObjectContent();
+                bytes.add(Base64.getEncoder().encodeToString(IOUtils.toByteArray(objectInputStream)));
+            }
+            total_rating += Double.parseDouble(h.get("star_rating").toString());
+            String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
+            result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
+        }
+        total_rating /= list.size();
+        HashMap<String, Object> info = list.get(0);
+        if (!info.get("floor_info").toString().isEmpty()) {
             String floor_info = "";
-            int floor = Integer.parseInt(map.get("floor_info").toString());
+            int floor = Integer.parseInt(info.get("floor_info").toString());
             if (floor < 0) {
                 floor = -floor;
                 floor_info += "지하 ";
             }
             floor_info += (floor + "층");
-            map.put("floor_info", floor_info);
+            info.put("floor_info", floor_info);
         }
-//        Double total_rating = cafeReviewMapperRepository.getTotalRating(cafe_id);
 
-        return FindCafeInfoWithReviewResult.findByCafeReview(map, Double.valueOf(map.get("total_rating").toString()), AboutCategory.getTop3(map), getCafeMapReviewList(cafe_id));
-
+        return FindCafeInfoWithReviewResult.findByCafeReview(info, bytes, total_rating, AboutCategory.getTop3(info), result);
     }
 
     @Override
@@ -184,30 +220,6 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
             }
             cafeMapMapperRepository.changeCategoryNum(map);
         }
-    }
-
-    private List<FindCafeMapReviewListResult> getCafeMapReviewList(int cafe_id) {
-        // cafe_id가 있는지 확인
-        if (!cafeMapMapperRepository.isExistedCafe(cafe_id)) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
-
-        // 최근 순으로 정렬
-        List<HashMap<String, Object>> getList = cafeReviewMapperRepository.cafeMapReviewList(cafe_id);
-        getList.sort((o1, o2) -> {
-            LocalDateTime age1 = (LocalDateTime) o1.get("review_date");
-            LocalDateTime age2 = (LocalDateTime) o2.get("review_date");
-            return age2.compareTo(age1);
-        });
-
-        List<FindCafeMapReviewListResult> result = new ArrayList<>();
-
-        for (HashMap<String, Object> h : getList) {
-            String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
-            result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
-        }
-
-        return result;
     }
 
     public String getUserEmail() {

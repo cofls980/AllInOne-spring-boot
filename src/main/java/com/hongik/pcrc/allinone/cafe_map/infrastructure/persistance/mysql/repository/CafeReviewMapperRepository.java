@@ -19,4 +19,5 @@ public interface CafeReviewMapperRepository {
     void deleteReview(@Param("review_id") int review_id);
     Double getTotalRating(@Param("cafe_id") int cafe_id);
     HashMap<String, Object> getSelectedCategories(@Param("review_id") int review_id);
+    List<HashMap<String, Object>> getACafeInfo(@Param("cafe_id") int cafe_id);
 }

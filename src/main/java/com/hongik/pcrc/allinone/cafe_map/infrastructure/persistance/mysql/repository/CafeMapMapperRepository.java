@@ -18,7 +18,6 @@ public interface CafeMapMapperRepository {
     List<HashMap<String, Object>> getRegionInfo();
     List<HashMap<String, Object>> getCategoryInfo();
     void changeCategoryNum(HashMap<String, Integer> categories);
-    HashMap<String, Object> getACafeInfo(@Param("cafe_id") int cafe_id);
 
     // Scrap
     boolean isExistedScrap(@Param("cafe_id") int cafe_id, @Param("user_id") String user_id);
