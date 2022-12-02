@@ -1,9 +1,9 @@
 package com.hongik.pcrc.allinone.cafe_map.ui.controller;
 
 import com.hongik.pcrc.allinone.cafe_map.application.service.AboutCategory;
+import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewOperationUseCase;
 import com.hongik.pcrc.allinone.cafe_map.application.service.CafeMapReviewReadUseCase;
-import com.hongik.pcrc.allinone.cafe_map.ui.requestBody.CafeMapReviewRequest;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import com.hongik.pcrc.allinone.exception.view.ApiResponseView;
