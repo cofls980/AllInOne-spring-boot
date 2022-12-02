@@ -5,42 +5,65 @@
 
 <mapper namespace="com.hongik.pcrc.allinone.board.infrastructure.persistance.mysql.repository.BoardMapperRepository">
 
-    <select id="getList" resultType="map">
-        select *
-        from boards as b
-        /*select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
-        from boards as b left outer join likes on b.board_id = likes.board_id
-        group by b.board_id*/
+    <!--  Search  -->
+    <select id="searchPosts" resultType="map">
+        select distinct *
+        from (select distinct t1.board_id, title, content, name, email, b_date, views, count(l.board_id) as likes
+            from (select distinct b.board_id, b.title, content, u.name, u.email, b.b_date, count(v.board_id) as views
+                from boards as b left join users as u on b.user_id = u.id
+                left join views as v on b.board_id = v.board_id group by b.board_id) as t1
+            left join likes as l on t1.board_id = l.board_id group by t1.board_id) as t2
+        left join (select l.board_id as res from likes as l where l.user_id = #{user_id}) as t3 on t2.board_id = t3.res
+        <if test='type == "t"'>
+            <foreach collection="list" index="index" item="item">
+                <if test="index == 0">
+                    where title like CONCAT('%',#{item},'%')
+                </if>
+                <if test="index != 0">
+                    or title like CONCAT('%',#{item},'%')
+                </if>
+            </foreach>
+        </if>
+        <if test='type == "w"'>
+            <foreach collection="list" index="index" item="item">
+                where name like CONCAT('%',#{item},'%')
+            </foreach>
+        </if>
+        <if test='type == "a"'>
+            <foreach collection="list" index="index" item="item">
+                <if test="index == 0">
+                    where title like CONCAT('%',#{item},'%') or name like CONCAT('%',#{item},'%')
+                </if>
+                <if test="index != 0">
+                    or title like CONCAT('%',#{item},'%') or name like CONCAT('%',#{item},'%')
+                </if>
+            </foreach>
+        </if>
+        order by b_date desc
     </select>
 
-    <select id="searchWriter" parameterType="String" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
-        from boards as b left outer join likes on b.board_id = likes.board_id
-        where b.b_writer = #{b_writer}
-        group by b.board_id
+    <select id="getOnePost" resultType="hashmap">
+        select distinct *
+        from (select distinct t1.board_id, title, content, name, email, b_date, views, count(l.board_id) as likes
+            from (select distinct b.board_id, b.title, content, u.name, u.email, b.b_date, count(v.board_id) as views
+                from boards as b left join users as u on b.user_id = u.id
+                left join views as v on b.board_id = v.board_id group by b.board_id) as t1
+            left join likes as l on t1.board_id = l.board_id group by t1.board_id) as t2
+        left join (select l.board_id as res from likes as l where l.user_id = #{user_id}) as t3 on t2.board_id = t3.res
+        where t2.board_id = #{board_id}
+        order by b_date desc
     </select>
 
-    <select id="searchTitle" parameterType="String" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
-        from boards as b left outer join likes on b.board_id = likes.board_id
-        where b.title like CONCAT('%',#{title},'%')
-        group by b.board_id
+    <!--  Check  -->
+    <select id="notExistedPostWithWriter" resultType="boolean">
+        select not exists (select * from boards where board_id = #{board_id} and user_id #{user_id}) as success
     </select>
 
-    <select id="searchBothWriterTitle" parameterType="String" resultType="map">
-        select b.board_id, b.title, b.b_writer, b.b_date, count(likes.board_id) as likes, b.views
-        from boards as b left outer join likes on b.board_id = likes.board_id
-        where b.title like CONCAT('%',#{keyword},'%') or b.b_writer = #{keyword}
-        group by b.board_id
+    <select id="notExistedPost" resultType="boolean">
+        select not exists (select * from boards where board_id = #{board_id}) as success
     </select>
 
-    <select id="getPost" parameterType="Integer" resultType="com.hongik.pcrc.allinone.board.application.service.BoardReadUseCase$FindMapperOneBoardResult">
-        select b.board_id, b.title, b.content, b.user_id, b.b_date, count(likes.board_id) as likes, b.views
-        from boards as b left outer join likes on b.board_id = likes.board_id
-        where b.board_id = #{board_id}
-        group by b.board_id
-    </select>
-
+    <!--  CUD  -->
     <insert id="post" parameterType="board">
         insert into boards(title, content, user_id, b_date) value (#{title}, #{content}, #{user_id}, #{b_date})
     </insert>

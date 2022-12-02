@@ -1,16 +1,15 @@
 package com.hongik.pcrc.allinone.board.application.service;
 
-import com.hongik.pcrc.allinone.board.application.domain.Board;
 import com.hongik.pcrc.allinone.comments.application.service.CommentsReadUseCase;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 public interface BoardReadUseCase {
 
-    List<FindBoardResult> getBoardList(SearchEnum searchEnum,
-                                       String b_writer, String title, String all);
+    List<FindBoardResult> getBoardList(SearchEnum searchEnum, String[] query_info);
     FindOneBoardResult getOneBoard(int board_id);
 
     @Getter
@@ -27,13 +26,17 @@ public interface BoardReadUseCase {
         private final boolean click_likes;
         private final int views;
 
-        public static FindBoardResult findByBoard(Board board) {
+        public static FindBoardResult findByBoard(HashMap<String, Object> b) {
+            boolean click = b.get("res") != null;
             return FindBoardResult.builder()
-                    .board_id(board.getBoard_id())
-                    .title(board.getTitle())
-                    .content(board.getContent())
-                    .b_writer(board.getContent())
-                    .b_date(board.getB_date())
+                    .board_id((Integer) b.get("board_id"))
+                    .title(b.get("title").toString())
+                    .content(b.get("content").toString())
+                    .b_writer(b.get("name").toString())
+                    .b_date((LocalDateTime) b.get("b_date"))
+                    .likes(Integer.parseInt(b.get("likes").toString()))
+                    .click_likes(click)
+                    .views(Integer.parseInt(b.get("views").toString()))
                     .build();
         }
     }
@@ -54,28 +57,22 @@ public interface BoardReadUseCase {
         private final int views;
         private final List<CommentsReadUseCase.FindCommentResult> commentList;
 
-        public static FindBoardResult findByBoard(Board board) {
-            return FindBoardResult.builder()
-                    .board_id(board.getBoard_id())
-                    .title(board.getTitle())
-                    .b_writer(board.getContent())
-                    .b_date(board.getB_date())
+        public static FindOneBoardResult findByOneBoard(HashMap<String, Object> b,
+                                                        List<CommentsReadUseCase.FindCommentResult> comments) {
+            boolean click = b.get("res") != null;
+            return FindOneBoardResult.builder()
+                    .board_id((Integer) b.get("board_id"))
+                    .title((String) b.get("title"))
+                    .content((String) b.get("content"))
+                    .email((String) b.get("email"))
+                    .b_writer((String) b.get("name"))
+                    .b_date((LocalDateTime) b.get("b_date"))
+                    .likes(Integer.parseInt(b.get("likes").toString()))
+                    .click_likes(click)
+                    .views(Integer.parseInt(b.get("views").toString()))
+                    .commentList(comments)
                     .build();
         }
-    }
-
-    @Getter
-    @ToString
-    @Builder
-    class FindMapperOneBoardResult {
-        // Board Info
-        private final int board_id;
-        private final String title;
-        private final String content;
-        private final String user_id;
-        private final LocalDateTime b_date;
-        private final int likes;
-
     }
 }
 
