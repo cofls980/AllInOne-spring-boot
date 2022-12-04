@@ -126,20 +126,24 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         List<String> bytes = new ArrayList<>();
         double total_rating = 0.0;
 
-        for (HashMap<String, Object> h : list) {
-            String[] photo = h.get("photo").toString().split("/");
-            for (String p : photo) {
-                String file = "cafe-map/" + cafe_id + "/" + h.get("user_id").toString() + "/" + p;
-                S3Object object = amazonS3Client.getObject(new GetObjectRequest(S3Bucket, file));
+        if (list.get(0).get("review_id") != null) {
+            for (HashMap<String, Object> h : list) {
+                if (h.get("photo") != null) {
+                    String[] photo = h.get("photo").toString().split("/");
+                    for (String p : photo) {
+                        String file = "cafe-map/" + cafe_id + "/" + h.get("user_id").toString() + "/" + p;
+                        S3Object object = amazonS3Client.getObject(new GetObjectRequest(S3Bucket, file));
 
-                S3ObjectInputStream objectInputStream = object.getObjectContent();
-                bytes.add(Base64.getEncoder().encodeToString(IOUtils.toByteArray(objectInputStream)));
+                        S3ObjectInputStream objectInputStream = object.getObjectContent();
+                        bytes.add(Base64.getEncoder().encodeToString(IOUtils.toByteArray(objectInputStream)));
+                    }
+                }
+                total_rating += Double.parseDouble(h.get("star_rating").toString());
+                String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
+                result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
             }
-            total_rating += Double.parseDouble(h.get("star_rating").toString());
-            String user_name = authMapperRepository.getUserNameByUUID(h.get("user_id").toString());
-            result.add(FindCafeMapReviewListResult.findByCafeReview(h, user_name));
+            total_rating /= list.size();
         }
-        total_rating /= list.size();
         HashMap<String, Object> info = list.get(0);
         if (!info.get("floor_info").toString().isEmpty()) {
             String floor_info = "";
