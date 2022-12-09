@@ -125,7 +125,7 @@ public class AuthController {
         logger.info("내 친구 리스트 보기");
 
         var result = authReadUseCase.getMyFriendList();
-        if (result == null) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 

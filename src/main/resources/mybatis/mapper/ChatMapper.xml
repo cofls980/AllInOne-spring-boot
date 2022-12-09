@@ -9,16 +9,20 @@
         select exists (select * from channel where ch_title = #{ch_title}) as success
     </select>
 
-    <select id="isExistedChannel" resultType="boolean">
-        select exists (select * from channel where channel_id = #{channel_id}) as success
+    <select id="notExistedChannel" resultType="boolean">
+        select not exists (select * from channel where channel_id = #{channel_id}) as success
     </select>
 
     <select id="getChannelList" resultType="map">
         select * from channel
-    </select>
-
-    <select id="searchChannelListWithTitle" resultType="map">
-        select * from channel where ch_title like CONCAT('%',#{ch_title},'%')
+        <foreach collection="list" index="index" item="item">
+            <if test="index == 0">
+                where ch_title like CONCAT('%',#{item},'%')
+            </if>
+            <if test="index != 0">
+                or ch_title like CONCAT('%',#{item},'%')
+            </if>
+        </foreach>
     </select>
 
     <select id="findChannelInfo" resultType="ChannelEntity">

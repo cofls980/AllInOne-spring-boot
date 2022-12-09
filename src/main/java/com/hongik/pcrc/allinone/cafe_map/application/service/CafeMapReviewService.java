@@ -200,7 +200,7 @@ public class CafeMapReviewService implements CafeMapReviewOperationUseCase, Cafe
         if (!cafeReviewMapperRepository.isCorrectReview(command.getReview_id(), command.getCafe_id(), user_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
-        // 선택한 3가지 알아내서 그에 해당하는 값들 -1씩 하기?
+        // 선택한 3가지 알아내서 그에 해당하는 값들 -1씩 하기?x
 
         cafeReviewMapperRepository.deleteReview(command.getReview_id());
     }

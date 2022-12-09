@@ -56,7 +56,7 @@ public class ChatController {
 
         ChatReadUseCase.ChannelFindQuery command = new ChatReadUseCase.ChannelFindQuery(searchEnum, title);
         var result = chatReadUseCase.searchChannel(command);
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -82,7 +82,7 @@ public class ChatController {
 
         var result =  chatReadUseCase.enterChannel(channel_id);
 
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -97,7 +97,7 @@ public class ChatController {
 
         var result = chatMapperRepository.getUsersInChannel(channel_id);
 
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.INTERNAL_SERVER_ERROR);
         }
 
@@ -111,7 +111,7 @@ public class ChatController {
         logger.info("내가 등록한 채널 목록");
 
         var result = chatReadUseCase.getMyChannels();
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -136,7 +136,7 @@ public class ChatController {
         logger.info("채팅방에 초대할 수 있는 친구 리스트");
 
         var result = chatReadUseCase.getMyFriendsListInChannel(channel_id);
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -176,7 +176,7 @@ public class ChatController {
         ChatReadUseCase.ContentFindQuery command = new ChatReadUseCase.ContentFindQuery(channel_id, content);
         var result =  chatReadUseCase.findContentInChannel(command);
 
-        if (result.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 

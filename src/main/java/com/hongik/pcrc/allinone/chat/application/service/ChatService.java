@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
@@ -50,11 +47,12 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
     public List<FindChannelResult> searchChannel(ChannelFindQuery command) {
 
         List<HashMap<String, Object>> list;
-        if (command.getSearchEnum() == SearchEnum.NOTHING) {
-            list =  chatMapperRepository.getChannelList();
-        } else {
-            list = chatMapperRepository.searchChannelListWithTitle(command.getTitle());
+        ArrayList<String> strs = new ArrayList<>();
+        if (command.getSearchEnum() == SearchEnum.TITLE) {
+            Collections.addAll(strs, command.getTitle().split(" "));
         }
+
+        list =  chatMapperRepository.getChannelList(strs);
         List<FindChannelResult> result = new ArrayList<>();
         for (HashMap<String, Object> h : list) {
             result.add(FindChannelResult.builder()
@@ -99,7 +97,7 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
         String email = getUserEmail();
 
         //is channel existed
-        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+        if (chatMapperRepository.notExistedChannel(channel_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -179,7 +177,7 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
     public List<ChatReadUseCase.FindMyFriendResult> getMyFriendsListInChannel(int channel_id) {
 
         //is channel existed
-        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+        if (chatMapperRepository.notExistedChannel(channel_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -209,7 +207,7 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
 
     public void inviteMyFriend(InviteCommand command) {
         // channel_id가 있는지 확인 후 친구 초대
-        if (!chatMapperRepository.isExistedChannel(command.getChannel_id())) {
+        if (chatMapperRepository.notExistedChannel(command.getChannel_id())) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
         if (chatMapperRepository.isExistedUser(command.getChannel_id(), command.getUser_email())) {

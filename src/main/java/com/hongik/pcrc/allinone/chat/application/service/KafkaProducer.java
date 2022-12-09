@@ -42,7 +42,7 @@ public class KafkaProducer {
 
     public void sendMessage(int channel_id, String content) {
 
-        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+        if (chatMapperRepository.notExistedChannel(channel_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -65,7 +65,7 @@ public class KafkaProducer {
 
     public void uploadImages(int channel_id, MultipartFile image) throws IOException {
 
-        if (!chatMapperRepository.isExistedChannel(channel_id)) {
+        if (chatMapperRepository.notExistedChannel(channel_id)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 

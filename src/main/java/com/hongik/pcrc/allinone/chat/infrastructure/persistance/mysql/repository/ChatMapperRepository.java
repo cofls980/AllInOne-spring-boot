@@ -6,6 +6,7 @@ import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.entity.Cha
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,9 +15,8 @@ public interface ChatMapperRepository {
 
     // channel table
     boolean isExistedTitle(@Param("ch_title") String ch_title);
-    boolean isExistedChannel(@Param("channel_id") int channel_id);
-    List<HashMap<String, Object>> getChannelList();
-    List<HashMap<String, Object>> searchChannelListWithTitle(@Param("ch_title") String ch_title);
+    boolean notExistedChannel(@Param("channel_id") int channel_id);
+    List<HashMap<String, Object>> getChannelList(@Param("list") ArrayList<String> list);
     ChannelEntity findChannelInfo(@Param("channel_id") int channel_id);
     int getChannelIdByTitle(@Param("ch_title") String ch_title);
 
