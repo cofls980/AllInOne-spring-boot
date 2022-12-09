@@ -36,32 +36,34 @@ public class BoardController {
 
     @GetMapping(value = "", produces = "application/json")
     @ApiOperation(value = "게시판 목록")
-    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "writer", required = false) String writer,
+    public ResponseEntity<ApiResponseView<List<BoardReadUseCase.FindBoardResult>>> boardsList(@RequestParam(value = "all", required = false) String all,
                                                                                               @RequestParam(value = "title", required = false) String title,
-                                                                                              @RequestParam(value = "all", required = false) String all,
+                                                                                              @RequestParam(value = "writer", required = false) String writer,
                                                                                               HttpServletResponse response) {
 
         SearchEnum se;
 
-        if ((writer == null || writer.isEmpty()) && (title == null || title.isEmpty()) && (all == null || all.isEmpty())) {
-            logger.info("게시판 목록");
+
+        if ((all == null || all.isEmpty()) && (title == null || title.isEmpty()) && (writer == null || writer.isEmpty())) {
+            logger.info("게시판 전체 목록");
             se = SearchEnum.NOTHING;
-        } else if ((writer == null || writer.isEmpty()) && (all == null || all.isEmpty())) {
+        } else if (!(all == null || all.isEmpty()) && (title == null || title.isEmpty()) && (writer == null || writer.isEmpty())) {
+            logger.info("게시글 제목&작성자 검색");
+            se = SearchEnum.ALL;
+        } else if ((all == null || all.isEmpty()) && !(title == null || title.isEmpty()) && (writer == null || writer.isEmpty())) {
             logger.info("게시글 제목 검색");
             se = SearchEnum.TITLE;
-        } else if ((title == null || title.isEmpty()) && (all == null || all.isEmpty())) {
+        } else if ((all == null || all.isEmpty()) && (title == null || title.isEmpty()) && !(writer == null || writer.isEmpty())){
             logger.info("게시글 작성자 검색");
             se = SearchEnum.WRITER;
-        } else if ((writer == null || writer.isEmpty()) && (title == null || title.isEmpty())){
-            logger.info("게시글 전체 검색");
-            se = SearchEnum.ALL;
         } else {
             throw new AllInOneException(MessageType.BAD_REQUEST);
         }
 
-        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(se, writer, title, all);
+        String[] query_info = {all, title, writer};
+        List<BoardReadUseCase.FindBoardResult> result = boardReadUseCase.getBoardList(se, query_info);
 
-        if (result == null) {
+        if (result == null || result.isEmpty()) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
 
@@ -152,5 +154,4 @@ public class BoardController {
 
         return ResponseEntity.ok(new ApiResponseView<>(new SuccessView("true")));
     }
-
 }

@@ -4,6 +4,7 @@ import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
+import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.chat.application.service.ChatService;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
@@ -23,14 +24,18 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     private final PasswordEncoder passwordEncoder;
     private final AuthMapperRepository authMapperRepository;
     private final ChatMapperRepository chatMapperRepository;
+    private final CafeMapMapperRepository cafeMapMapperRepository;
     private final ChatService chatService;
 
     @Autowired
-    public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder, AuthMapperRepository authMapperRepository, ChatMapperRepository chatMapperRepository, ChatService chatService) {
+    public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder,
+                       AuthMapperRepository authMapperRepository, ChatMapperRepository chatMapperRepository,
+                       CafeMapMapperRepository cafeMapMapperRepository, ChatService chatService) {
         this.authRepository = authRepository;
         this.passwordEncoder = passwordEncoder;
         this.authMapperRepository = authMapperRepository;
         this.chatMapperRepository = chatMapperRepository;
+        this.cafeMapMapperRepository = cafeMapMapperRepository;
         this.chatService = chatService;
     }
 
@@ -77,6 +82,7 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     public void deleteAuth() {
 
         String email = getUserEmail();
+        String user_id = authMapperRepository.getUUIDByEmail(email);
 
         if (!authMapperRepository.existsByEmail(email)) {
             throw new AllInOneException(MessageType.NOT_FOUND);
@@ -89,6 +95,9 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
         }
         //대화 기록 수정
         chatMapperRepository.changeUserRecordsNon(email);
+
+        //-------------cafe-map-scrap-------------//
+        cafeMapMapperRepository.deleteAllUserScrap(user_id);
 
         authMapperRepository.deleteByEmail(email);
     }
