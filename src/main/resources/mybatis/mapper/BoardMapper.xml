@@ -56,7 +56,7 @@
 
     <!--  Check  -->
     <select id="notExistedPostWithWriter" resultType="boolean">
-        select not exists (select * from boards where board_id = #{board_id} and user_id #{user_id}) as success
+        select not exists (select * from boards where board_id = #{board_id} and user_id = #{user_id}) as success
     </select>
 
     <select id="notExistedPost" resultType="boolean">

@@ -116,6 +116,12 @@ public class BoardService implements BoardReadUseCase, BoardOperationUseCase {
         String email = getUserEmail();
         String user_id = authMapperRepository.getUUIDByEmail(email);
 
+        System.out.println(email);
+        if (email != null && !likesViewsMapperRepository.checkView(user_id, board_id)) {
+            System.out.println("INSIDE=================");
+            likesViewsMapperRepository.createView(user_id, board_id);
+        }
+
         HashMap<String, Object> result = boardMapperRepository.getOnePost(board_id, user_id);
 
         return FindOneBoardResult.findByOneBoard(result, commentsReadUseCase.getCommentList(board_id));
