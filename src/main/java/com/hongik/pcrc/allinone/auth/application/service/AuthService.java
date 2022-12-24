@@ -1,20 +1,28 @@
 package com.hongik.pcrc.allinone.auth.application.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.hongik.pcrc.allinone.auth.application.domain.Auth;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.entity.AuthEntity;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthEntityRepository;
 import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.AuthMapperRepository;
+import com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.MyPageMapperRepository;
 import com.hongik.pcrc.allinone.cafe_map.infrastructure.persistance.mysql.repository.CafeMapMapperRepository;
 import com.hongik.pcrc.allinone.chat.application.service.ChatService;
 import com.hongik.pcrc.allinone.chat.infrastructure.persistance.mysql.repository.ChatMapperRepository;
 import com.hongik.pcrc.allinone.exception.AllInOneException;
 import com.hongik.pcrc.allinone.exception.MessageType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -25,18 +33,24 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     private final AuthMapperRepository authMapperRepository;
     private final ChatMapperRepository chatMapperRepository;
     private final CafeMapMapperRepository cafeMapMapperRepository;
+    private final MyPageMapperRepository myPageMapperRepository;
     private final ChatService chatService;
+    private final AmazonS3Client amazonS3Client;
+    @Value("${cloud.aws.bucket.name}")
+    private String S3Bucket;
 
     @Autowired
     public AuthService(AuthEntityRepository authRepository, PasswordEncoder passwordEncoder,
                        AuthMapperRepository authMapperRepository, ChatMapperRepository chatMapperRepository,
-                       CafeMapMapperRepository cafeMapMapperRepository, ChatService chatService) {
+                       CafeMapMapperRepository cafeMapMapperRepository, MyPageMapperRepository myPageMapperRepository, ChatService chatService, AmazonS3Client amazonS3Client) {
         this.authRepository = authRepository;
         this.passwordEncoder = passwordEncoder;
         this.authMapperRepository = authMapperRepository;
         this.chatMapperRepository = chatMapperRepository;
         this.cafeMapMapperRepository = cafeMapMapperRepository;
+        this.myPageMapperRepository = myPageMapperRepository;
         this.chatService = chatService;
+        this.amazonS3Client = amazonS3Client;
     }
 
     @Override
@@ -103,14 +117,24 @@ public class AuthService implements AuthOperationUseCase, AuthReadUseCase {
     }
 
     @Override
-    public FindAuthResult getAuth(AuthFindQuery query) { // login
+    public FindAuthResult getAuth(AuthFindQuery query) throws IOException { // login
 
         var auth = authRepository.findByEmail(query.getEmail());
 
         if (auth.isEmpty() || !passwordEncoder.matches(query.getPassword(), auth.get().getPassword())) {
             throw new AllInOneException(MessageType.NOT_FOUND);
         }
-        return FindAuthResult.findByAuth(auth.get().toAuth());
+
+        String profile = myPageMapperRepository.getProfilePath(auth.get().getId().toString());
+        if (profile == null) {
+            profile = "mypage/default.jpg";
+            myPageMapperRepository.createDefaultProfile(auth.get().getId().toString(), profile);
+        }
+        S3Object object = amazonS3Client.getObject(new GetObjectRequest(S3Bucket, profile));
+        S3ObjectInputStream objectInputStream = object.getObjectContent();
+        String bytes = Base64.getEncoder().encodeToString(IOUtils.toByteArray(objectInputStream));
+
+        return FindAuthResult.findByAuth(auth.get().toAuth(), bytes);
     }
 
     @Override

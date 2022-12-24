@@ -10,5 +10,6 @@
         <mapper resource="ChatMapper.xml"/>
         <mapper resource="CafeMapMapper.xml"/>
         <mapper resource="CafeReviewMapper.xml"/>
+        <mapper resource="MyPageMapper.xml"/>
     </mappers>
 </configuration>
