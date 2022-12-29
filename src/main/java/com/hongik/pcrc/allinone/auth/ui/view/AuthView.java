@@ -19,6 +19,7 @@ public class AuthView {
     private final String phoneNumber;
     private final String accessToken;
     private final String refreshToken;
+    private final String profile;
 
     public AuthView(AuthReadUseCase.FindAuthResult result, String accessToken, String refreshToken) {
         this.email = result.getEmail();
@@ -28,5 +29,6 @@ public class AuthView {
         this.phoneNumber = result.getPhone_number();
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+        this.profile = result.getProfile();
     }
 }

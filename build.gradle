@@ -22,14 +22,14 @@ repositories {
 }
 
 bootJar {
-	archivesBaseName = 'withSimpleKafka'
-	archiveFileName = 'withSimpleKafka.jar'
+	archivesBaseName = 'allinone'
+	archiveFileName = 'allinone.jar'
 	archiveVersion = "0.0.0"
 }
 
 bootWar {
-	archivesBaseName = 'withSimpleKafka'
-	archiveFileName = 'withSimpleKafka.war'
+	archivesBaseName = 'allinone'
+	archiveFileName = 'allinone.war'
 	archiveVersion = "0.0.0"
 }
 

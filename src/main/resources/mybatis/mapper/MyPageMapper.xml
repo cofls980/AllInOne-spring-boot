@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hongik.pcrc.allinone.auth.infrastructure.persistance.mysql.repository.MyPageMapperRepository">
+
+    <!-- mypage table -->
+    <update id="updateProfile">
+        update user_mypage set profile_path = #{profile_path} where user_id = #{user_id}
+    </update>
+
+    <insert id="createDefaultProfile">
+        insert into user_mypage(user_id, profile_path) value (#{user_id}, #{profile_path})
+    </insert>
+
+    <select id="getProfilePath" resultType="String">
+        select profile_path from user_mypage where user_id = #{user_id}
+    </select>
+
+</mapper>
