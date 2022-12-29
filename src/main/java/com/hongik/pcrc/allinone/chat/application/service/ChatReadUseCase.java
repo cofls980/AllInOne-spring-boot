@@ -68,6 +68,7 @@ public interface ChatReadUseCase {
     class FindChatListResult {
         private final int chat_id;
         private final int channel_id;
+        private final String ch_title;
         private final String user_email;
         private final String user_name;
         private final String fileName;
