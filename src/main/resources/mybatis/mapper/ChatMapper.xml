@@ -51,7 +51,8 @@
 
     <!--chat table-->
     <select id="getRecordsInChannel" resultType="map">
-        select * from chat where channel_id = #{channel_id}
+        select * from chat as c left join channel as ch on c.channel_id = ch.channel_id where c.channel_id = #{channel_id}
+<!--        select * from chat where channel_id = #{channel_id}-->
     </select>
 
     <select id="findContentInChannel" resultType="map">

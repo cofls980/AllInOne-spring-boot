@@ -128,6 +128,7 @@ public class ChatService implements ChatOperationUseCase, ChatReadUseCase {
             result.add(FindChatListResult.builder()
                     .chat_id(Integer.parseInt(h.get("chat_id").toString()))
                     .channel_id(Integer.parseInt(h.get("channel_id").toString()))
+                    .ch_title(h.get("ch_title").toString())
                     .user_email(h.get("user_email").toString())
                     .user_name(h.get("user_name").toString())
                     .content(content)

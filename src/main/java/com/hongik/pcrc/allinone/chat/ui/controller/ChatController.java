@@ -82,9 +82,9 @@ public class ChatController {
 
         var result =  chatReadUseCase.enterChannel(channel_id);
 
-        if (result == null || result.isEmpty()) {
-            throw new AllInOneException(MessageType.NOT_FOUND);
-        }
+//        if (result == null || result.isEmpty()) {
+//            throw new AllInOneException(MessageType.NOT_FOUND);
+//        }
 
         return ResponseEntity.ok(new ApiResponseView<>(new ChatRecordsView(result)));
     }
