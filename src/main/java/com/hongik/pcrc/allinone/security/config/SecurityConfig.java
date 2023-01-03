@@ -54,6 +54,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         String[] chat = {v + "/chat"}; //GET
         String[] cafe_map = {v + "/cafe-map/{cafe_id}/evaluate", v + "/cafe-map/search",
                             v + "/cafe-map/region", v + "/cafe-map/category"}; //GET
+        String[] main_page = {v + "/main/**/*"}; //GET
         String[] uri = {v + "/users/signup", v + "/users/login", "/api/*", "/v3/api-docs",
                 v + "/email/*", v + "/email", v + "/security/reissue", "/swagger*/**",
                 "/chat/**/*", "/chat"
@@ -69,6 +70,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                     .antMatchers(HttpMethod.GET, boards).permitAll()
                     .antMatchers(HttpMethod.GET, chat).permitAll()
                     .antMatchers(HttpMethod.GET, cafe_map).permitAll()
+                    .antMatchers(HttpMethod.GET, main_page).permitAll()
                     .antMatchers(uri).permitAll()
                     .anyRequest().authenticated()
                 .and()
