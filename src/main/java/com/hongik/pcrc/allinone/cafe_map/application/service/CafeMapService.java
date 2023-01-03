@@ -60,7 +60,8 @@ public class CafeMapService implements CafeMapOperationUseCase, CafeMapReadUseCa
                 floor_info += (floor + "층");
                 h.put("floor_info", floor_info);
             }
-            result.add(FindCafeSearchResult.findByCafeSearchResult(h, Double.valueOf(h.get("total_rating").toString()), AboutCategory.getTop3(h)));
+            h.putIfAbsent("total_rating", "0.0");
+            result.add(FindCafeSearchResult.findByCafeSearchResult(h, AboutCategory.getTop3(h)));
         }
         return result;
     }
